@@ -12,7 +12,7 @@ filetype plugin on
 "" NERDTree
 let g:NERDTreeWinSize=40
 
-"" ----INTERNAL----
+"" ----SETTINGS----
 
 "" Map Leader
 let mapleader=','
@@ -37,12 +37,6 @@ set shiftwidth=4
 set softtabstop=4
 set tabstop=4
 
-"" Windows
-map <leader>w- <C-W>- 
-map <leader>w+ <C-W>+ 
-map <leader>w[ <C-W>= 
-map <leader>w] <C-W>_ 
-
 "" Search Taming
 nnoremap / /\v
 vnoremap / /\v
@@ -54,16 +48,14 @@ set showmatch
 set hlsearch
 nnoremap <leader><space> :noh<cr>
 
-"" Disablements
-set modelines=0
-set nocompatible
-
 "" General Specialty Stuff
 au FocusLost * :wa
 set cursorline
 set encoding=utf-8
 set hidden
 set laststatus=2
+set modelines=0
+set nocompatible
 set ruler
 set scrolloff=3
 set showmode
@@ -74,18 +66,42 @@ set visualbell
 set wildmenu
 set wildmode=list:longest
 
-"" Center lines when jumping
-nnoremap gg ggz.
+"" ----MAPPINGS----
 
-"" Movement hax
+"" Insert new lines
+map <Enter> o<ESC>
+map <S-Enter> O<ESC>
+
+"" Jump real lines, not virtual 
 nnoremap j gj 
 nnoremap k gk
 xnoremap j gj
 xnoremap k gk
+
+"" Fast jumping
 nmap J 5j 
 nmap K 5k
 xmap J 5j
 xmap K 5k
+
+"" Bracket jumping
+nnoremap <tab> %
+vnoremap <tab> %
+
+"" Center lines when jumping
+nnoremap gg ggz.
+
+"" Splits, easier 
+map <leader>w- <C-W>- 
+map <leader>w+ <C-W>+ 
+map <leader>w[ <C-W>= 
+map <leader>w] <C-W>_ 
+
+"" Move between splits
+nmap gh <C-w>h
+nmap gj <C-w>j
+nmap gk <C-w>k
+nmap gl <C-w>l
 
 "" Force HJKL
 nnoremap <up> <nop>
