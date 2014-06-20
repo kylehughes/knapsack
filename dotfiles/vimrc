@@ -71,6 +71,9 @@ set visualbell
 set wildmenu
 set wildmode=list:longest
 
+"" Disable auto-commenting lines
+autocmd FileType * setlocal formatoptions-=c formatoptions-=r formatoptions-=o
+
 "" ----MAPPINGS----
 
 "" Insert new lines
