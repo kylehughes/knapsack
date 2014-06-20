@@ -1,8 +1,18 @@
+#######
+# Paths
+#######
+
 # Prevents duplicate PATH entries
 # zsh only, so it's set prior to sourcing anything that might set PATH
 typeset -U PATH 
 
+# Source profile for machine-specific things (like private aliases)
 source $HOME/.profile
+
+# Include user's private bin in PATH if it exists
+if [ -d "$HOME/bin" ] ; then
+    PATH="$HOME/bin:$PATH"
+fi
 
 #########
 # History
