@@ -22,6 +22,15 @@ setopt PROMPT_SUBST
 ########
 autoload -U colors && colors
 
+###################
+# Aliases (general)
+###################
+
+# vim for OS X
+if [ -r '/Applications/MacVim.app/Contents/MacOS/Vim' ]; then
+    alias vim='/Applications/MacVim.app/Contents/MacOS/Vim'
+fi
+
 #################
 # Autocompletions
 #################
