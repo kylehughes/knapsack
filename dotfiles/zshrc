@@ -47,6 +47,8 @@ fi
 autoload -Uz compinit
 compinit
 
+setopt COMPLETE_IN_WORD # Tab completion in middle of word
+
 zstyle ':completion:*' auto-description 'specify: %d'
 zstyle ':completion:*' completer _expand _complete _ignored _correct _approximate
 zstyle ':completion:*' completions 1
