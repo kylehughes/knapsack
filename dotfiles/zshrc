@@ -14,6 +14,13 @@ if [ -d "$HOME/bin" ] ; then
     PATH="$HOME/bin:$PATH"
 fi
 
+#######################
+# Environment Variables
+#######################
+export GIT_EDITOR=vim
+export VISUAL=vim
+export EDITOR=vim
+
 #########
 # History
 #########
