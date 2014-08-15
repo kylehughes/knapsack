@@ -65,6 +65,7 @@ set ruler
 set scrolloff=3
 set showmode
 set showcmd
+set splitright
 set ttyfast
 set undofile
 set visualbell
