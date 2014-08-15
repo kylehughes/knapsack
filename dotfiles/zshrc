@@ -1,0 +1,102 @@
+#######
+# Paths
+#######
+
+# Prevents duplicate PATH entries
+# zsh only, so it's set prior to sourcing anything that might set PATH
+typeset -U PATH 
+
+# Source profile for machine-specific things (like private aliases)
+source $HOME/.profile
+
+# Include user's private bin in PATH if it exists
+if [ -d "$HOME/bin" ] ; then
+    PATH="$HOME/bin:$PATH"
+fi
+
+#######################
+# Environment Variables
+#######################
+export GIT_EDITOR=vim
+export VISUAL=vim
+export EDITOR=vim
+
+#########
+# History
+#########
+HISTFILE=$HOME/.zsh_history
+setopt APPEND_HISTORY
+HISTSIZE=1200
+SAVEHIST=1000
+setopt HIST_EXPIRE_DUPS_FIRST
+setopt HIST_IGNORE_DUPS
+setopt EXTENDED_HISTORY
+setopt HIST_IGNORE_SPACE
+setopt PROMPT_SUBST
+
+########
+# Colors
+########
+autoload -U colors && colors
+
+###################
+# Aliases (general)
+###################
+
+# vim for OS X
+if [ -r '/Applications/MacVim.app/Contents/MacOS/Vim' ]; then
+    alias vim='/Applications/MacVim.app/Contents/MacOS/Vim'
+fi
+
+#################
+# Autocompletions
+#################
+autoload -Uz compinit
+compinit
+
+setopt COMPLETE_IN_WORD # Tab completion in middle of word
+
+zstyle ':completion:*' auto-description 'specify: %d'
+zstyle ':completion:*' completer _expand _complete _ignored _correct _approximate
+zstyle ':completion:*' completions 1
+zstyle ':completion:*' expand prefix suffix
+zstyle ':completion:*' file-sort modification
+zstyle ':completion:*' format '%F{blue}Completing %d%f'
+zstyle ':completion:*' glob 1
+zstyle ':completion:*' group-name ''
+zstyle ':completion:*' ignore-parents parent ..
+zstyle ':completion:*' insert-unambiguous true
+zstyle ':completion:*' list-colors ''
+zstyle ':completion:*' list-suffixes true
+zstyle ':completion:*' matcher-list '+' '+m:{[:lower:]}={[:upper:]}' '+r:|[._-]=** r:|=**' '+'
+zstyle ':completion:*' max-errors 3
+zstyle ':completion:*' menu select=0
+zstyle ':completion:*' original false
+zstyle ':completion:*' prompt 'Corrections (%e):'
+zstyle ':completion:*' select-prompt %SScrolling active: current selection at %p%s
+zstyle ':completion:*' squeeze-slashes true
+zstyle ':completion:*' substitute 1
+zstyle ':completion:*' verbose true
+
+h=()
+if [[ -r ~/.ssh/config ]]; then
+    h=($h ${${${(@M)${(f)"$(cat ~/.ssh/config)"}:#Host *}#Host }:#*[*?]*})
+fi
+if [[ $#h -gt 0 ]]; then
+    zstyle ':completion:*:ssh:*' hosts $h
+    zstyle ':completion:*:slogin:*' hosts $h
+fi
+
+###############
+# Colorful `ls`
+###############
+if [ $(uname) = "Linux" ]; then
+    # Linux
+    alias ls='ls -F --color=auto'
+    export LS_COLORS='di=33:fi=0:ln=35:pi=34:so=36:bd=32;47:cd=32:or=37:mi=0:ex=31'
+else
+    # OS X
+    alias ls='ls -FG'
+    export LSCOLORS=dxfxgxexbxchcxBxBxdhDh
+    export CLICOLOR=1
+fi
