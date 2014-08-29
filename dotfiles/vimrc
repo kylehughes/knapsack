@@ -23,7 +23,7 @@ let g:NERDTreeWinSize=40
 let mapleader=','
 
 "" Aesthetics
-colorscheme Tomorrow-Night
+colorscheme base16-default
 set lbr
 set number
 syntax on
