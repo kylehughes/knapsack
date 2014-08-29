@@ -1,3 +1,6 @@
+# Source local profile
+. profile.fish
+
 ############
 # Appearance
 ############

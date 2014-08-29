@@ -55,7 +55,6 @@ nnoremap <leader><space> :noh<cr>
 
 "" General Specialty Stuff
 au FocusLost * :wa
-set cursorline
 set encoding=utf-8
 set hidden
 set laststatus=2
