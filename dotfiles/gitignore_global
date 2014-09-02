@@ -10,8 +10,11 @@ ehthumbs.db
 Thumbs.db
 
 #############################
-# Application Generated Files
+# Application-Generated Files
 #############################
+
+# IntelliJ
+*.iml
 
 # Vim
 *.un~
