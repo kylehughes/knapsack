@@ -6,4 +6,4 @@
 ############
 
 # Color scheme: Base16 Default Dark
-eval sh base16-default-dark.sh
+eval sh ~/.config/fish/colors/base16-default-dark.sh

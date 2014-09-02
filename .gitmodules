@@ -10,3 +10,9 @@
 [submodule "dotfiles/vim/bundle/nerdtree"]
 	path = dotfiles/vim/bundle/nerdtree
 	url = https://github.com/scrooloose/nerdtree.git
+[submodule "dotfiles/vim/bundle/vim-pathogen-tomorrow-theme"]
+	path = dotfiles/vim/bundle/vim-pathogen-tomorrow-theme
+	url = https://github.com/coryf/vim-pathogen-tomorrow-theme.git
+[submodule "dotfiles/vim/bundle/vim-colors-solarized"]
+	path = dotfiles/vim/bundle/vim-colors-solarized
+	url = https://github.com/altercation/vim-colors-solarized.git
