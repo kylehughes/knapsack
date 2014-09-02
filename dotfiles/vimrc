@@ -3,6 +3,8 @@
 
 "" ----PLUGINS----
 
+"" Pathogen (Intializer)
+source ~/.vim/bundle/vim-pathogen/autoload/pathogen.vim
 execute pathogen#infect()
 
 "" Filetype
@@ -24,6 +26,7 @@ let mapleader=','
 
 "" Aesthetics
 colorscheme base16-default
+set background=dark
 set lbr
 set number
 syntax on
