@@ -1,5 +1,5 @@
 # Source local profile
-. profile.fish
+. ~/.config/fish/profile.fish
 
 ############
 # Appearance
