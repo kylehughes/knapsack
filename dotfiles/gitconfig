@@ -1,6 +1,6 @@
 [user]
 	name = Kyle Hughes
-	email = kyle@codemonkeyupstairs.com
+	email = me@kylehugh.es
 [core]
 	excludesfile = /Users/kyle/.gitignore_global
 [difftool "sourcetree"]
