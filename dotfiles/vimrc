@@ -25,7 +25,7 @@ let g:NERDTreeWinSize=40
 let mapleader=','
 
 "" Aesthetics
-colorscheme Tomorrow-Night
+colorscheme base16-default
 set cursorline
 set lbr
 set number

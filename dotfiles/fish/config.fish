@@ -6,4 +6,4 @@
 ############
 
 # Color scheme: Solarized
-. $HOME/.config/fish/colors/solarized.fish
+eval sh $HOME/.config/fish/colors/base16-default.dark.sh
