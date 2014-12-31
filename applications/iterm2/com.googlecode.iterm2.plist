@@ -1303,7 +1303,7 @@
 	<key>NSWindow Frame Preferences</key>
 	<string>302 267 924 485 0 0 1280 778 </string>
 	<key>NSWindow Frame iTerm Window 0</key>
-	<string>0 19 1210 558 0 0 1280 778 </string>
+	<string>0 36 1210 558 0 0 1280 777 </string>
 	<key>NSWindow Frame iTerm Window 1</key>
 	<string>369 -73 1210 558 0 0 1280 778 </string>
 	<key>NeverWarnAboutShortLivedSessions_9370D202-0980-4037-9B1A-3216CDE12EF0</key>
@@ -2818,6 +2818,8 @@
 	<integer>8</integer>
 	<key>RightOption</key>
 	<integer>3</integer>
+	<key>SUAutomaticallyUpdate</key>
+	<true/>
 	<key>SUEnableAutomaticChecks</key>
 	<true/>
 	<key>SUFeedURL</key>
@@ -2825,7 +2827,7 @@
 	<key>SUHasLaunchedBefore</key>
 	<true/>
 	<key>SULastCheckTime</key>
-	<date>2014-09-25T20:27:17Z</date>
+	<date>2014-12-04T18:01:39Z</date>
 	<key>SavePasteHistory</key>
 	<false/>
 	<key>ShowBookmarkName</key>
@@ -2858,6 +2860,10 @@
 	<true/>
 	<key>UseLionStyleFullscreen</key>
 	<true/>
+	<key>WebKitDefaultFontSize</key>
+	<integer>11</integer>
+	<key>WebKitStandardFont</key>
+	<string>.Helvetica Neue DeskInterface</string>
 	<key>WindowNumber</key>
 	<true/>
 	<key>WindowStyle</key>
