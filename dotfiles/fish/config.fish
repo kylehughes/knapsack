@@ -13,4 +13,4 @@
 eval sh $HOME/.config/fish/colors/base16_ocean.dark.sh
 
 # Colorize maven output
-alias mvn="$HOME/.config/fish/scripts/maven-antsy-color/mvn"
+eval sh $HOME/.config/fish/scripts/maven-antsy-color/mvn
