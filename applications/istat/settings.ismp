@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>build</key>
+	<real>585</real>
+	<key>license</key>
+	<string>9411-8974-2115-5692-8949</string>
+	<key>preferences</key>
+	<dict>
+		<key>CPU_MenubarGraphBreakdowns</key>
+		<integer>0</integer>
+		<key>CPU_MenubarGroupItems</key>
+		<integer>0</integer>
+		<key>CPU_MenubarMode</key>
+		<string>100,0</string>
+		<key>CombinedMenubarDisplayMode</key>
+		<string>1,2</string>
+		<key>Diagnostics_Enabled</key>
+		<integer>0</integer>
+		<key>Disks_DropdownShowRemovable</key>
+		<integer>1</integer>
+		<key>DropdownTheme</key>
+		<integer>0</integer>
+		<key>MenubarSkinColor</key>
+		<integer>5</integer>
+		<key>MenubarTheme</key>
+		<integer>1</integer>
+		<key>Network_MenubarMode</key>
+		<string>4,1</string>
+		<key>Sensors_MenubarMode</key>
+		<string>100</string>
+		<key>Sensors_TemperatureMode</key>
+		<integer>1</integer>
+		<key>TimerFrequency</key>
+		<integer>1</integer>
+	</dict>
+	<key>version</key>
+	<real>5.0300002098083496</real>
+</dict>
+</plist>
