@@ -12,10 +12,8 @@
 
 ## Dependencies
 
-Dependency management is done using `subtree` instead of `submodule`. The usage of that command, as well as the reasoning behind
-it, can be [found here][dependencies_subtree_explain].
-
-All dependencies are stored in `dotfiles/_/[dependency_name]`.
+Dependency management is done using `subtree` instead of `submodule`. All dependencies are stored in 
+`dotfiles/_/[dependency_name]`.
 
 The dependencies for this project are:  
 - [tmuxifier][dependencies_tmuxifier]
