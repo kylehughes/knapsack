@@ -9,3 +9,17 @@
 		git submodule update
 		
 3. Setup symlinks.
+
+## Dependencies
+
+Dependency management is done using `subtree` instead of `submodule`. The usage of that command, as well as the reasoning behind
+it, can be [found here][dependencies_subtree_explain].
+
+All dependencies are stored in `dotfiles/_/[dependency_name]`.
+
+The dependencies for this project are:  
+- [tmuxifier][dependencies_tmuxifier]
+
+
+[dependencies_subtree_explain]: http://blogs.atlassian.com/2013/05/alternatives-to-git-submodule-git-subtree/
+[dependencies_tmuxifier]: https://github.com/jimeh/tmuxifier
