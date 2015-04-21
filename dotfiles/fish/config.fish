@@ -10,5 +10,5 @@
 ###############
 
 # Color scheme: Base16 Ocean
-eval sh $HOME/.config/fish/colors/base16_ocean.dark.sh
+eval sh $HOME/.config/fish/colors/base16-ocean.dark.sh
 
