@@ -1,8 +1,13 @@
-######
-# Fish
-######
+###############
+# Fish Shell
+###############
 
 fishd.*
 fish_history
 profile.fish
 
+###############
+# Mac OS X
+###############
+
+.DS_Store
