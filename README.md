@@ -5,27 +5,23 @@
 1. Clone the repository to your home (`~/`) directory.
 2. Pull down the submodules:
 
-		git submodule init
-		git submodule update
-		
+    git submodule update --init --recursive
+				
 3. Setup symlinks.
 
-## Dependencies
+## Contents
 
-<<<<<<< HEAD
-Dependency management is done using `subtree` instead of `submodule`. All dependencies are stored in 
-`dotfiles/_/[dependency_name]`.
-=======
-Dependency management is done using `subtree` instead of `submodule`. The usage of that command, as well as the reasoning behind
-it, can be [found here][dependencies_subtree_explain].
+### Dotfiles 
 
-All dependencies are stored in `dotfiles/_/[dependency_name]`.
->>>>>>> Added `Dependencies` section to README for tmuxifier
+#### tmux
 
-The dependencies for this project are:  
-- [tmuxifier][dependencies_tmuxifier]
+- [tmuxifier][dotfiles_tmuxifier]: layout management and niceties
 
+[dotfiles_tmuxifier]: https://github.com/jimeh/tmuxifier
 
-[dependencies_subtree_explain]: http://blogs.atlassian.com/2013/05/alternatives-to-git-submodule-git-subtree/
-[dependencies_tmuxifier]: https://github.com/jimeh/tmuxifier
+### Resources
+
+#### Wallpapers
+
+The naming scheme for wallpapers is: `{title}_{width}x{height}`.
 
