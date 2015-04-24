@@ -11,7 +11,16 @@
 
 ## Contents
 
-### Dotfiles 
+### Dotfiles (.../dotfiles/) 
+
+#### git (.../git/)
+
+`gitconfig`: The global configuration file. All settings should be applicable to all git environments. This picks up the local
+configuration profile through an `include`.
+
+`gitconfig_local_template`: A minimal template for the local configuration file.
+
+`gitconfig_local`: **This file is not included in the repository, and is ignored through the local `.gitignore`**
 
 #### tmux
 
