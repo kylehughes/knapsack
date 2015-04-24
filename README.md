@@ -1,4 +1,4 @@
-# Knapsack by Kyle Hughes
+# Knapsack by/for Kyle Hughes
 
 ## Installation
 
