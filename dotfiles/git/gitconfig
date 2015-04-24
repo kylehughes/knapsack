@@ -1,0 +1,4 @@
+[include]
+    path = gitconfig_local  # local gitconfig
+[push]
+	default = simple
