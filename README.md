@@ -3,11 +3,12 @@
 ## Installation
 
 1. Clone the repository to your home (`~/`) directory.
-2. Pull down the submodules:
+2. Install all the tools manually without direction (sorry!).
+3. Pull down the submodules:
 
     git submodule update --init --recursive
 				
-3. Setup symlinks.
+4. Setup symlinks.
 
 ## Contents
 
@@ -23,6 +24,10 @@ configuration profile through an `include`.
 `gitconfig_local`: **This file is not included in the repository, and is ignored through the local `.gitignore`**
 
 #### tmux
+
+**Install:**
+
+    brew install tmux
 
 - [tmuxifier][dotfiles_tmuxifier]: layout management and niceties
 
