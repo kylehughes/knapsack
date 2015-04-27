@@ -3,7 +3,7 @@
 <plist version="1.0">
 <dict>
 	<key>build</key>
-	<real>585</real>
+	<real>601</real>
 	<key>license</key>
 	<string>9411-8974-2115-5692-8949</string>
 	<key>preferences</key>
@@ -20,6 +20,8 @@
 		<string>4,1,2,3,5,6</string>
 		<key>Diagnostics_Enabled</key>
 		<integer>0</integer>
+		<key>Disks_ActivityGraphMode</key>
+		<integer>1</integer>
 		<key>Disks_DropdownShowRemovable</key>
 		<integer>1</integer>
 		<key>DropdownTheme</key>
@@ -27,15 +29,27 @@
 		<key>Memory_IgnoreInactive</key>
 		<integer>1</integer>
 		<key>MenubarSkinColor</key>
+		<integer>2</integer>
+		<key>MenubarSkinColor-Dark</key>
+		<integer>5</integer>
+		<key>MenubarSkinColor-Light</key>
 		<integer>5</integer>
 		<key>MenubarTheme</key>
 		<integer>1</integer>
+		<key>Network_GraphCustomColors</key>
+		<integer>1</integer>
+		<key>Network_GraphDownload</key>
+		<string>1.00 0.96 0.00 1.00</string>
 		<key>Network_GraphMode</key>
-		<integer>0</integer>
+		<integer>1</integer>
+		<key>Network_GraphShowBackground</key>
+		<integer>1</integer>
+		<key>Network_GraphUpload</key>
+		<string>0.00 0.91 0.99 1.00</string>
 		<key>Network_MenubarMode</key>
 		<string>4,1</string>
 		<key>Sensors_MenubarMode</key>
-		<string>100,0</string>
+		<string>2</string>
 		<key>Sensors_MenubarTextSize</key>
 		<integer>12</integer>
 		<key>Sensors_TemperatureMode</key>
@@ -44,6 +58,6 @@
 		<integer>1</integer>
 	</dict>
 	<key>version</key>
-	<real>5.0300002098083496</real>
+	<real>5.0999999046325684</real>
 </dict>
 </plist>
