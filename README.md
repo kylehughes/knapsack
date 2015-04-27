@@ -3,12 +3,16 @@
 ## Installation
 
 1. Clone the repository to your home (`~/`) directory.
-2. Install all the tools manually without direction (sorry!).
-3. Pull down the submodules:
+1. If on OS X, install the Homebrew package manager:
+
+    ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
+
+1. Install all the tools manually without direction (sorry!).
+1. Pull down the submodules:
 
     git submodule update --init --recursive
 				
-4. Setup symlinks.
+1. Setup symlinks.
 
 ## Contents
 
