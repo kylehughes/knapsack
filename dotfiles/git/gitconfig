@@ -1,4 +1,6 @@
 [include]
-    path = gitconfig_local  # local gitconfig
+    path = ~/.gitconfig_local  # local gitconfig
+[core]
+    excludesfile = ~/.gitignore_global
 [push]
 	default = simple
