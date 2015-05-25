@@ -8,6 +8,7 @@
     ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
 
 1. Install all the tools manually without direction (sorry!).
+1. Set `$KNAPSACK` environment variable to root knapsack location for local shell.
 1. Pull down the submodules:
 
     git submodule update --init --recursive
@@ -16,20 +17,23 @@
 
 ## Contents
 
-### Dotfiles (.../dotfiles/) 
+### Dotfiles (../dotfiles/) 
 
-#### git (.../git/)
+#### fish (../fish/)
 
-`gitconfig`: The global configuration file. All settings should be applicable to all git environments. This picks up the local
-configuration profile through an `include`.
+**Install:**
+	
+	brew install fish
+
+#### git (../git/)
+
+`gitconfig`: The global configuration file. All settings should be applicable to all git environments. This picks up the local configuration profile through an `include`.
 
 `gitconfig_local_template`: A minimal template for the local configuration file.
 
-`gitconfig_local`: **This file is not included in the repository, and is ignored through the local `.gitignore`**
+`gitconfig_local`: The local configuration file (not included, ignored through the local `.gitignore`).
 
 #### tmux
-
-**Install:**
 
     brew install tmux
 
