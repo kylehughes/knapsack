@@ -11,3 +11,6 @@
 [submodule "external/oh-my-fish"]
 	path = external/oh-my-fish
 	url = git://github.com/bpinto/oh-my-fish.git
+[submodule "external/powerline-fonts"]
+	path = external/powerline-fonts
+	url = https://github.com/powerline/fonts.git

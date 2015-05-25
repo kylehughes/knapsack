@@ -1,9 +1,8 @@
+set -U KNAPSACK $HOME/knapsack
+
 ###############
 # oh-my-fish
 ###############
-
-# Source local profile
-. $HOME/.config/fish/profile.fish
 
 # Path to oh-my-fish
 set fish_path $KNAPSACK/external/oh-my-fish
@@ -12,10 +11,7 @@ set fish_path $KNAPSACK/external/oh-my-fish
 set fish_custom $KNAPSACK/dotfiles/fish/custom
 
 # Built-in Plugins (.../oh-my-fish/plugins/)
-set fish_plugins theme
-
-# Load oh-my-fish configuration
-. $fish_path/oh-my-fish.fish
+set fish_plugins git-flow theme
 
 ###############
 # Appearance
@@ -24,8 +20,12 @@ set fish_plugins theme
 # Welcome message
 set -g -x fish_greeting ''
 
-# Color scheme: Base16 Ocean
-# eval sh $HOME/.config/fish/colors/base16-ocean.dark.sh
-
 # Theme
-set fish_theme ocean
+set fish_theme agnoster
+
+###############
+# Finally...
+###############
+
+# Load oh-my-fish configuration
+. $fish_path/oh-my-fish.fish

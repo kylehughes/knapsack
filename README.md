@@ -20,10 +20,14 @@
 ### Dotfiles (../dotfiles/) 
 
 #### fish (../fish/)
-
-**Install:**
 	
 	brew install fish
+	
+- [oh-my-fish][dotfiles_ohmyfish]: configuration basis & plugins; installed through submodules
+- [powerline-fonts][dotfiles_powerlinefonts]: fonts that support Powerline; installed through submodules, must run manual `install.sh`
+
+[dotfiles_ohmyfish]: https://github.com/bpinto/oh-my-fish
+[dotfiles_powerlinefonts]: https://github.com/powerline/fonts.git
 
 #### git (../git/)
 
