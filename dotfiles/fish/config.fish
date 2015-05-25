@@ -5,6 +5,9 @@
 # Source local profile
 . $HOME/.config/fish/profile.fish
 
+# Set welcome message
+set -g -x fish_greeting ''
+
 ###############
 # Appearance
 ###############
