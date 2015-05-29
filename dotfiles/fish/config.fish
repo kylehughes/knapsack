@@ -1,3 +1,4 @@
+set -U default_user kylehugh
 set -U KNAPSACK $HOME/knapsack
 
 ###############
