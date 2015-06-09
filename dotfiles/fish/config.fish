@@ -1,5 +1,17 @@
-set -U default_user kylehugh
+##############
+# Environment Variables
+##############
+
 set -U KNAPSACK $HOME/knapsack
+set -U KNAPSACK_FISH $KNAPSACK/dotfiles/fish
+
+set -U default_user kylehugh
+
+###############
+# Local Profile
+###############
+
+. $KNAPSACK_FISH/profile.fish
 
 ###############
 # oh-my-fish
