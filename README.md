@@ -41,8 +41,10 @@
 
     brew install tmux
 
+- [tmux copy & OS X][dotfiiles_tmux-copy]: setting up tmux copy-mode to use the OS X system clipboard
 - [tmuxifier][dotfiles_tmuxifier]: layout management and niceties
 
+[dotfiles_tmux-copy]: https://robots.thoughtbot.com/tmux-copy-paste-on-os-x-a-better-future
 [dotfiles_tmuxifier]: https://github.com/jimeh/tmuxifier
 
 ### Resources
