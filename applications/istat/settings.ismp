@@ -24,16 +24,20 @@
 		<integer>1</integer>
 		<key>Disks_DropdownShowRemovable</key>
 		<integer>1</integer>
+		<key>Disks_MenubarMode</key>
+		<string>100,5</string>
 		<key>DropdownTheme</key>
 		<integer>0</integer>
 		<key>Memory_IgnoreInactive</key>
 		<integer>1</integer>
+		<key>Memory_MenubarMode</key>
+		<string>100,6</string>
 		<key>MenubarSkinColor</key>
 		<integer>2</integer>
 		<key>MenubarSkinColor-Dark</key>
-		<integer>5</integer>
+		<integer>2</integer>
 		<key>MenubarSkinColor-Light</key>
-		<integer>5</integer>
+		<integer>2</integer>
 		<key>MenubarTheme</key>
 		<integer>1</integer>
 		<key>Network_GraphCustomColors</key>
@@ -47,7 +51,7 @@
 		<key>Network_GraphUpload</key>
 		<string>0.00 0.91 0.99 1.00</string>
 		<key>Network_MenubarMode</key>
-		<string>4,1</string>
+		<string>4,1,100</string>
 		<key>Sensors_MenubarMode</key>
 		<string>2</string>
 		<key>Sensors_MenubarTextSize</key>
