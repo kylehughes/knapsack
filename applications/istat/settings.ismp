@@ -58,6 +58,19 @@
 		<integer>12</integer>
 		<key>Sensors_TemperatureMode</key>
 		<integer>0</integer>
+		<key>Time_MenubarFlashSeperators</key>
+		<integer>0</integer>
+		<key>Time_MenubarFormat</key>
+		<array>
+			<string>EE</string>
+			<string>' '</string>
+			<string>hh</string>
+			<string>':'</string>
+			<string>mm</string>
+			<string>aaa</string>
+			<string>' '</string>
+			<string>zzz</string>
+		</array>
 		<key>TimerFrequency</key>
 		<integer>1</integer>
 	</dict>
