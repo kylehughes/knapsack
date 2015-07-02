@@ -25,8 +25,7 @@ let g:NERDTreeWinSize=40
 let mapleader=','
 
 "" Aesthetics
-let base16colorspace=256
-colorscheme base16-default
+colorscheme solarized
 set background=dark
 set cursorline
 set lbr
@@ -34,9 +33,9 @@ set number
 syntax on
 
 "" Wrapping
-set colorcolumn=130
+set colorcolumn=120
 set formatoptions=qrn1
-set textwidth=130
+set textwidth=120
 
 "" Tabs and Indents
 set autoindent
@@ -122,6 +121,24 @@ function! BC_GetChar()
     let b:robstack = strpart(b:robstack, 0, strlen(b:robstack)-1)
     return l:char
 endfunction
+
+"" Toggle absolute / relative numbers, contextually as well
+
+:au FocusLost * :set number
+:au FocusGained * :set relativenumber
+
+autocmd InsertEnter * :set number
+autocmd InsertLeave * :set relativenumber
+
+function! NumberToggle()
+    if(&relativenumber == 1)
+        set number
+    else
+        set relativenumber
+    endif
+endfunc
+
+nnoremap <C-n> :call NumberToggle()<cr>
 
 "" Center lines when jumping
 nnoremap gg ggz.
