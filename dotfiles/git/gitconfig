@@ -2,5 +2,10 @@
     path = ~/.gitconfig_local  # local gitconfig
 [core]
     excludesfile = ~/.gitignore_global
+    pager = less -FMRiX
 [push]
-	default = simple
+    default = simple
+[color]
+    ui = auto
+[alias]
+    dag = log --graph --format='format:%C(yellow)%h%C(reset) %C(blue)\"%an\" <%ae>%C(reset) %C(magenta)%cr%C(reset)%C(auto)%d%C(reset)%n%s' --date-order
