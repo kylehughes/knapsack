@@ -1,0 +1,13 @@
+name: work
+root: ~/
+
+windows:
+    - ios:
+        root: ~/work/repos/KindleForiOS
+        layout: main-vertical
+        panes:
+            main:
+            flashcards:
+                - cd Framework/PlugIns/FlashcardsPlugin
+            ftue:
+                - cd Framework/PlugIns/KeduFTUE

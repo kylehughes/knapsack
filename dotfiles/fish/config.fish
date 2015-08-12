@@ -2,10 +2,11 @@
 # Environment Variables
 ##############
 
-set -U KNAPSACK $HOME/knapsack
-set -U KNAPSACK_FISH $KNAPSACK/dotfiles/fish
+set -Ux EDITOR vim
+set -Ux KNAPSACK $HOME/knapsack
+set -Ux KNAPSACK_FISH $KNAPSACK/dotfiles/fish
 
-set -U default_user kylehugh
+set -Ux default_user kylehugh
 
 ###############
 # Local Profile
