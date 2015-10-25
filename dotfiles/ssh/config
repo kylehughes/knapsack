@@ -1,0 +1,7 @@
+Host armadale
+    HostName kylehugh.es
+    User root
+
+Host gitlab.root
+    HostName git.kylehugh.es
+    User root
