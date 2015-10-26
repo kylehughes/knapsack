@@ -1483,8 +1483,12 @@
 	<true/>
 	<key>MaxVertically</key>
 	<false/>
+	<key>NSFontPanelAttributes</key>
+	<string>1, 4</string>
 	<key>NSNavLastRootDirectory</key>
-	<string>~/knapsack/applications/iterm2</string>
+	<string>~/knapsack/applications/iterm2/colors</string>
+	<key>NSNavPanelExpandedSizeForOpenMode</key>
+	<string>{1247, 448}</string>
 	<key>NSQuotedKeystrokeBinding</key>
 	<string></string>
 	<key>NSRepeatCountBinding</key>
@@ -1504,22 +1508,27 @@
 		BAtzdHJlYW10eXBlZIHoA4QBQISEhAhOU1N0cmluZwGEhAhOU09iamVjdACF
 		hAErATGG
 		</data>
-		<string>322</string>
+		<string>307</string>
 	</array>
 	<key>NSTableView Hidden Columns KeyBingingTable</key>
 	<array/>
 	<key>NSTableView Sort Ordering KeyBingingTable</key>
 	<array/>
+	<key>NSToolbar Configuration com.apple.NSColorPanel</key>
+	<dict>
+		<key>TB Is Shown</key>
+		<integer>1</integer>
+	</dict>
 	<key>NSWindow Frame NSFontPanel</key>
-	<string>354 69 1018 185 0 0 1440 877 </string>
+	<string>560 147 718 250 0 0 2560 1417 </string>
 	<key>NSWindow Frame Preferences</key>
-	<string>67 227 606 456 0 0 1920 1177 </string>
+	<string>439 636 606 456 0 0 2560 1417 </string>
+	<key>NSWindow Frame UKCrashReporter</key>
+	<string>230 833 592 584 0 0 2560 1417 </string>
 	<key>NSWindow Frame iTerm Window 0</key>
-	<string>735 620 850 507 0 0 1920 1177 </string>
+	<string>668 302 1075 477 0 0 2560 1417 </string>
 	<key>NSWindow Frame iTerm Window 1</key>
-	<string>-1 212 1186 866 0 0 1920 1177 </string>
-	<key>NSWindow Frame iTerm Window 2</key>
-	<string>985 100 850 894 0 0 1920 1177 </string>
+	<string>770 226 850 596 0 0 2560 1417 </string>
 	<key>NeverWarnAboutShortLivedSessions_9370D202-0980-4037-9B1A-3216CDE12EF0</key>
 	<true/>
 	<key>New Bookmarks</key>
@@ -3741,16 +3750,18 @@
 			<string>/Users/kylehugh</string>
 		</dict>
 	</array>
+	<key>NoSyncNeverRemindPrefsChangesCopy</key>
+	<true/>
 	<key>NoSyncNeverRemindPrefsChangesLostForFile</key>
 	<true/>
 	<key>NoSyncNeverRemindPrefsChangesLostForFile_selection</key>
 	<integer>0</integer>
 	<key>NoSyncTimeOfFirstLaunchOfVersionWithTip</key>
-	<real>467337131.09122699</real>
+	<real>467430504.40951401</real>
 	<key>NoSyncTimeOfLastPromo</key>
-	<real>453676790.50752199</real>
+	<real>454232452.17390102</real>
 	<key>NoSyncTimeOfLastPromoDownload</key>
-	<real>467335260.34900999</real>
+	<real>467087238.16876101</real>
 	<key>OnlyWhenMoreTabs</key>
 	<true/>
 	<key>OpenArrangementAtStartup</key>
@@ -3797,7 +3808,7 @@
 		</dict>
 	</dict>
 	<key>PrefsCustomFolder</key>
-	<string>/Users/kylehugh/knapsack/applications/iterm2</string>
+	<string>/Users/kyle/knapsack/applications/iterm2</string>
 	<key>PromptOnQuit</key>
 	<true/>
 	<key>QuitWhenAllWindowsClosed</key>
@@ -3817,11 +3828,9 @@
 	<key>SUHasLaunchedBefore</key>
 	<true/>
 	<key>SULastCheckTime</key>
-	<date>2015-10-23T23:19:34Z</date>
-	<key>SUSendProfileInfo</key>
-	<false/>
+	<date>2015-10-25T01:46:41Z</date>
 	<key>SUSkippedVersion</key>
-	<string>2.1</string>
+	<string>2.1.4</string>
 	<key>SavePasteHistory</key>
 	<false/>
 	<key>ShowBookmarkName</key>
@@ -3851,6 +3860,8 @@
 	</array>
 	<key>TripleClickSelectsFullWrappedLines</key>
 	<false/>
+	<key>UKCrashReporterLastCrashReportDate</key>
+	<real>1432545408</real>
 	<key>URLHandlersByGuid</key>
 	<dict/>
 	<key>UseBorder</key>
