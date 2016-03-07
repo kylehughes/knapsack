@@ -6,6 +6,11 @@
 # zsh only, so it's set prior to sourcing anything that might set PATH
 typeset -U PATH 
 
+# Include system-modifiable bin if it exists
+if [ -d "/usr/local/bin" ] ; then
+    PATH="/usr/local/bin:$PATH"
+fi
+
 # Source profile for machine-specific things
 source $HOME/.profile
 
