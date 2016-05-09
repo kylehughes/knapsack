@@ -13,13 +13,13 @@
 
     # logging
     dag = log --graph --format='format:%C(yellow)%h%C(reset) %C(blue)\"%an\" <%ae>%C(reset) %C(magenta)%cr%C(reset)%C(auto)%d%C(reset)%n%s' --date-order
-    l = log --pretty=format:"%C(yellow)%h\\ %ad%Cred%d\\ %Creset%s%Cblue\\ [%cn]" --decorate --date=short 
+    l = log --pretty=format:"%C(yellow)%h\\ %ad%Cred%d\\ %Creset%s%Cblue\\ [%cn]" --decorate --date=short
 
     # committing
     a = add
     c = commit
     cm = commit -m
-    m = commit --amend
+    ca = commit --amend
     pr = pull --rebase
     s = status
 
@@ -28,4 +28,3 @@
     co = checkout
     cob = checkout -b
     pr = pull --rebase
-    
