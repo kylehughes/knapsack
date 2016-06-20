@@ -12,22 +12,12 @@
 1. Pull down the submodules:
 
     	git submodule update --init --recursive
-				
-1. Setup symlinks manually without direction (sorry again).
+
+1. Run `dotfiles/setup.sh` to setup symlinks.
 
 ## Contents
 
-### Dotfiles (../dotfiles/) 
-
-#### fish (../dotfiles/fish/)
-	
-	brew install fish
-	
-- [oh-my-fish][dotfiles_ohmyfish]: configuration basis & plugins; installed through submodules
-- [powerline-fonts][dotfiles_powerlinefonts]: fonts that support Powerline; installed through submodules, must run manual `install.sh`
-
-[dotfiles_ohmyfish]: https://github.com/bpinto/oh-my-fish
-[dotfiles_powerlinefonts]: https://github.com/powerline/fonts.git
+### Dotfiles (../dotfiles/)
 
 #### git (../dotfiles/git/)
 
@@ -42,7 +32,7 @@
     brew install tmux
 
 - [tmux copy & OS X][dotfiles_tmux-copy]: setting up tmux copy-mode to use the OS X system clipboard
-- [tmuxinator][dotfiles_tmuxinator]: layout management 
+- [tmuxinator][dotfiles_tmuxinator]: layout management
 
 [dotfiles_tmux-copy]: https://robots.thoughtbot.com/tmux-copy-paste-on-os-x-a-better-future
 [dotfiles_tmuxinator]: https://github.com/tmuxinator/tmuxinator
@@ -53,3 +43,6 @@
 
 The naming scheme for wallpapers is: `{title}_{width}x{height}`.
 
+### Credits
+
+- Ben Alman's [https://github.com/cowboy/dotfiles dotfile bootstrapping pattern]
