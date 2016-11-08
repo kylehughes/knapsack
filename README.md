@@ -5,15 +5,22 @@
 1. Clone the repository to your home (`~/`) directory.
 1. If on OS X, install the Homebrew package manager:
 
-		ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
+    ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
 
-1. Install all the tools manually without direction (sorry).
-1. Set `$KNAPSACK` environment variable to root knapsack location for preferred shell.
 1. Pull down the submodules:
 
-    	git submodule update --init --recursive
+    git submodule update --init --recursive
 
-1. Run `dotfiles/setup.sh` to setup symlinks.
+1. Run the setup script to create symlinks to / copy config files:
+
+    cd dotfiles
+	./setup.sh
+
+### Additional Setup
+
+- Install the [Homebrew package manager][installation_homebrew] *(*OS X only)*
+
+[installation_homebrew]: http://brew.sh
 
 ## Contents
 
@@ -37,12 +44,8 @@
 [dotfiles_tmux-copy]: https://robots.thoughtbot.com/tmux-copy-paste-on-os-x-a-better-future
 [dotfiles_tmuxinator]: https://github.com/tmuxinator/tmuxinator
 
-### Resources
-
-#### Wallpapers
-
-The naming scheme for wallpapers is: `{title}_{width}x{height}`.
-
 ### Credits
 
-- Ben Alman's [https://github.com/cowboy/dotfiles dotfile bootstrapping pattern]
+- Ben Alman's [dotfile bootstrapping pattern][credits_ben-alman]
+
+[credits_ben-alman]: https://github.com/cowboy/dotfiles

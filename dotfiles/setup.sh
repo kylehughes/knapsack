@@ -3,24 +3,24 @@
 if [[ "$1" == "-h" || "$1" == "--help" ]]; then cat <<HELP
 Usage: $(basename "$0")
 
-See the README for documentation.
+See the README for documentation:
 https://github.com/kylehughes/knapsack
 
 Copyright (c) 2016 Kyle Hughes
-Licensed under the MIT license.
-blah blah license url
+Licensed under the MIT License:
+https://opensource.org/licenses/MIT
 HELP
 exit; fi
 
-###########
+##############################
 # CONSTANTS
-###########
+##############################
 
 PATH_DOTFILES=$(pwd)
 
-###################
+##############################
 # UTILITY FUNCTIONS
-###################
+##############################
 
 # Logging
 function log_header()   {
@@ -36,9 +36,9 @@ function log_arrow() {
     echo -e " \033[1;34m➜\033[0m  $@";
 }
 
-###################
+##############################
 # ACTION PROCESSING
-###################
+##############################
 
 # copy files
 function action_copy_header() {
@@ -103,9 +103,9 @@ function do_action() {
     done
 }
 
-#############
+##############################
 # MAIN SCRIPT
-#############
+##############################
 
 cd $PATH_DOTFILES
 
