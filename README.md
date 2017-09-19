@@ -14,11 +14,19 @@ Run the following commands in a shell - `zsh` is expected. Eventually, turn this
 
 ###### Set `zsh` as the default login shell:
 
-Make sure your terminal emulator is configured to use the login shell.
+```
+$ chsh -s /bin/zsh
+```
 
+*Note:* Make sure your terminal emulator is configured to use the login shell. Otherwise you'll have to set its shell manually.
+
+###### Install [`oh-my-zsh`][oh-my-zsh]
+
+```sh
+$ sh -c "$(curl -fsSL https://raw.githubusercontent.com/robbyrussell/oh-my-zsh/master/tools/install.sh)"
 ```
-$ chsh -s $(which zsh)
-```
+
+[oh-my-zsh]: https://github.com/robbyrussell/oh-my-zsh
 
 ###### Clone the repository to your home directory:
 
