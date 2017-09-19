@@ -1,12 +1,18 @@
 #!/bin/bash
 
+#
+# setup.sh
+# Description
+#
+
 if [[ "$1" == "-h" || "$1" == "--help" ]]; then cat <<HELP
 Usage: $(basename "$0")
 
 See the README for documentation:
 https://github.com/kylehughes/knapsack
 
-Copyright (c) 2016 Kyle Hughes
+Copyright (c) 2017 Kyle Hughes
+
 Licensed under the MIT License:
 https://opensource.org/licenses/MIT
 HELP

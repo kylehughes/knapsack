@@ -1,42 +1,73 @@
-# Knapsack by/for Kyle Hughes
+# knapsack
 
-## Installation
+`COMPUTER THINGS FOR KYLE`
 
-1. Clone the repository to your home (`~/`) directory.
-1. If on OS X, install the Homebrew package manager:
+###### Inspired by:
 
-    ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
+- Ben Alman's [dotfile bootstrapping pattern][credits_ben-alman].
 
-1. Pull down the submodules:
+[credits_ben-alman]: https://github.com/cowboy/dotfiles
 
-    git submodule update --init --recursive
+## Installation (macOS)
 
-1. Run the setup script to create symlinks to / copy config files:
+Run the following commands in a shell - `zsh` is expected. Eventually, turn this all into a script.
 
-    cd dotfiles
-	./setup.sh
+###### Set `zsh` as the default login shell:
 
-### Additional Setup
+Make sure your terminal emulator is configured to use the login shell.
 
-- Install the [Homebrew package manager][installation_homebrew] *(*OS X only)*
+```
+$ chsh -s $(which zsh)
+```
 
-[installation_homebrew]: http://brew.sh
+###### Clone the repository to your home directory:
+
+```sh
+$ cd ~ && git clone git@github.com:kylehughes/knapsack.git
+```
+
+###### Install the Homebrew package manager:
+
+```sh
+$ ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
+```
+
+###### Install Homebrew packages:
+
+* `tmux`: Terminal multiplexer.
+
+```
+$ brew install tmux
+```
+
+###### Update the submodule repositories:
+
+```sh
+$ git submodule update --init --recursive
+```
+
+###### Run the dotfiles setup script:
+
+Configures the file system for the included "dotfiles." Hard copy or symlink depending on the file.
+
+```sh
+$ cd dotfiles && ./setup.sh
+```
 
 ## Contents
 
-### Dotfiles (../dotfiles/)
+### Applications (`./applications/`)
 
-#### git (../dotfiles/git/)
+### Dotfiles (`./dotfiles/`)
 
-`gitconfig`: The global configuration file. All settings should be applicable to all git environments. This picks up the local configuration profile through an `include`.
+#### `git` Dotfiles
 
-`gitconfig_local_template`: A minimal template for the local configuration file.
+| File              | Link Type | Purpose                                                                                                                                                                            |
+| ----------------- | --------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `gitconfig`       | Symlink   | The global configuration file. All settings should be applicable to all `git` environments. This picks up the local configuration profile through an `include`.                    |
+| `gitconfig_local` | Copy      | The local `git` configuration file, providing an avenue to override default **knapsack** settings. *Note*: Not included in source control, ignored through the local `.gitignore`. |
 
-`gitconfig_local`: The local configuration file (not included, ignored through the local `.gitignore`).
-
-#### tmux (../dotfiles/tmux/)
-
-    brew install tmux
+#### `tmux` Dotfiles
 
 - [tmux copy & OS X][dotfiles_tmux-copy]: setting up tmux copy-mode to use the OS X system clipboard
 - [tmuxinator][dotfiles_tmuxinator]: layout management
@@ -44,8 +75,10 @@
 [dotfiles_tmux-copy]: https://robots.thoughtbot.com/tmux-copy-paste-on-os-x-a-better-future
 [dotfiles_tmuxinator]: https://github.com/tmuxinator/tmuxinator
 
-### Credits
+#### `vim` Dotfiles
 
-- Ben Alman's [dotfile bootstrapping pattern][credits_ben-alman]
+#### `zsh` Dotfiles
 
-[credits_ben-alman]: https://github.com/cowboy/dotfiles
+### External
+
+### Scripts (`./scripts/`)
