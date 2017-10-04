@@ -11,12 +11,12 @@
 # zsh only, so it's set prior to sourcing anything that might set PATH
 typeset -U PATH
 
-# Include system-modifiable bin if it exists
+# Include system-modifiable bin in PATH if it exists
 if [ -d "/usr/local/bin" ] ; then
     PATH="/usr/local/bin:$PATH"
 fi
 
-# Source profile for machine-specific things
+# Source local profile for machine-specific things
 source $HOME/.profile
 
 # Include user's private bin in PATH if it exists
@@ -112,7 +112,7 @@ fi
 export ZSH=$HOME/.oh-my-zsh
 
 # Theme
-ZSH_THEME="bullet-train"
+ZSH_THEME="agnoster"
 
 # Command auto-correction
 ENABLE_CORRECTION=true
