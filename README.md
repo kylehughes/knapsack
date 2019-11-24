@@ -2,12 +2,6 @@
 
 `COMPUTER THINGS FOR KYLE`
 
-###### Inspired by:
-
-- Ben Alman's [dotfile bootstrapping pattern][credits_ben-alman].
-
-[credits_ben-alman]: https://github.com/cowboy/dotfiles
-
 ## Installation (macOS)
 
 Run the following commands in a shell - `zsh` is expected. Eventually, turn this all into a script.
