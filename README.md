@@ -9,7 +9,7 @@ Run the following commands in a shell - `zsh` is expected. Eventually, turn this
 ###### Set `zsh` as the default login shell:
 
 ```
-$ chsh -s /bin/zsh
+chsh -s /bin/zsh
 ```
 
 *Note:* Make sure your terminal emulator is configured to use the login shell. Otherwise you'll have to set its shell manually.
@@ -17,21 +17,21 @@ $ chsh -s /bin/zsh
 ###### Install [`oh-my-zsh`][oh-my-zsh]
 
 ```sh
-$ sh -c "$(curl -fsSL https://raw.githubusercontent.com/robbyrussell/oh-my-zsh/master/tools/install.sh)"
+sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"
 ```
 
-[oh-my-zsh]: https://github.com/robbyrussell/oh-my-zsh
+[oh-my-zsh]: https://github.com/ohmyzsh/oh-my-zsh
 
 ###### Clone the repository to your home directory:
 
 ```sh
-$ cd ~ && git clone git@github.com:kylehughes/knapsack.git
+cd ~ && git clone git@github.com:kylehughes/knapsack.git
 ```
 
 ###### Install the Homebrew package manager:
 
 ```sh
-$ ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
+ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
 ```
 
 ###### Install Homebrew packages:
@@ -39,13 +39,13 @@ $ ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/maste
 * `tmux`: Terminal multiplexer.
 
 ```
-$ brew install tmux
+brew install tmux
 ```
 
 ###### Update the submodule repositories:
 
 ```sh
-$ git submodule update --init --recursive
+git submodule update --init --recursive
 ```
 
 ###### Run the dotfiles setup script:
@@ -53,7 +53,7 @@ $ git submodule update --init --recursive
 Configures the file system for the included "dotfiles." Hard copy or symlink depending on the file.
 
 ```sh
-$ cd dotfiles && ./setup.sh
+cd dotfiles && ./setup.sh
 ```
 
 ## Contents
