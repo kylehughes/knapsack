@@ -24,6 +24,9 @@ if [ -d "$HOME/bin" ] ; then
     PATH="$HOME/bin:$PATH"
 fi
 
+# Homebrew
+eval "$(/opt/homebrew/bin/brew shellenv)"
+
 ################################################################################
 # ENVIRONMENT VARIABLES
 ################################################################################
