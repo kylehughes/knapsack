@@ -16,9 +16,6 @@ if [ -d "/usr/local/bin" ] ; then
     PATH="/usr/local/bin:$PATH"
 fi
 
-# Source local profile for machine-specific things
-source $HOME/.profile
-
 # Include user's private bin in PATH if it exists
 if [ -d "$HOME/bin" ] ; then
     PATH="$HOME/bin:$PATH"
@@ -26,6 +23,9 @@ fi
 
 # Homebrew
 eval "$(/opt/homebrew/bin/brew shellenv)"
+
+# Source local profile for machine-specific things
+source $HOME/.profile
 
 ################################################################################
 # ENVIRONMENT VARIABLES
