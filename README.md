@@ -50,6 +50,15 @@ A consistent purple theme across all terminal applications:
 | Bright Purple | `#d7afff` | Active elements |
 | Grey | `#444444` | Inactive elements |
 
+### Documentation Standards
+
+All scripts and configuration files follow consistent documentation patterns:
+
+- **File headers**: Simple one-line descriptions with usage information for scripts
+- **Section headers**: Title Case sections marked with `--- Section Name ---`
+- **Comments**: Complete sentences with periods, explaining why not what
+- **No decorations**: Clean, readable formatting without excessive separators
+
 ### Dependencies
 
 Managed via `Brewfile`:
