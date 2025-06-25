@@ -62,6 +62,13 @@ cd dotfiles && ./setup.sh
 | ----------------- | --------- | -------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `claude/CLAUDE.md`| Symlink   | Global configuration for Claude AI. Installed to `~/.claude/CLAUDE.md`.                                                                           |
 
+#### Ghostty Configuration
+
+| File                         | Link Type | Purpose                                                                                                                                       |
+| ---------------------------- | --------- | --------------------------------------------------------------------------------------------------------------------------------------------- |
+| `config/ghostty/config`      | Symlink   | Main Ghostty terminal configuration. Uses SF Mono font and Gengar theme.                                                                     |
+| `config/ghostty/themes/gengar` | Symlink | Custom Gengar theme for Ghostty that matches tmux and zsh colors.                                                                          |
+
 #### `git` Dotfiles
 
 | File              | Link Type | Purpose                                                                                                                                                                            |
@@ -80,6 +87,26 @@ cd dotfiles && ./setup.sh
 #### `vim` Dotfiles
 
 #### `zsh` Dotfiles
+
+### Theme
+
+The dotfiles use a custom **Gengar theme** across all terminal applications for a consistent purple-themed appearance inspired by the Ghost/Poison Pokémon.
+
+#### Color Palette
+
+| Color Name      | Hex Code  | Usage                                                |
+| --------------- | --------- | ---------------------------------------------------- |
+| Background      | `#1c1c1c` | Terminal background (dark)                           |
+| Foreground      | `#eeeeee` | Primary text (high contrast white)                   |
+| Primary Purple  | `#af5fff` | tmux status bar, active borders, prompt directory   |
+| Bright Purple   | `#d7afff` | Active windows, git branch indicator, cursor         |
+| Grey           | `#444444` | Inactive elements, subtle borders                    |
+
+#### Theme Files
+
+- **tmux**: Theme colors defined inline in `tmux.conf` (lines 65-95)
+- **zsh**: Color variables defined as `GENGAR_PURPLE`, `GENGAR_BRIGHT`, `GENGAR_WHITE` in `zshrc`
+- **Ghostty**: Complete theme in `config/ghostty/themes/gengar`
 
 ### External
 
