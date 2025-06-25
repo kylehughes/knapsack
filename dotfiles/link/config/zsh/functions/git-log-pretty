@@ -1,0 +1,6 @@
+#!/usr/bin/env zsh
+# git-log-pretty - Show formatted log with commit details on one line.
+# Usage: git-log-pretty [git-log-options]
+
+# Display formatted log with hash, date, refs, message, and committer.
+git log --pretty=format:"%C(magenta)%h\\ %C(white)%ad%C(brightmagenta)%d\\ %C(white)%s\\ %C(241)[%cn]" --decorate --date=short "$@"

@@ -1,0 +1,13 @@
+#!/usr/bin/env zsh
+# git-status-diff - Show status and diff for review before committing.
+# Usage: git-status-diff
+
+# Show current status with short format.
+git status -s
+
+# Show unstaged changes if any exist.
+if [[ -n $(git diff --name-only) ]]; then
+    echo ""
+    echo "--- Unstaged Changes ---"
+    git diff
+fi

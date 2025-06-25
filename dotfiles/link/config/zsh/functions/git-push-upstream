@@ -1,0 +1,14 @@
+#!/usr/bin/env zsh
+# git-push-upstream - Push current branch and set upstream tracking.
+# Usage: git-push-upstream
+
+# Get current branch name.
+local branch=$(git symbolic-ref --short HEAD 2>/dev/null)
+
+if [[ -z "$branch" ]]; then
+    echo "Error: Not on a valid git branch."
+    return 1
+fi
+
+# Push and set upstream to track the remote branch.
+git push -u origin "$branch"

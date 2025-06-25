@@ -86,6 +86,16 @@ alias l='ls -CF'
 export EDITOR='vim'
 export LANG=en_US.UTF-8
 
+# --- Functions ---
+
+# Add functions directory to fpath for autoloading.
+fpath=(~/.config/zsh/functions $fpath)
+
+# Autoload all executable functions.
+for func in ~/.config/zsh/functions/*(N-.x:t); do
+    autoload -Uz $func
+done
+
 # --- PATH Management ---
 
 # Remove duplicate PATH entries.

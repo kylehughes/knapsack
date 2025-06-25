@@ -1,0 +1,6 @@
+#!/usr/bin/env zsh
+# git-log-dag - Show detailed commit graph with author info and timestamps.
+# Usage: git-log-dag [git-log-options]
+
+# Display detailed graph with two-line format per commit.
+git log --graph --format='format:%C(magenta)%h%C(reset) %C(241)"%an" <%ae>%C(reset) %C(white)%cr%C(reset)%C(brightmagenta)%d%C(reset)%n%C(white)%s' --date-order "$@"

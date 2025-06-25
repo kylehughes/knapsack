@@ -1,0 +1,9 @@
+#!/usr/bin/env zsh
+# git-fetch-pull - Fetch remote changes and pull with rebase.
+# Usage: git-fetch-pull
+
+# Fetch all remote changes.
+git fetch
+
+# Pull with rebase to maintain linear history.
+git pull --rebase

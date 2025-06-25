@@ -1,0 +1,12 @@
+#!/usr/bin/env zsh
+# git-add-amend-force-push - Stage all changes, amend commit, and force push.
+# Usage: git-add-amend-force-push
+
+# Stage all changes including untracked files.
+git add --all
+
+# Amend the previous commit without changing the message.
+git commit --amend --no-edit
+
+# Force push to the current branch on origin.
+git push origin HEAD --force

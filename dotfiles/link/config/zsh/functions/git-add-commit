@@ -1,0 +1,16 @@
+#!/usr/bin/env zsh
+# git-add-commit - Stage all changes and create a commit with message.
+# Usage: git-add-commit "commit message"
+
+# Ensure a commit message is provided.
+if [[ -z "$1" ]]; then
+    echo "Error: Commit message required."
+    echo "Usage: git-add-commit \"commit message\""
+    return 1
+fi
+
+# Stage all changes including untracked files.
+git add --all
+
+# Create a commit with the provided message.
+git commit -m "$1"
