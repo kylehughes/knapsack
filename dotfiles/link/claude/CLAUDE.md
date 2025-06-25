@@ -23,3 +23,58 @@ Focus on:
 - Use of imperative mood vs past tense
 - Common phrases or conventions
 - Punctuation usage
+
+## Available Environment
+
+This machine has been set up with the Knapsack dotfiles project, providing the following tools and configurations:
+
+### Terminal Environment
+- **Shell**: zsh with custom configuration (no oh-my-zsh)
+- **Terminal Multiplexer**: tmux with prefix `C-a` and vim-style navigation
+- **Terminal Emulator**: Ghostty with custom Gengar theme (purple-based)
+- **Editor**: vim with Pathogen, NERDTree (F2), and Solarized dark theme
+
+### Key Tools Available
+- **ripgrep** (`rg`): Fast file content search (preferred over grep/find)
+- **jq**: JSON processing and manipulation
+- **ffmpeg**: Media processing with custom `ffmpeg-reduce-size` function
+- **git**: Enhanced with custom aliases and workflow functions
+- **pyenv**: Python version management
+- **rbenv**: Ruby version management
+- **node/nvm**: Node.js and version management
+- **poetry**: Python package management
+- **repomix**: Pack repository contents for AI consumption
+
+### Git Enhancements
+
+#### Aliases (use with `git` command)
+- `dag`: Detailed commit graph
+- `l`: Pretty one-line log
+- `a`, `aa`: Add files
+- `c`, `cm`, `ca`: Commit variations
+- `s`: Status
+- `co`, `cob`: Checkout operations
+- `pr`: Pull with rebase
+
+#### Custom Functions (available as shell commands)
+- `git-add-commit`: Stage all and commit with message
+- `git-add-amend-force-push`: Common PR update workflow
+- `git-fetch-pull`: Fetch and pull with rebase
+- `git-log-dag`, `git-log-graph`, `git-log-pretty`: Various log views
+- `git-push-upstream`: Push and set upstream tracking
+- `git-status-diff`: Review changes before committing
+
+### Shell Aliases
+- **Git shortcuts**: `g`, `ga`, `gaa`, `gb`, `gc`, `gca`, `gcam`, `gco`, `gd`, `gf`, `gl`, `glog`, `gp`, `gr`, `gst`
+- **Directory listing**: `ll`, `la`, `l`
+
+### Local Customization
+- **Local functions**: Place machine-specific functions in `~/.config/zsh/functions-local/`
+- **Local git config**: Machine-specific git settings in `~/.gitconfig_local`
+- Both directories are gitignored and persist across updates
+
+### Important Notes
+- Functions follow `tool-action` naming convention for consistency
+- All configurations use XDG Base Directory specification
+- Consistent Gengar theme (purple) across all terminal applications
+- PATH includes ~/bin, Homebrew, and language version managers
