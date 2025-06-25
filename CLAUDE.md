@@ -81,6 +81,7 @@ The repository uses a custom "Gengar" theme (purple-based) across all terminal a
 - Integrates with Homebrew, rbenv (Ruby), and pyenv (Python)
 - Sources `~/.profile` if it exists
 - Git aliases for common operations
+- Custom functions autoloaded from `~/.config/zsh/functions/`
 
 ### tmux
 - Custom prefix: `C-a` (not default `C-b`)
@@ -108,3 +109,44 @@ The repository uses a custom "Gengar" theme (purple-based) across all terminal a
 - Custom Gengar theme matching tmux/zsh colors
 - SF Mono font
 - Standard macOS keybindings
+
+## Shell Functions
+
+The repository implements custom zsh functions using XDG Base Directory specification with autoloading for performance. Functions are stored in `dotfiles/link/config/zsh/functions/` and autoloaded via `$fpath`.
+
+### Design Decisions
+
+1. **XDG Compliance**: Functions live in `~/.config/zsh/functions/` following modern Unix conventions
+2. **Autoloading**: Functions are lazy-loaded using zsh's autoload mechanism for faster shell startup
+3. **Naming Convention**: Functions use `tool-action` format (e.g., `git-add-commit`) for:
+   - Clear purpose identification
+   - Logical tab completion grouping
+   - Avoiding naming conflicts
+4. **Documentation**: Each function follows repository standards with header, usage, and inline comments
+
+### Available Functions
+
+#### Git Workflows
+- `git-add-amend-force-push` - Common PR workflow: stage all, amend, force push
+- `git-add-commit` - Stage all changes and commit with message
+- `git-fetch-pull` - Fetch and pull with rebase to maintain linear history
+- `git-log-dag` - Detailed commit graph (replaces `git dag` alias)
+- `git-log-graph` - One-line decorated graph (replaces `glog` alias)
+- `git-log-pretty` - Formatted one-line log (replaces `git l` alias)
+- `git-push-upstream` - Push and set upstream tracking for new branches
+- `git-status-diff` - Review changes before committing
+
+### Adding New Functions
+
+1. Create executable file in `dotfiles/link/config/zsh/functions/`:
+   ```bash
+   #!/usr/bin/env zsh
+   # tool-action - Brief description.
+   # Usage: tool-action [arguments]
+   
+   # Implementation with comments explaining why.
+   ```
+
+2. Make executable: `chmod +x dotfiles/link/config/zsh/functions/tool-action`
+
+3. Functions are automatically available after `make set-up/dotfiles` and shell restart

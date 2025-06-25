@@ -32,6 +32,7 @@ Configuration files managed by `make set-up/dotfiles`:
 | --- | --- | --- |
 | `claude/CLAUDE.md` | Symlink | Claude AI configuration. |
 | `config/ghostty/*` | Symlink | Ghostty terminal configuration. |
+| `config/zsh/functions/*` | Symlink | Custom shell functions. |
 | `gitconfig` | Symlink | Global git configuration. |
 | `gitconfig_local` | Copy | Local git overrides (not tracked). |
 | `tmux.conf` | Symlink | tmux configuration. |
@@ -39,17 +40,24 @@ Configuration files managed by `make set-up/dotfiles`:
 | `vimrc` | Symlink | vim configuration. |
 | `zshrc` | Symlink | zsh shell configuration. |
 
-### Gengar Theme
+### Shell Functions
 
-A consistent purple theme across all terminal applications:
+Custom zsh functions for common workflows, autoloaded from `~/.config/zsh/functions/`:
 
-| Color | Hex | Usage |
+#### Git Workflow Functions
+
+| Function | Description | Usage |
 | --- | --- | --- |
-| Background | `#1c1c1c` | Terminal background. |
-| Foreground | `#eeeeee` | Primary text. |
-| Purple | `#af5fff` | Status bars, borders. |
-| Bright Purple | `#d7afff` | Active elements. |
-| Grey | `#444444` | Inactive elements. |
+| `git-add-amend-force-push` | Stage all changes, amend commit, and force push. | `git-add-amend-force-push` |
+| `git-add-commit` | Stage all changes and commit with message. | `git-add-commit "message"` |
+| `git-fetch-pull` | Fetch remote changes and pull with rebase. | `git-fetch-pull` |
+| `git-log-dag` | Show detailed commit graph with author info. | `git-log-dag [options]` |
+| `git-log-graph` | Show commit history as decorated graph. | `git-log-graph [options]` |
+| `git-log-pretty` | Show formatted log with details on one line. | `git-log-pretty [options]` |
+| `git-push-upstream` | Push current branch and set upstream tracking. | `git-push-upstream` |
+| `git-status-diff` | Show status and diff for review. | `git-status-diff` |
+
+Functions follow the `tool-action` naming convention for clarity and tab completion support.
 
 ### Dependencies
 
@@ -69,3 +77,15 @@ All scripts and configuration files follow consistent documentation patterns:
 - **Section headers**: Title Case sections marked with `--- Section Name ---`.
 - **Comments**: Complete sentences with periods, explaining why not what.
 - **No decorations**: Clean, readable formatting without excessive separators.
+
+## Theme
+
+A Gengar-inspired purple theme consistent across all terminal applications:
+
+| Color | Hex | Usage |
+| --- | --- | --- |
+| Background | `#1c1c1c` | Terminal background. |
+| Foreground | `#eeeeee` | Primary text. |
+| Purple | `#af5fff` | Status bars, borders. |
+| Bright Purple | `#d7afff` | Active elements. |
+| Grey | `#444444` | Inactive elements. |
