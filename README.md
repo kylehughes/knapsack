@@ -16,10 +16,11 @@ make set-up/all
 Or run individual setup tasks:
 
 ```sh
-make set-up/homebrew      # Install Homebrew
-make set-up/dependencies  # Install dependencies from Brewfile
-make set-up/submodules    # Initialize git submodules
-make set-up/dotfiles      # Install dotfiles
+make set-up/homebrew        # Install Homebrew
+make set-up/dependencies    # Install dependencies from Brewfile
+make set-up/submodules      # Initialize git submodules
+make set-up/dotfiles        # Install dotfiles
+make set-up/local-functions # Create local functions directory
 ```
 
 ## Structure
@@ -58,6 +59,23 @@ Custom zsh functions for common workflows, autoloaded from `~/.config/zsh/functi
 | `git-status-diff` | Show status and diff for review. | `git-status-diff` |
 
 Functions follow the `tool-action` naming convention for clarity and tab completion support.
+
+#### Local Functions
+
+Machine-specific functions can be placed in `~/.config/zsh/functions-local/` (not tracked in git):
+
+```sh
+# Create local functions directory
+make set-up/local-functions
+
+# Add a local function
+echo '#!/usr/bin/env zsh
+# my-local-function - Description here.
+echo "This function only exists on this machine"' > ~/.config/zsh/functions-local/my-local-function
+chmod +x ~/.config/zsh/functions-local/my-local-function
+```
+
+Local functions are autoloaded just like tracked functions but remain private to each machine.
 
 ## Dependencies
 

@@ -82,6 +82,7 @@ The repository uses a custom "Gengar" theme (purple-based) across all terminal a
 - Sources `~/.profile` if it exists
 - Git aliases for common operations
 - Custom functions autoloaded from `~/.config/zsh/functions/`
+- Local functions supported via `~/.config/zsh/functions-local/` (not tracked)
 
 ### tmux
 - Custom prefix: `C-a` (not default `C-b`)
@@ -150,3 +151,18 @@ The repository implements custom zsh functions using XDG Base Directory specific
 2. Make executable: `chmod +x dotfiles/link/config/zsh/functions/tool-action`
 
 3. Functions are automatically available after `make set-up/dotfiles` and shell restart
+
+### Local Functions
+
+For machine-specific functions that shouldn't be tracked in git:
+
+1. **Setup**: Run `make set-up/local-functions` to create the directory structure
+2. **Location**: Functions live in `~/.config/zsh/functions-local/`
+3. **Priority**: Local functions are loaded after tracked functions, so they can override
+4. **Usage**: Same as tracked functions - create executable files following naming conventions
+
+Example use cases:
+- Work-specific VPN or SSH shortcuts
+- Machine-specific build scripts
+- Local development server commands
+- Personal aliases that shouldn't be shared

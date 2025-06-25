@@ -96,6 +96,14 @@ for func in ~/.config/zsh/functions/*(N-.x:t); do
     autoload -Uz $func
 done
 
+# Add local functions directory if it exists.
+if [[ -d ~/.config/zsh/functions-local ]]; then
+    fpath=(~/.config/zsh/functions-local $fpath)
+    for func in ~/.config/zsh/functions-local/*(N-.x:t); do
+        autoload -Uz $func
+    done
+fi
+
 # --- PATH Management ---
 
 # Remove duplicate PATH entries.

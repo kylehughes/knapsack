@@ -14,6 +14,10 @@ set-up/submodules:
 set-up/dotfiles:
 	@bash "./scripts/set-up-dotfiles.sh"
 
+## Create local functions directory for machine-specific functions.
+set-up/local-functions:
+	@bash "./scripts/set-up-local-functions.sh"
+
 ## Run all setup tasks.
 set-up/all: set-up/homebrew set-up/dependencies set-up/submodules set-up/dotfiles
 	@echo ""
