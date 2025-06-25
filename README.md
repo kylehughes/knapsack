@@ -59,7 +59,7 @@ Custom zsh functions for common workflows, autoloaded from `~/.config/zsh/functi
 
 Functions follow the `tool-action` naming convention for clarity and tab completion support.
 
-### Dependencies
+## Dependencies
 
 Managed via `Brewfile`:
 
@@ -68,6 +68,8 @@ brew bundle install    # Install all dependencies
 brew bundle check      # Check for missing packages
 brew bundle cleanup    # Remove unlisted packages
 ```
+
+## Development
 
 ### Documentation Standards
 
