@@ -2,6 +2,8 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
+Note: This repository also installs a global Claude configuration at `~/.claude/CLAUDE.md` that applies to all repositories.
+
 ## Repository Overview
 
 This is a personal dotfiles repository ("knapsack") for macOS development environments. It manages configuration files for various development tools through a combination of symlinks and copies.

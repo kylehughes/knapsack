@@ -62,6 +62,12 @@ cd dotfiles && ./setup.sh
 
 ### Dotfiles (`./dotfiles/`)
 
+#### Claude Configuration
+
+| File              | Link Type | Purpose                                                                                                                                            |
+| ----------------- | --------- | -------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `claude/CLAUDE.md`| Symlink   | Global configuration for Claude AI. Installed to `~/.claude/CLAUDE.md`.                                                                           |
+
 #### `git` Dotfiles
 
 | File              | Link Type | Purpose                                                                                                                                                                            |
