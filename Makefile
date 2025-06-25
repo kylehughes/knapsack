@@ -1,4 +1,4 @@
--include Makefiles/*.mk
+-include makefiles/*.mk
 
 .DEFAULT_GOAL := help
 

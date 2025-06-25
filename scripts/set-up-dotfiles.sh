@@ -30,7 +30,7 @@ function log_error() {
     echo -e " \033[1;31m\033[0m  $@";
 }
 function log_arrow() {
-    echo -e " \033[1;34mœ\033[0m  $@";
+    echo -e " \033[1;34mï¿½\033[0m  $@";
 }
 
 ##############################
@@ -150,4 +150,4 @@ do_action "copy"
 do_action "link"
 
 # finish
-log_header "! done !"
+log_header "done"

@@ -13,7 +13,7 @@ This is a personal dotfiles repository ("knapsack") for macOS development enviro
 ### Installation
 ```bash
 # Install all dotfiles
-cd dotfiles && bash setup.sh
+make set-up/dotfiles
 
 # After installation, restart your shell or run:
 source ~/.zshrc
@@ -23,7 +23,7 @@ source ~/.zshrc
 
 When modifying dotfiles:
 - Files in `dotfiles/link/` are symlinked to the home directory - changes here affect the live configuration
-- Files in `dotfiles/copy/` are copied during setup - changes require re-running setup.sh
+- Files in `dotfiles/copy/` are copied during setup - changes require re-running `make set-up/dotfiles`
 - Local git configuration goes in `~/.gitconfig_local` (not tracked in repo)
 
 ## Architecture
@@ -31,14 +31,14 @@ When modifying dotfiles:
 The repository follows a modular structure:
 
 - **dotfiles/**: Core configuration files split into `link/` (symlinked) and `copy/` (copied) directories
-- **applications/**: IDE and application-specific themes/settings (IntelliJ IDEA, iTerm2, Xcode)
-- **scripts/**: Utility scripts (currently contains note-taking utilities)
-- **external/**: Third-party resources (powerline fonts)
+- **scripts/**: Utility scripts for system setup and maintenance
+- **makefiles/**: Modular makefile includes for various tasks
 
-The `dotfiles/setup.sh` script handles installation by:
+The `make set-up/dotfiles` command handles installation by:
 1. Creating symlinks for files in `dotfiles/link/` to `~/.<filename>`
 2. Copying files from `dotfiles/copy/` to `~/.<filename>`
-3. Setting up the local gitconfig file if it doesn't exist
+3. Creating symlinks for XDG config directories (e.g., `~/.config/ghostty/`)
+4. Setting up the local gitconfig file if it doesn't exist
 
 ## Important Configuration Details
 
