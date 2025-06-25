@@ -90,8 +90,7 @@ cd dotfiles && ./setup.sh
 The `Brewfile` in the repository root defines all Homebrew dependencies for this setup. It includes:
 
 - **Formulae**: Command-line tools and libraries
-- **Casks**: GUI applications  
-- **VS Code Extensions**: Development environment extensions
+- **Casks**: GUI applications
 
 ### Common Brewfile Commands
 

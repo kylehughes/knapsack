@@ -10,13 +10,26 @@
     default = simple
 [color]
     ui = auto
+[color "diff"]
+    meta = magenta
+    frag = brightmagenta
+    old = red
+    new = green
+[color "branch"]
+    current = brightmagenta
+    local = magenta
+    remote = white
+[color "status"]
+    added = green
+    changed = magenta
+    untracked = 241
 [alias]
     # list aliases
     la = "!git config -l | grep alias | cut -c 7-"
 
     # logging
-    dag = log --graph --format='format:%C(yellow)%h%C(reset) %C(blue)\"%an\" <%ae>%C(reset) %C(magenta)%cr%C(reset)%C(auto)%d%C(reset)%n%s' --date-order
-    l = log --pretty=format:"%C(yellow)%h\\ %ad%Cred%d\\ %Creset%s%Cblue\\ [%cn]" --decorate --date=short
+    dag = log --graph --format='format:%C(magenta)%h%C(reset) %C(241)\"%an\" <%ae>%C(reset) %C(white)%cr%C(reset)%C(brightmagenta)%d%C(reset)%n%C(white)%s' --date-order
+    l = log --pretty=format:"%C(magenta)%h\\ %C(white)%ad%C(brightmagenta)%d\\ %C(white)%s\\ %C(241)[%cn]" --decorate --date=short
 
     # committing
     a = add
