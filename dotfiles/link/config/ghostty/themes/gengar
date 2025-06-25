@@ -1,0 +1,47 @@
+# Gengar Theme for Ghostty
+# A purple-themed color scheme inspired by the Ghost/Poison Pokémon
+
+# Core colors
+background = #1c1c1c
+foreground = #eeeeee
+
+# Cursor colors
+cursor-color = #d7afff
+cursor-text = #1c1c1c
+
+# Selection colors
+selection-background = #af5fff
+selection-foreground = #eeeeee
+
+# 16-color palette
+# Black and grey
+palette = 0=#1c1c1c
+palette = 8=#444444
+
+# Red tones (purple-tinted)
+palette = 1=#ff5f87
+palette = 9=#ff87af
+
+# Green tones (muted for contrast)
+palette = 2=#87d787
+palette = 10=#afd7af
+
+# Yellow tones (purple-tinted)
+palette = 3=#d7afff
+palette = 11=#e7cfff
+
+# Blue tones (purple-blue)
+palette = 4=#8787ff
+palette = 12=#afafff
+
+# Magenta (Gengar purples)
+palette = 5=#af5fff
+palette = 13=#d7afff
+
+# Cyan tones (muted)
+palette = 6=#87d7d7
+palette = 14=#afd7d7
+
+# White and bright white
+palette = 7=#d0d0d0
+palette = 15=#eeeeee
