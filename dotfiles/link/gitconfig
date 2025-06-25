@@ -1,37 +1,50 @@
+# git configuration
+
 [include]
-    path = ~/.gitconfig_local  # local gitconfig
+    path = ~/.gitconfig_local    # Machine-specific settings.
+
 [core]
     excludesfile = ~/.gitignore_global
     pager = less -FMRiX
-	editor = vim
-	fsmonitor = True
-	untrackedcache = True
+    editor = vim
+    fsmonitor = true
+    untrackedcache = true
+
 [push]
-    default = simple
+    default = simple    # Push current branch to upstream with same name.
+
+# --- Colors ---
+
 [color]
     ui = auto
+
 [color "diff"]
     meta = magenta
     frag = brightmagenta
     old = red
     new = green
+
 [color "branch"]
     current = brightmagenta
     local = magenta
     remote = white
+
 [color "status"]
     added = green
     changed = magenta
     untracked = 241
+
+# --- Aliases ---
+
 [alias]
-    # list aliases
+    # List all aliases.
     la = "!git config -l | grep alias | cut -c 7-"
 
-    # logging
+    # Pretty log formats.
     dag = log --graph --format='format:%C(magenta)%h%C(reset) %C(241)\"%an\" <%ae>%C(reset) %C(white)%cr%C(reset)%C(brightmagenta)%d%C(reset)%n%C(white)%s' --date-order
     l = log --pretty=format:"%C(magenta)%h\\ %C(white)%ad%C(brightmagenta)%d\\ %C(white)%s\\ %C(241)[%cn]" --decorate --date=short
 
-    # committing
+    # Common operations.
     a = add
     c = commit
     cm = commit -m
@@ -39,13 +52,15 @@
     pr = pull --rebase
     s = status
 
-    # branches
+    # Branch management.
     b = "!git for-each-ref --sort='-authordate' --format='%(authordate)%09%(objectname:short)%09%(refname)' refs/heads | sed -e 's-refs/heads/--'"
     co = checkout
     cob = checkout -b
-    pr = pull --rebase
+
+# --- Git LFS ---
+
 [filter "lfs"]
-	clean = git-lfs clean -- %f
-	smudge = git-lfs smudge -- %f
-	process = git-lfs filter-process
-	required = true
+    clean = git-lfs clean -- %f
+    smudge = git-lfs smudge -- %f
+    process = git-lfs filter-process
+    required = true

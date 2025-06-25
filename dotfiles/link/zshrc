@@ -1,7 +1,7 @@
-#!/bin/zsh
-# Minimal zshrc without oh-my-zsh
+# zsh configuration
 
-# History configuration
+# --- History ---
+
 HISTFILE=~/.zsh_history
 HISTSIZE=10000
 SAVEHIST=10000
@@ -13,34 +13,38 @@ setopt HIST_IGNORE_DUPS
 setopt HIST_REDUCE_BLANKS
 setopt HIST_VERIFY
 
-# Directory navigation
-setopt AUTO_CD
-setopt AUTO_PUSHD
+# --- Navigation ---
+
+setopt AUTO_CD              # cd by typing directory name alone.
+setopt AUTO_PUSHD           # Push directories to stack automatically.
 setopt PUSHD_IGNORE_DUPS
 setopt PUSHD_SILENT
 
-# Completion
+# --- Completion ---
+
 autoload -Uz compinit && compinit
 zstyle ':completion:*' menu select
-zstyle ':completion:*' matcher-list 'm:{a-z}={A-Z}'
+zstyle ':completion:*' matcher-list 'm:{a-z}={A-Z}'    # Case-insensitive matching.
 zstyle ':completion:*' list-colors ''
 setopt COMPLETE_IN_WORD
 setopt ALWAYS_TO_END
 
-# Key bindings
-bindkey -e  # emacs mode
+# --- Key Bindings ---
+
+bindkey -e  # Emacs mode.
 bindkey '^[[A' history-search-backward
 bindkey '^[[B' history-search-forward
 
-# Colors
+# --- Theme ---
+
 autoload -U colors && colors
 
-# Gengar theme colors
-GENGAR_PURPLE='%F{135}'      # Medium purple
-GENGAR_BRIGHT='%F{177}'      # Bright purple/pink
-GENGAR_WHITE='%F{255}'       # Almost white for contrast
+# Gengar theme colors.
+GENGAR_PURPLE='%F{135}'      # Medium purple.
+GENGAR_BRIGHT='%F{177}'      # Bright purple/pink.
+GENGAR_WHITE='%F{255}'       # Almost white for contrast.
 
-# Git branch with color
+# Display git branch in prompt.
 git_branch() {
     local branch=$(git symbolic-ref --short HEAD 2>/dev/null)
     if [[ -n $branch ]]; then
@@ -50,10 +54,12 @@ git_branch() {
 
 setopt PROMPT_SUBST
 
-# Gengar-themed prompt with better contrast
+# Gengar-themed prompt.
 PROMPT='${GENGAR_PURPLE}%1~%f $(git_branch)${GENGAR_WHITE}%#%f '
 
-# Essential git aliases
+# --- Aliases ---
+
+# Git shortcuts.
 alias g='git'
 alias ga='git add'
 alias gaa='git add --all'
@@ -70,47 +76,51 @@ alias gp='git push'
 alias gr='git remote'
 alias gst='git status'
 
-# Other useful aliases
+# Directory listing.
 alias ll='ls -la'
 alias la='ls -A'
 alias l='ls -CF'
 
-# Environment variables
+# --- Environment ---
+
 export EDITOR='vim'
 export LANG=en_US.UTF-8
 
-# PATH management with deduplication
+# --- PATH Management ---
+
+# Remove duplicate PATH entries.
 dedup_path() {
     typeset -U path
     path=($path)
 }
 
-# Homebrew (Apple Silicon)
+# Homebrew (Apple Silicon).
 if [[ -f /opt/homebrew/bin/brew ]]; then
     eval "$(/opt/homebrew/bin/brew shellenv)"
 fi
 
-# rbenv
+# Ruby version management.
 if command -v rbenv &> /dev/null; then
     eval "$(rbenv init -)"
 fi
 
-# pyenv
+# Python version management.
 if command -v pyenv &> /dev/null; then
     export PYENV_ROOT="$HOME/.pyenv"
     export PATH="$PYENV_ROOT/bin:$PATH"
     eval "$(pyenv init -)"
 fi
 
-# Add custom paths
+# Add custom bin directory.
 export PATH="$HOME/bin:$PATH"
 
-# Clean up PATH
+# Clean up PATH.
 dedup_path
 
+# --- Additional Configurations ---
 
-# Source local profile if it exists
+# Source local profile if it exists.
 [[ -f ~/.profile ]] && source ~/.profile
 
-# Disable git globbing (for commands like git add *)
+# Disable git globbing for commands like 'git add *'.
 alias git='noglob git'

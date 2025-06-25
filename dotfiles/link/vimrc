@@ -1,20 +1,17 @@
-"" ----RESOURCES---
-"" http://stevelosh.com/blog/2010/09/coming-home-to-vim/
-"" http://dougblack.io/words/a-good-vimrc.html
-""      TODO: implement `Organization` from doug black
+" vim configuration
 
-"" ----PLUGINS----
+" --- Plugins ---
 
-"" Pathogen (Intializer)
+" Load Pathogen for plugin management.
 source ~/.vim/bundle/vim-pathogen/autoload/pathogen.vim
 execute pathogen#infect()
 
-"" Filetype
+" Enable filetype detection and plugins.
 filetype on
 filetype plugin on
 filetype indent on
 
-"" NERDTree
+" NERDTree file explorer.
 silent! nmap <F2> :NERDTreeToggle<CR>
 silent! map <F3> :NERDTreeFind<CR>
 
@@ -22,12 +19,12 @@ let g:NERDTreeMapActivateNode="<F3>"
 let g:NERDTreeMapPreview="<F4>"
 let g:NERDTreeWinSize=40
 
-"" ----SETTINGS----
+" --- Settings ---
 
-"" Map Leader
+" Map leader key to comma.
 let mapleader=','
 
-"" Aesthetics
+" Appearance
 colorscheme solarized
 set background=dark
 set cursorline
@@ -36,12 +33,12 @@ set number
 set showcmd
 syntax enable
 
-"" Wrapping
+" Line wrapping at 120 characters.
 set colorcolumn=120
 set formatoptions=qrn1
 set textwidth=120
 
-"" Tabs and Indents
+" Tabs and indentation
 set autoindent
 set backspace=indent,eol,start
 set expandtab
@@ -49,7 +46,7 @@ set shiftwidth=4
 set softtabstop=4
 set tabstop=4
 
-"" Search Taming
+" Search behavior
 nnoremap / /\v
 vnoremap / /\v
 set ignorecase
@@ -60,8 +57,8 @@ set showmatch
 set hlsearch
 nnoremap <leader><space> :nohlsearch<cr>
 
-"" General Specialty Stuff
-au FocusLost * :wa
+" General settings
+au FocusLost * :wa              " Save on focus lost.
 set encoding=utf-8
 set hidden
 set laststatus=2
@@ -79,48 +76,48 @@ set visualbell
 set wildmenu
 set wildmode=list:longest
 
-"" Backups
+" Backup configuration
 set backup
 set backupdir=~/.vim-tmp,~/.tmp,~/tmp,/var/tmp,/tmp
 set backupskip=/tmp/*,/private/tmp/*
 set directory=~/.vim-tmp,~/.tmp,~/tmp,/var/tmp,/tmp
 set writebackup
 
-"" Disable auto-commenting lines
+" Disable automatic comment continuation.
 autocmd FileType * setlocal formatoptions-=c formatoptions-=r formatoptions-=o
 
-"" ----MAPPINGS----
+" --- Key Mappings ---
 
-"" jk is Escape
+" Use jk to escape insert mode.
 inoremap jk <esc>
 
-"" Insert new lines
+" Insert blank lines without entering insert mode.
 map <Enter> o<ESC>
 map <S-Enter> O<ESC>
 
-"" Jump real lines, not virtual 
+" Navigate wrapped lines naturally.
 nnoremap j gj 
 nnoremap k gk
 xnoremap j gj
 xnoremap k gk
 
-"" Fast jumping
+" Jump 5 lines at a time with J/K.
 nmap J 5j 
 nmap K 5k
 xmap J 5j
 xmap K 5k
 
-"" Bracket jumping
+" Tab key jumps between matching brackets.
 nnoremap <tab> %
 vnoremap <tab> %
 
-"" Bracket completion and maneuvering
-noremap ( ()<Esc>:call BC_AddChar(")")<CR>i
+" Auto-close brackets and quotes.
+inoremap ( ()<Esc>:call BC_AddChar(")")<CR>i
 inoremap { {<CR>}<Esc>:call BC_AddChar("}")<CR><Esc>kA<CR>
 inoremap [ []<Esc>:call BC_AddChar("]")<CR>i
 inoremap " ""<Esc>:call BC_AddChar("\"")<CR>i
 
-"" Jump out of parenthesis
+" Jump out of brackets with Ctrl-j.
 inoremap <C-j> <Esc>:call search(BC_GetChar(), "W")<CR>a
 
 function! BC_AddChar(schar)
@@ -137,8 +134,7 @@ function! BC_GetChar()
     return l:char
 endfunction
 
-"" Toggle absolute / relative numbers, contextually as well
-
+" Use relative line numbers in normal mode, absolute in insert mode.
 :au FocusLost * :set number
 :au FocusGained * :set relativenumber
 
@@ -155,22 +151,22 @@ endfunc
 
 nnoremap <C-n> :call NumberToggle()<cr>
 
-"" Center lines when jumping
+" Center cursor when jumping to top of file.
 nnoremap gg ggz.
 
-"" Splits, easier 
+" Window resizing shortcuts.
 map <leader>w- <C-W>- 
 map <leader>w+ <C-W>+ 
 map <leader>w[ <C-W>= 
 map <leader>w] <C-W>_ 
 
-"" Move between splits
+" Navigate between splits with g + hjkl.
 nmap gh <C-w>h
 nmap gj <C-w>j
 nmap gk <C-w>k
 nmap gl <C-w>l
 
-"" Force HJKL
+" Disable arrow keys to encourage hjkl usage.
 nnoremap <up> <nop>
 nnoremap <down> <nop>
 nnoremap <left> <nop>

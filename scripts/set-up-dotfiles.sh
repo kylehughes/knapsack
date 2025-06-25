@@ -1,46 +1,38 @@
 #!/bin/bash
-
-#
-# set-up-dotfiles.sh
-# Sets up dotfiles by creating symlinks and copying files
-#
+# set-up-dotfiles.sh - Install dotfiles by creating symlinks and copies.
+# Usage: ./scripts/set-up-dotfiles.sh
 
 set -euo pipefail
 
-##############################
-# CONSTANTS
-##############################
+# --- Constants ---
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
 PATH_DOTFILES="$REPO_ROOT/dotfiles"
 
-##############################
-# UTILITY FUNCTIONS
-##############################
+# --- Logging Functions ---
 
-# Logging
 function log_header()   {
     echo -e "\n\033[1m$@\033[0m";
 }
 function log_success() {
-    echo -e " \033[1;32m\033[0m  $@";
+    echo -e " \033[1;32m✔\033[0m  $@";
 }
 function log_error() {
-    echo -e " \033[1;31m\033[0m  $@";
+    echo -e " \033[1;31m✖\033[0m  $@";
 }
 function log_arrow() {
-    echo -e " \033[1;34m�\033[0m  $@";
+    echo -e " \033[1;34m➜\033[0m  $@";
 }
 
-##############################
-# ACTION PROCESSING
-##############################
+# --- Copy Action Functions ---
 
-# copy files
 function action_copy_header() {
     log_header "copying files into home directory: $HOME"
 }
+
+# Test if file should be copied.
+# Returns: skip reason if file should be skipped, empty otherwise.
 function action_copy_test() {
     if [[ -e "$2" && ! "$(cmp "$1" "$2" 2> /dev/null)" ]]; then
         echo "same file"
@@ -48,29 +40,36 @@ function action_copy_test() {
         echo "destination file newer"
     fi
 }
+
 function action_copy_do() {
     log_success "copying $HOME/$1"
     cp "$2" "$HOME/$1"
 }
 
-# link files
+# --- Link Action Functions ---
+
 function action_link_header() {
     log_header "linking files into home directory: $HOME"
 }
+
+# Test if file should be linked.
+# Returns: skip reason if file should be skipped, empty otherwise.
 function action_link_test() {
     [[ "$1" -ef "$2" ]] && echo "same file"
 }
+
 function action_link_do() {
     log_success "linking $HOME/$1"
     ln -sf "$2" "$HOME/$1"
 }
 
+# Process files for the specified action (copy or link).
+# Args: $1 - action type
 function do_action() {
     local fileBase fileDest skip
     local action="$1"
     local action_dir="$PATH_DOTFILES/$action"
 
-    # check if action directory exists
     if [[ ! -d "$action_dir" ]]; then
         log_arrow "no $action directory found, skipping"
         return
@@ -78,34 +77,28 @@ function do_action() {
 
     local dotfiles=("$action_dir"/*)
     
-    # abort if no files
     if [[ ! -e "${dotfiles[0]}" ]]; then
         log_arrow "no files to $action"
         return
     fi
 
-    # run action's _header function if declared
+    # Run header function if it exists.
     [[ $(declare -f "action_${action}_header") ]] && "action_${action}_header"
 
-    # iterate over dotfiles
     for file in "${dotfiles[@]}"; do
         fileBase=".$(basename "$file")"
         fileDest="$HOME/$fileBase"
 
-        # handle directories with files inside (preserve structure)
+        # Handle directories.
         if [[ -d "$file" ]]; then
-            # special handling for .config directory
+            # Special handling for .config to maintain XDG structure.
             if [[ "$fileBase" == ".config" ]]; then
-                # ensure .config exists
                 mkdir -p "$HOME/.config"
                 
-                # process subdirectories in .config
                 for configdir in "$file"/*; do
                     if [[ -d "$configdir" ]]; then
                         configBase="$(basename "$configdir")"
                         configDest="$HOME/.config/$configBase"
-                        
-                        # create symlink for entire config subdirectory
                         log_success "linking $configDest"
                         ln -sfn "$configdir" "$configDest"
                     fi
@@ -113,10 +106,9 @@ function do_action() {
                 continue
             fi
             
-            # for other directories, ensure target exists
+            # For other directories, link individual files.
             mkdir -p "$fileDest"
             
-            # process files within the directory
             for subfile in "$file"/*; do
                 if [[ -f "$subfile" ]]; then
                     subfileBase="$(basename "$subfile")"
@@ -127,7 +119,7 @@ function do_action() {
             continue
         fi
 
-        # run action's _test function if declared
+        # Test if file should be processed.
         if [[ $(declare -f "action_${action}_test") ]]; then
             skip="$(action_${action}_test "$file" "$fileDest")"
             if [[ "$skip" ]]; then
@@ -136,18 +128,13 @@ function do_action() {
             fi
         fi
 
-        # run action
+        # Process the file.
         "action_${action}_do" "$fileBase" "$file"
     done
 }
 
-##############################
-# MAIN SCRIPT
-##############################
+# --- Main ---
 
-# do setup actions
 do_action "copy"
 do_action "link"
-
-# finish
 log_header "done"
