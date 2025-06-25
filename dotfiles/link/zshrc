@@ -3,6 +3,8 @@
 # The configuration for zsh.
 #
 
+zmodload zsh/zprof
+
 ################################################################################
 # PATHS
 ################################################################################
@@ -131,6 +133,16 @@ HIST_STAMPS="yyyy-mm-dd"
 
 # Plugins
 plugins=(git)
+
+# Use rbenv to manage Ruby versions
+eval "$(rbenv init - zsh)"
+
+# Use pyenv to manage Python versions
+if command -v pyenv >/dev/null 2>&1; then
+  export PYENV_ROOT="$HOME/.pyenv"
+  path=($PYENV_ROOT/bin $path)   # uses zsh’s $path array, avoids dupes
+  eval "$(pyenv init -)"         # sets up shims/completions
+fi
 
 # FINALLY: source oh-my-zsh
 source $ZSH/oh-my-zsh.sh

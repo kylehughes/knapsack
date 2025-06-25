@@ -3,6 +3,7 @@
 [core]
     excludesfile = ~/.gitignore_global
     pager = less -FMRiX
+	editor = vim
 	fsmonitor = True
 	untrackedcache = True
 [push]
