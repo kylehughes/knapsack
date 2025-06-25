@@ -14,14 +14,6 @@ chsh -s /bin/zsh
 
 *Note:* Make sure your terminal emulator is configured to use the login shell. Otherwise you'll have to set its shell manually.
 
-###### Install [`oh-my-zsh`][oh-my-zsh]
-
-```sh
-sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"
-```
-
-[oh-my-zsh]: https://github.com/ohmyzsh/oh-my-zsh
-
 ###### Clone the repository to your home directory:
 
 ```sh
