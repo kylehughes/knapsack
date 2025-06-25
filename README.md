@@ -7,18 +7,19 @@ Personal dotfiles and development environment configuration for macOS.
 ```sh
 # Clone repository
 cd ~ && git clone git@github.com:kylehughes/knapsack.git
+cd ~/knapsack
 
-# Install Homebrew
-/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+# Run all setup tasks
+make set-up/all
+```
 
-# Install dependencies
-cd ~/knapsack && brew bundle install
+Or run individual setup tasks:
 
-# Update submodules
-git submodule update --init --recursive
-
-# Install dotfiles
-make set-up/dotfiles
+```sh
+make set-up/homebrew      # Install Homebrew
+make set-up/dependencies  # Install dependencies from Brewfile
+make set-up/submodules    # Initialize git submodules
+make set-up/dotfiles      # Install dotfiles
 ```
 
 ## Structure
