@@ -35,13 +35,31 @@ bindkey '^[[B' history-search-forward
 # Colors
 autoload -U colors && colors
 
-# Simple prompt with git branch
+# Gengar theme colors
+GENGAR_PURPLE='%F{141}'      # Bright purple (#9d7cd8)
+GENGAR_DARK='%F{54}'         # Dark purple (#5a4a7a)
+GENGAR_LAVENDER='%F{183}'    # Lavender (#c9b1e0)
+GENGAR_RED='%F{203}'         # Red eyes (#ff4b4b)
+
+# Git branch with color
 git_branch() {
-    git symbolic-ref --short HEAD 2>/dev/null
+    local branch=$(git symbolic-ref --short HEAD 2>/dev/null)
+    if [[ -n $branch ]]; then
+        echo "${GENGAR_DARK}[${GENGAR_LAVENDER}$branch${GENGAR_DARK}]%f "
+    fi
+}
+
+# Git status indicators
+git_status() {
+    if [[ -n $(git status --porcelain 2>/dev/null) ]]; then
+        echo "${GENGAR_RED}●%f"
+    fi
 }
 
 setopt PROMPT_SUBST
-PROMPT='%{$fg[cyan]%}%1~%{$reset_color%} $(git_branch 2>/dev/null | sed -e "s/^/[/" -e "s/$/] /")%# '
+
+# Gengar-themed prompt
+PROMPT='${GENGAR_PURPLE}%1~%f $(git_branch)$(git_status)${GENGAR_PURPLE}%#%f '
 
 # Essential git aliases
 alias g='git'

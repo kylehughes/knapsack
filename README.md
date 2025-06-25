@@ -28,11 +28,13 @@ ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/
 
 ###### Install Homebrew packages:
 
-* `tmux`: Terminal multiplexer.
+Install all dependencies using the Brewfile:
 
+```sh
+brew bundle install
 ```
-brew install tmux
-```
+
+This will install all formulae, casks, and VS Code extensions defined in the `Brewfile`.
 
 ###### Update the submodule repositories:
 
@@ -82,3 +84,27 @@ cd dotfiles && ./setup.sh
 ### External
 
 ### Scripts (`./scripts/`)
+
+## Managing Dependencies with Brewfile
+
+The `Brewfile` in the repository root defines all Homebrew dependencies for this setup. It includes:
+
+- **Formulae**: Command-line tools and libraries
+- **Casks**: GUI applications  
+- **VS Code Extensions**: Development environment extensions
+
+### Common Brewfile Commands
+
+```sh
+# Install all dependencies
+brew bundle install
+
+# Update Brewfile from current installation
+brew bundle dump --describe
+
+# Check for missing dependencies
+brew bundle check
+
+# Clean up dependencies not in Brewfile
+brew bundle cleanup
+```
