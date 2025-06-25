@@ -35,3 +35,6 @@ Temporary Items
 # Vim temporary files.
 *.un~
 .netrwhist
+
+# Claude AI local settings.
+.claude/settings.local.json
