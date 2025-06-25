@@ -94,6 +94,22 @@ function do_action() {
         fileBase=".$(basename $file)"
         fileDest="$HOME/$fileBase"
 
+        # handle directories with files inside (preserve structure)
+        if [[ -d "$file" ]]; then
+            # ensure target directory exists
+            mkdir -p "$fileDest"
+            
+            # process files within the directory
+            for subfile in "$file"/*; do
+                if [[ -f "$subfile" ]]; then
+                    subfileBase="$(basename $subfile)"
+                    log_success "linking $fileDest/$subfileBase"
+                    ln -sf "$subfile" "$fileDest/$subfileBase"
+                fi
+            done
+            continue
+        fi
+
         # run action's _test function if declared
         if [[ $(declare -f "action_$1_test") ]] && "action_$1_test"; then
             # skip file if test returns something
