@@ -18,14 +18,14 @@ cd ~/knapsack && brew bundle install
 git submodule update --init --recursive
 
 # Install dotfiles
-cd dotfiles && ./setup.sh
+make set-up/dotfiles
 ```
 
 ## Structure
 
 ### Dotfiles
 
-Configuration files managed by `dotfiles/setup.sh`:
+Configuration files managed by `make set-up/dotfiles`:
 
 | Configuration | Type | Description |
 | --- | --- | --- |

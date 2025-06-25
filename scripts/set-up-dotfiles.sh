@@ -1,28 +1,19 @@
 #!/bin/bash
 
 #
-# setup.sh
-# Description
+# set-up-dotfiles.sh
+# Sets up dotfiles by creating symlinks and copying files
 #
 
-if [[ "$1" == "-h" || "$1" == "--help" ]]; then cat <<HELP
-Usage: $(basename "$0")
-
-See the README for documentation:
-https://github.com/kylehughes/knapsack
-
-Copyright (c) 2017 Kyle Hughes
-
-Licensed under the MIT License:
-https://opensource.org/licenses/MIT
-HELP
-exit; fi
+set -euo pipefail
 
 ##############################
 # CONSTANTS
 ##############################
 
-PATH_DOTFILES=$(pwd)
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+REPO_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
+PATH_DOTFILES="$REPO_ROOT/dotfiles"
 
 ##############################
 # UTILITY FUNCTIONS
@@ -33,13 +24,13 @@ function log_header()   {
     echo -e "\n\033[1m$@\033[0m";
 }
 function log_success() {
-    echo -e " \033[1;32m✔\033[0m  $@";
+    echo -e " \033[1;32m\033[0m  $@";
 }
 function log_error() {
-    echo -e " \033[1;31m✖\033[0m  $@";
+    echo -e " \033[1;31m\033[0m  $@";
 }
 function log_arrow() {
-    echo -e " \033[1;34m➜\033[0m  $@";
+    echo -e " \033[1;34m�\033[0m  $@";
 }
 
 ##############################
@@ -71,38 +62,64 @@ function action_link_test() {
 }
 function action_link_do() {
     log_success "linking $HOME/$1"
-    ln -sf $2 $HOME/$1
+    ln -sf "$2" "$HOME/$1"
 }
 
 function do_action() {
     local fileBase fileDest skip
+    local action="$1"
+    local action_dir="$PATH_DOTFILES/$action"
 
-    local dotfiles=($PATH_DOTFILES/$1/*)
-    [[ $(declare -f "action_$1_files") ]] && dotfiles=($(action_$1_files "${dotfiles[@]}"))
+    # check if action directory exists
+    if [[ ! -d "$action_dir" ]]; then
+        log_arrow "no $action directory found, skipping"
+        return
+    fi
 
+    local dotfiles=("$action_dir"/*)
+    
     # abort if no files
-    if (( ${#dotfiles[@]} == 0 )); then
-        log_error "no files to act on for action: $1"
-        return;
+    if [[ ! -e "${dotfiles[0]}" ]]; then
+        log_arrow "no files to $action"
+        return
     fi
 
     # run action's _header function if declared
-    [[ $(declare -f "action_$1_header") ]] && "action_$1_header"
+    [[ $(declare -f "action_${action}_header") ]] && "action_${action}_header"
 
     # iterate over dotfiles
     for file in "${dotfiles[@]}"; do
-        fileBase=".$(basename $file)"
+        fileBase=".$(basename "$file")"
         fileDest="$HOME/$fileBase"
 
         # handle directories with files inside (preserve structure)
         if [[ -d "$file" ]]; then
-            # ensure target directory exists
+            # special handling for .config directory
+            if [[ "$fileBase" == ".config" ]]; then
+                # ensure .config exists
+                mkdir -p "$HOME/.config"
+                
+                # process subdirectories in .config
+                for configdir in "$file"/*; do
+                    if [[ -d "$configdir" ]]; then
+                        configBase="$(basename "$configdir")"
+                        configDest="$HOME/.config/$configBase"
+                        
+                        # create symlink for entire config subdirectory
+                        log_success "linking $configDest"
+                        ln -sfn "$configdir" "$configDest"
+                    fi
+                done
+                continue
+            fi
+            
+            # for other directories, ensure target exists
             mkdir -p "$fileDest"
             
             # process files within the directory
             for subfile in "$file"/*; do
                 if [[ -f "$subfile" ]]; then
-                    subfileBase="$(basename $subfile)"
+                    subfileBase="$(basename "$subfile")"
                     log_success "linking $fileDest/$subfileBase"
                     ln -sf "$subfile" "$fileDest/$subfileBase"
                 fi
@@ -111,9 +128,8 @@ function do_action() {
         fi
 
         # run action's _test function if declared
-        if [[ $(declare -f "action_$1_test") ]] && "action_$1_test"; then
-            # skip file if test returns something
-            skip="$("action_$1_test" "$file" "$fileDest")"
+        if [[ $(declare -f "action_${action}_test") ]]; then
+            skip="$(action_${action}_test "$file" "$fileDest")"
             if [[ "$skip" ]]; then
                 log_error "skipping $HOME/$fileBase: $skip"
                 continue
@@ -121,15 +137,13 @@ function do_action() {
         fi
 
         # run action
-        "action_$1_do" "$fileBase" "$file"
+        "action_${action}_do" "$fileBase" "$file"
     done
 }
 
 ##############################
 # MAIN SCRIPT
 ##############################
-
-cd $PATH_DOTFILES
 
 # do setup actions
 do_action "copy"
