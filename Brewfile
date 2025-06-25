@@ -1,5 +1,3 @@
-tap "chargepoint/xcparse"
-tap "peripheryapp/periphery"
 # Library for manipulating PNG images
 brew "libpng"
 # New file format for still image compression
@@ -8,16 +6,12 @@ brew "jpeg-xl"
 brew "aom"
 # Platform built on V8 to build network applications
 brew "node"
-# AWS Cloud Development Kit - framework for defining AWS infra as code
-brew "aws-cdk"
 # Core application library for C
 brew "glib"
 # Vector graphics library with cross-device output support
 brew "cairo"
 # GNU File, Shell, and Text utilities
 brew "coreutils"
-# Validating, recursive, caching DNS resolver
-brew "unbound"
 # GNU Transport Layer Security (TLS) Library
 brew "gnutls"
 # OpenType text shaping engine
@@ -28,18 +22,12 @@ brew "libass"
 brew "librist"
 # Framework for layout and rendering of i18n text
 brew "pango"
-# OCR (Optical Character Recognition) engine
-brew "tesseract"
 # Play, record, convert, and stream audio and video
 brew "ffmpeg"
 # GNU compiler collection
 brew "gcc"
-# Interpreter for PostScript and PDF
-brew "ghostscript"
 # Multimedia framework for research and academic purposes
 brew "gpac"
-# Configurable static site generator
-brew "hugo"
 # ISO/IEC 23008-12:2017 HEIF file format decoder and encoder
 brew "libheif"
 # C/C++ seam carving library
@@ -68,8 +56,6 @@ brew "poetry"
 brew "poppler"
 # Python version management
 brew "pyenv"
-# Install various Ruby versions and implementations
-brew "ruby-build"
 # Ruby version manager
 brew "rbenv"
 # Pack repository contents into a single AI-friendly file
@@ -82,10 +68,5 @@ brew "tmux"
 brew "uv"
 # Tool for creating isolated virtual python environments
 brew "virtualenv"
-# Command-line extractor of screenshots/coverage from Xcode 11+ XCResult
-brew "chargepoint/xcparse/xcparse"
-cask "periphery"
-# Tool for working with MV-HEVC/spatial videos
-cask "spatial"
 # Install and switch between multiple versions of Xcode
 cask "xcodes-app"
