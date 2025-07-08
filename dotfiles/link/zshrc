@@ -117,6 +117,13 @@ if [[ -f /opt/homebrew/bin/brew ]]; then
     eval "$(/opt/homebrew/bin/brew shellenv)"
 fi
 
+# Node version manager.
+if [[ -s "$HOME/.nvm/nvm.sh" ]]; then
+    export NVM_DIR="$HOME/.nvm"
+    source "$HOME/.nvm/nvm.sh"
+    nvm use --silent default
+fi
+
 # Ruby version management.
 if command -v rbenv &> /dev/null; then
     eval "$(rbenv init -)"
