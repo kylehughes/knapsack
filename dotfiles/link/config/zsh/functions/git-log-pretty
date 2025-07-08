@@ -1,6 +1,25 @@
 #!/usr/bin/env zsh
-# git-log-pretty - Show formatted log with commit details on one line.
-# Usage: git-log-pretty [git-log-options]
+#===============================================================================
+#  git-log-pretty — Show formatted log with commit details on one line
+#
+#  USAGE:
+#    git-log-pretty [git-log-options]
+#
+#  OPTIONS:
+#    All git-log options are supported
+#
+#  REQUIREMENTS:
+#    zsh ≥ 4.x, git
+#
+#  EXIT CODES:
+#    0  success
+#    1  usage error (bad flags, etc.)
+#    2  missing dependency
+#    >2 script-specific failures
+#
+#  AUTHOR:      Kyle Hughes <kyle@kylehugh.es>
+#  LICENSE:     MIT
+#===============================================================================
 
 # Display formatted log with hash, date, refs, message, and committer.
 git log --pretty=format:"%C(magenta)%h\\ %C(white)%ad%C(brightmagenta)%d\\ %C(white)%s\\ %C(241)[%cn]" --decorate --date=short "$@"

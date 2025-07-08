@@ -1,6 +1,25 @@
 #!/usr/bin/env zsh
-# git-status-diff - Show status and diff for review before committing.
-# Usage: git-status-diff
+#===============================================================================
+#  git-status-diff — Show status and diff for review before committing
+#
+#  USAGE:
+#    git-status-diff
+#
+#  OPTIONS:
+#    None
+#
+#  REQUIREMENTS:
+#    zsh ≥ 4.x, git
+#
+#  EXIT CODES:
+#    0  success
+#    1  usage error (bad flags, etc.)
+#    2  missing dependency
+#    >2 script-specific failures
+#
+#  AUTHOR:      Kyle Hughes <kyle@kylehugh.es>
+#  LICENSE:     MIT
+#===============================================================================
 
 # Show current status with short format.
 git status -s

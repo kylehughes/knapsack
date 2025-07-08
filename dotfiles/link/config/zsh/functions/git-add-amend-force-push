@@ -1,6 +1,25 @@
 #!/usr/bin/env zsh
-# git-add-amend-force-push - Stage all changes, amend commit, and force push.
-# Usage: git-add-amend-force-push
+#===============================================================================
+#  git-add-amend-force-push — Stage all changes, amend commit, and force push
+#
+#  USAGE:
+#    git-add-amend-force-push
+#
+#  OPTIONS:
+#    None
+#
+#  REQUIREMENTS:
+#    zsh ≥ 4.x, git
+#
+#  EXIT CODES:
+#    0  success
+#    1  usage error (bad flags, etc.)
+#    2  missing dependency
+#    >2 script-specific failures
+#
+#  AUTHOR:      Kyle Hughes <kyle@kylehugh.es>
+#  LICENSE:     MIT
+#===============================================================================
 
 # Stage all changes including untracked files.
 git add --all

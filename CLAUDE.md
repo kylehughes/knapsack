@@ -66,6 +66,41 @@ All scripts and configuration files follow consistent patterns:
 - **Comments**: Complete sentences with periods, explaining why not what
 - **Function docs**: Include purpose and argument descriptions
 
+#### Script Header Template
+For more complex scripts requiring detailed documentation, use this extended header format:
+
+```bash
+#!/usr/bin/env bash
+#===============================================================================
+#  script-name — Brief description
+#
+#  USAGE:
+#    Detailed usage instructions
+#
+#  OPTIONS:
+#    -h, --help     Show this help message
+#    -v, --verbose  Enable verbose output
+#
+#  REQUIREMENTS:
+#    bash ≥ 3.x, git, other dependencies
+#
+#  EXIT CODES:
+#    0  success
+#    1  usage error (bad flags, etc.)
+#    2  missing dependency
+#    >2 script-specific failures
+#
+#  AUTHOR:      Kyle Hughes <kyle@kylehugh.es>
+#  LICENSE:     MIT
+#===============================================================================
+```
+
+This extended format is recommended for:
+- Scripts with command-line options
+- Scripts that may fail in multiple ways
+- Scripts intended for wider distribution
+- Git hooks and other automated scripts
+
 ### Theme
 The repository uses a custom "Gengar" theme (purple-based) across all terminal applications:
 - Primary purple: `#af5fff`

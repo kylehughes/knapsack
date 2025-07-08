@@ -1,6 +1,25 @@
 #!/usr/bin/env zsh
-# git-log-graph - Show commit history as a decorated graph.
-# Usage: git-log-graph [git-log-options]
+#===============================================================================
+#  git-log-graph — Show commit history as a decorated graph
+#
+#  USAGE:
+#    git-log-graph [git-log-options]
+#
+#  OPTIONS:
+#    All git-log options are supported
+#
+#  REQUIREMENTS:
+#    zsh ≥ 4.x, git
+#
+#  EXIT CODES:
+#    0  success
+#    1  usage error (bad flags, etc.)
+#    2  missing dependency
+#    >2 script-specific failures
+#
+#  AUTHOR:      Kyle Hughes <kyle@kylehugh.es>
+#  LICENSE:     MIT
+#===============================================================================
 
 # Display one-line log with graph visualization.
 git log --oneline --decorate --graph "$@"

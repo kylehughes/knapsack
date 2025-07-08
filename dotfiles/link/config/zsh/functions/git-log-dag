@@ -1,6 +1,25 @@
 #!/usr/bin/env zsh
-# git-log-dag - Show detailed commit graph with author info and timestamps.
-# Usage: git-log-dag [git-log-options]
+#===============================================================================
+#  git-log-dag — Show detailed commit graph with author info and timestamps
+#
+#  USAGE:
+#    git-log-dag [git-log-options]
+#
+#  OPTIONS:
+#    All git-log options are supported
+#
+#  REQUIREMENTS:
+#    zsh ≥ 4.x, git
+#
+#  EXIT CODES:
+#    0  success
+#    1  usage error (bad flags, etc.)
+#    2  missing dependency
+#    >2 script-specific failures
+#
+#  AUTHOR:      Kyle Hughes <kyle@kylehugh.es>
+#  LICENSE:     MIT
+#===============================================================================
 
 # Display detailed graph with two-line format per commit.
 git log --graph --format='format:%C(magenta)%h%C(reset) %C(241)"%an" <%ae>%C(reset) %C(white)%cr%C(reset)%C(brightmagenta)%d%C(reset)%n%C(white)%s' --date-order "$@"

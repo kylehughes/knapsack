@@ -1,6 +1,25 @@
 #!/usr/bin/env zsh
-# git-add-commit - Stage all changes and create a commit with message.
-# Usage: git-add-commit "commit message"
+#===============================================================================
+#  git-add-commit — Stage all changes and create a commit with message
+#
+#  USAGE:
+#    git-add-commit "commit message"
+#
+#  OPTIONS:
+#    None
+#
+#  REQUIREMENTS:
+#    zsh ≥ 4.x, git
+#
+#  EXIT CODES:
+#    0  success
+#    1  usage error (bad flags, etc.)
+#    2  missing dependency
+#    >2 script-specific failures
+#
+#  AUTHOR:      Kyle Hughes <kyle@kylehugh.es>
+#  LICENSE:     MIT
+#===============================================================================
 
 # Ensure a commit message is provided.
 if [[ -z "$1" ]]; then

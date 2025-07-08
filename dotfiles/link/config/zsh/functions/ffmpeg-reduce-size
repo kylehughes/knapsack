@@ -1,6 +1,25 @@
 #!/usr/bin/env zsh
-# ffmpeg-reduce-size - Reduce video file size using HEVC encoding.
-# Usage: ffmpeg-reduce-size <video-file>
+#===============================================================================
+#  ffmpeg-reduce-size — Reduce video file size using HEVC encoding
+#
+#  USAGE:
+#    ffmpeg-reduce-size <video-file>
+#
+#  OPTIONS:
+#    None
+#
+#  REQUIREMENTS:
+#    zsh ≥ 4.x, ffmpeg with libx265 support
+#
+#  EXIT CODES:
+#    0  success
+#    1  usage error (bad flags, etc.)
+#    2  missing dependency
+#    >2 script-specific failures
+#
+#  AUTHOR:      Kyle Hughes <kyle@kylehugh.es>
+#  LICENSE:     MIT
+#===============================================================================
 
 if [[ $# -ne 1 ]]; then
     echo "Usage: ffmpeg-reduce-size <video-file>"

@@ -1,6 +1,25 @@
-#!/bin/bash
-# set-up-dotfiles.sh - Install dotfiles by creating symlinks and copies.
-# Usage: ./scripts/set-up-dotfiles.sh
+#!/usr/bin/env bash
+#===============================================================================
+#  set-up-dotfiles — Install dotfiles by creating symlinks and copies
+#
+#  USAGE:
+#    ./scripts/set-up-dotfiles.sh
+#
+#  OPTIONS:
+#    None
+#
+#  REQUIREMENTS:
+#    bash ≥ 3.x, coreutils (cp, ln, cmp)
+#
+#  EXIT CODES:
+#    0  success
+#    1  usage error (bad flags, etc.)
+#    2  missing dependency
+#    >2 script-specific failures
+#
+#  AUTHOR:      Kyle Hughes <kyle@kylehugh.es>
+#  LICENSE:     MIT
+#===============================================================================
 
 set -euo pipefail
 

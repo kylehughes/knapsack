@@ -1,6 +1,25 @@
 #!/usr/bin/env zsh
-# git-push-upstream - Push current branch and set upstream tracking.
-# Usage: git-push-upstream
+#===============================================================================
+#  git-push-upstream — Push current branch and set upstream tracking
+#
+#  USAGE:
+#    git-push-upstream
+#
+#  OPTIONS:
+#    None
+#
+#  REQUIREMENTS:
+#    zsh ≥ 4.x, git
+#
+#  EXIT CODES:
+#    0  success
+#    1  usage error (bad flags, etc.)
+#    2  missing dependency
+#    >2 script-specific failures
+#
+#  AUTHOR:      Kyle Hughes <kyle@kylehugh.es>
+#  LICENSE:     MIT
+#===============================================================================
 
 # Get current branch name.
 local branch=$(git symbolic-ref --short HEAD 2>/dev/null)
