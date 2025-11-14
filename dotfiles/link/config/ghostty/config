@@ -30,10 +30,12 @@ keybind = cmd+d=new_split:right
 keybind = cmd+shift+d=new_split:down
 keybind = cmd+t=new_tab
 keybind = cmd+w=close_surface
-keybind = cmd+shift+enter=toggle_fullscreen
 
 # Copy mode
 copy-on-select = true
 
 # Shell integration
 shell-integration = detect
+
+# Claude Code specific
+keybind = shift+enter=text:\x1b\r
