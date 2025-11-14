@@ -35,6 +35,10 @@ bindkey -e  # Emacs mode.
 bindkey '^[[A' history-search-backward
 bindkey '^[[B' history-search-forward
 
+# Bracketed paste prevents shell interpretation during paste.
+autoload -Uz bracketed-paste-magic
+zle -N bracketed-paste bracketed-paste-magic
+
 # --- Theme ---
 
 autoload -U colors && colors
@@ -139,6 +143,11 @@ fi
 # Add custom bin directory.
 export PATH="$HOME/bin:$PATH"
 
+# LM Studio CLI tools.
+if [[ -d "$HOME/.lmstudio/bin" ]]; then
+    export PATH="$PATH:$HOME/.lmstudio/bin"
+fi
+
 # Clean up PATH.
 dedup_path
 
@@ -149,3 +158,4 @@ dedup_path
 
 # Disable git globbing for commands like 'git add *'.
 alias git='noglob git'
+
