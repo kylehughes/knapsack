@@ -2,6 +2,10 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code across all repositories.
 
+## Skills for Context Discovery
+
+Skills often contain valuable contextual information about the project you're working on. Consider using them to discover project-specific knowledge, established patterns, and domain expertise that may not be immediately apparent from the codebase alone. They're particularly useful when you need specialized knowledge or want to ensure consistency with existing patterns.
+
 ## Git Commit Guidelines
 
 When creating git commits:
