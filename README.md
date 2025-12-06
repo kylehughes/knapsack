@@ -1,13 +1,13 @@
-# knapsack
+# Knapsack
 
-Personal dotfiles and development environment configuration for macOS.
+Kyle Hughes's dotfiles and development environment configuration for macOS.
 
 ## Installation
 
 ```sh
 # Clone repository
-cd ~ && git clone git@github.com:kylehughes/knapsack.git
-cd ~/knapsack
+cd ~ && git clone git@github.com:kylehughes/knapsack.git Knapsack
+cd ~/Knapsack
 
 # Run all setup tasks
 make set-up/all

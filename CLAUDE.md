@@ -6,7 +6,7 @@ Note: This repository also installs a global Claude configuration at `~/.claude/
 
 ## Repository Overview
 
-This is a personal dotfiles repository ("knapsack") for macOS development environments. It manages configuration files for various development tools through a combination of symlinks and copies.
+This is a personal dotfiles repository ("Knapsack") for macOS development environments. It manages configuration files for various development tools through a combination of symlinks and copies.
 
 ## Key Commands
 
@@ -30,7 +30,7 @@ When modifying dotfiles:
 ## Repository Structure
 
 ```
-knapsack/
+Knapsack/
 ├── README.md             # Main documentation
 ├── CLAUDE.md             # This file
 ├── Brewfile              # Homebrew dependencies

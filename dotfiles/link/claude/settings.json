@@ -144,6 +144,15 @@
     "defaultMode": "acceptEdits"
   },
   "enabledPlugins": {
-    "example-skills@anthropic-agent-skills": true
+    "example-skills@anthropic-agent-skills": true,
+    "programming-swift-skill@the-unofficial-swift-programming-language-skill": true
+  },
+  "extraKnownMarketplaces": {
+    "the-unofficial-swift-programming-language-skill": {
+      "source": {
+        "source": "github",
+        "repo": "kylehughes/the-unofficial-swift-programming-language-skill"
+      }
+    }
   }
 }
