@@ -159,3 +159,4 @@ dedup_path
 # Disable git globbing for commands like 'git add *'.
 alias git='noglob git'
 
+[ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion

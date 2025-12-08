@@ -145,7 +145,8 @@
   },
   "enabledPlugins": {
     "example-skills@anthropic-agent-skills": true,
-    "programming-swift-skill@the-unofficial-swift-programming-language-skill": true
+    "programming-swift-skill@the-unofficial-swift-programming-language-skill": true,
+    "migrating-to-swift-concurrency-skill@the-unofficial-swift-concurrency-migration-skill": true
   },
   "extraKnownMarketplaces": {
     "the-unofficial-swift-programming-language-skill": {
@@ -154,5 +155,6 @@
         "repo": "kylehughes/the-unofficial-swift-programming-language-skill"
       }
     }
-  }
+  },
+  "alwaysThinkingEnabled": true
 }
