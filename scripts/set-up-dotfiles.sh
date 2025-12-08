@@ -125,14 +125,17 @@ function do_action() {
                 continue
             fi
             
-            # For other directories, link individual files.
+            # For other directories, link files and subdirectories.
             mkdir -p "$fileDest"
-            
+
             for subfile in "$file"/*; do
+                subfileBase="$(basename "$subfile")"
                 if [[ -f "$subfile" ]]; then
-                    subfileBase="$(basename "$subfile")"
                     log_success "linking $fileDest/$subfileBase"
                     ln -sf "$subfile" "$fileDest/$subfileBase"
+                elif [[ -d "$subfile" ]]; then
+                    log_success "linking $fileDest/$subfileBase"
+                    ln -sfn "$subfile" "$fileDest/$subfileBase"
                 fi
             done
             continue
