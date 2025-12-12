@@ -74,7 +74,7 @@ function action_link_header() {
 # Test if file should be linked.
 # Returns: skip reason if file should be skipped, empty otherwise.
 function action_link_test() {
-    [[ "$1" -ef "$2" ]] && echo "same file"
+    [[ "$1" -ef "$2" ]] && echo "same file" || true
 }
 
 function action_link_do() {
