@@ -146,7 +146,8 @@
   "enabledPlugins": {
     "example-skills@anthropic-agent-skills": true,
     "programming-swift-skill@the-unofficial-swift-programming-language-skill": true,
-    "migrating-to-swift-concurrency-skill@the-unofficial-swift-concurrency-migration-skill": true
+    "migrating-to-swift-concurrency-skill@the-unofficial-swift-concurrency-migration-skill": true,
+    "apple-platform-build-tools@apple-platform-build-tools": true
   },
   "extraKnownMarketplaces": {
     "the-unofficial-swift-programming-language-skill": {
