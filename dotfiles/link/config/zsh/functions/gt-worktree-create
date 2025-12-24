@@ -1,0 +1,41 @@
+#!/usr/bin/env zsh
+#===============================================================================
+#  gt-worktree-create — Create a git worktree and track it with Graphite
+#
+#  USAGE:
+#    gt-worktree-create <branch-name>
+#
+#  OPTIONS:
+#    None
+#
+#  REQUIREMENTS:
+#    zsh ≥ 4.x, git, gt (Graphite CLI)
+#
+#  EXIT CODES:
+#    0  success
+#    1  usage error (bad flags, etc.)
+#    2  missing dependency
+#    >2 script-specific failures
+#
+#  AUTHOR:      Kyle Hughes <kyle@kylehugh.es>
+#  LICENSE:     MIT
+#===============================================================================
+
+# Ensure a branch name is provided.
+if [[ -z "$1" ]]; then
+    echo "Error: Branch name required."
+    echo "Usage: gt-worktree-create <branch-name>"
+    return 1
+fi
+
+local branch_name="$1"
+local worktree_path="../${branch_name}"
+
+# Create worktree with a new branch.
+git worktree add "$worktree_path" -b "$branch_name" || return 1
+
+# Enter the worktree and register it with Graphite.
+cd "$worktree_path" || return 1
+gt track
+
+echo "Created worktree at $worktree_path"
