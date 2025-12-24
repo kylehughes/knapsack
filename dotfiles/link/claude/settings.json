@@ -144,12 +144,18 @@
     "defaultMode": "acceptEdits"
   },
   "enabledPlugins": {
-    "example-skills@anthropic-agent-skills": true,
+    "swift-lsp@claude-plugins-official": true,
     "programming-swift-skill@the-unofficial-swift-programming-language-skill": true,
     "migrating-to-swift-concurrency-skill@the-unofficial-swift-concurrency-migration-skill": true,
     "apple-platform-build-tools@apple-platform-build-tools": true
   },
   "extraKnownMarketplaces": {
+    "the-unofficial-swift-concurrency-migration-skill": {
+      "source": {
+        "source": "github",
+        "repo": "kylehughes/the-unofficial-swift-concurrency-migration-skill"
+      }
+    },
     "the-unofficial-swift-programming-language-skill": {
       "source": {
         "source": "github",
