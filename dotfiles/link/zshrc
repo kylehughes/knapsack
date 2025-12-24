@@ -1,12 +1,14 @@
 # zsh configuration
 
+# Automatically remove duplicate entries from PATH.
+typeset -U path
+
 # --- History ---
 
 HISTFILE=~/.zsh_history
 HISTSIZE=10000
 SAVEHIST=10000
 setopt APPEND_HISTORY
-setopt INC_APPEND_HISTORY
 setopt SHARE_HISTORY
 setopt HIST_FIND_NO_DUPS
 setopt HIST_IGNORE_DUPS
@@ -22,7 +24,13 @@ setopt PUSHD_SILENT
 
 # --- Completion ---
 
-autoload -Uz compinit && compinit
+# Cache completions and only regenerate once per day.
+autoload -Uz compinit
+if [[ -n ~/.zcompdump(#qN.mh+24) ]]; then
+    compinit
+else
+    compinit -C
+fi
 zstyle ':completion:*' menu select
 zstyle ':completion:*' matcher-list 'm:{a-z}={A-Z}'    # Case-insensitive matching.
 zstyle ':completion:*' list-colors ''
@@ -40,8 +48,6 @@ autoload -Uz bracketed-paste-magic
 zle -N bracketed-paste bracketed-paste-magic
 
 # --- Theme ---
-
-autoload -U colors && colors
 
 # Gengar theme colors.
 GENGAR_PURPLE='%F{135}'      # Medium purple.
@@ -110,27 +116,32 @@ fi
 
 # --- PATH Management ---
 
-# Remove duplicate PATH entries.
-dedup_path() {
-    typeset -U path
-    path=($path)
-}
-
 # Homebrew (Apple Silicon).
 if [[ -f /opt/homebrew/bin/brew ]]; then
     eval "$(/opt/homebrew/bin/brew shellenv)"
 fi
 
-# Node version manager.
-if [[ -s "$HOME/.nvm/nvm.sh" ]]; then
+# Node version manager (lazy-loaded to avoid 200-500ms startup penalty).
+if [[ -d "$HOME/.nvm" ]]; then
     export NVM_DIR="$HOME/.nvm"
-    source "$HOME/.nvm/nvm.sh"
-    nvm use --silent default
+
+    # Stub functions that load NVM on first use then call the real command.
+    _load_nvm() {
+        unfunction nvm node npm npx 2>/dev/null
+        source "$NVM_DIR/nvm.sh"
+        [[ -s "$NVM_DIR/bash_completion" ]] && source "$NVM_DIR/bash_completion"
+    }
+
+    nvm() { _load_nvm && nvm "$@" }
+    node() { _load_nvm && node "$@" }
+    npm() { _load_nvm && npm "$@" }
+    npx() { _load_nvm && npx "$@" }
 fi
 
 # Ruby version management.
 if command -v rbenv &> /dev/null; then
-    eval "$(rbenv init -)"
+    # Skip rehash on startup; run `rbenv rehash` manually after installing gems.
+    eval "$(rbenv init - --no-rehash)"
 fi
 
 # Python version management.
@@ -148,9 +159,6 @@ if [[ -d "$HOME/.lmstudio/bin" ]]; then
     export PATH="$PATH:$HOME/.lmstudio/bin"
 fi
 
-# Clean up PATH.
-dedup_path
-
 # --- Additional Configurations ---
 
 # Source local profile if it exists.
@@ -158,5 +166,3 @@ dedup_path
 
 # Disable git globbing for commands like 'git add *'.
 alias git='noglob git'
-
-[ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
