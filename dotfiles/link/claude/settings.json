@@ -144,12 +144,18 @@
     "defaultMode": "acceptEdits"
   },
   "enabledPlugins": {
-    "swift-lsp@claude-plugins-official": true,
-    "programming-swift-skill@the-unofficial-swift-programming-language-skill": true,
+    "apple-platform-build-tools@apple-platform-build-tools-claude-code-plugin": true,
     "migrating-to-swift-concurrency-skill@the-unofficial-swift-concurrency-migration-skill": true,
-    "apple-platform-build-tools@apple-platform-build-tools": true
+    "programming-swift-skill@the-unofficial-swift-programming-language-skill": true,
+    "swift-lsp@claude-plugins-official": true
   },
   "extraKnownMarketplaces": {
+    "apple-platform-build-tools-claude-code-plugin": {
+      "source": {
+        "source": "github",
+        "repo": "kylehughes/apple-platform-build-tools-claude-code-plugin"
+      }
+    },
     "the-unofficial-swift-concurrency-migration-skill": {
       "source": {
         "source": "github",
