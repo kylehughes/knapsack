@@ -1,5 +1,8 @@
 {
-  "includeCoAuthoredBy": false,
+  "attribution": {
+    "commit": "",
+    "pr": ""
+  },
   "permissions": {
     "allow": [
       "Task",
@@ -16,6 +19,7 @@
       "TodoWrite",
       "NotebookRead",
       "NotebookEdit",
+      "Skill",
       "Bash(git:*)",
       "Bash(gh:*)",
       "Bash(npm:*)",
