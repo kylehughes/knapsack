@@ -1,15 +1,47 @@
 #!/usr/bin/env zsh
 #===============================================================================
-#  gt-worktree-create — Create a git worktree and track it with Graphite
+#  gt-worktree-create — Create a git worktree with full project setup
 #
 #  USAGE:
 #    gt-worktree-create <branch-name>
+#
+#  DESCRIPTION:
+#    Creates a new git worktree and sets up the complete development environment:
+#    - Generates .envrc for direnv (DERIVED_DATA_PATH, SHORTCUT_TICKET)
+#    - Attempts secrets generation (warns if 1Password not authenticated)
+#    - Installs git hooks
+#    - Registers with Graphite
+#
+#    Branch names follow the format: yourname/sc-NNNNN/short-description
+#    or yourname/no-sc/short-description for non-ticket work.
+#
+#    The folder name is derived from the branch:
+#    - kylehughes/sc-63904/add-feature → folder: sc-63904
+#    - kylehughes/no-sc/experiment    → folder: no-sc-experiment
+#
+#    Designed for use with a bare repo workflow where all branches are worktrees
+#    stored as siblings to the bare repo.
+#
+#    Expected folder structure:
+#      iOS App/
+#      ├── bare.git/           # Bare clone
+#      ├── main/               # Worktree for main branch
+#      ├── sc-63902/           # Feature worktree (created by this function)
+#      └── no-sc-experiment/   # Non-ticket worktree
+#
+#    Setup a new repo with this workflow:
+#      mkdir "iOS App" && cd "iOS App"
+#      git clone --bare <url> bare.git
+#      cd bare.git
+#      git config remote.origin.fetch "+refs/heads/*:refs/remotes/origin/*"
+#      git fetch origin
+#      git worktree add ../main main
 #
 #  OPTIONS:
 #    None
 #
 #  REQUIREMENTS:
-#    zsh ≥ 4.x, git, gt (Graphite CLI)
+#    zsh ≥ 4.x, git, gt (Graphite CLI), direnv (optional), op (optional)
 #
 #  EXIT CODES:
 #    0  success
@@ -25,17 +57,128 @@
 if [[ -z "$1" ]]; then
     echo "Error: Branch name required."
     echo "Usage: gt-worktree-create <branch-name>"
+    echo "Examples:"
+    echo "  gt-worktree-create kylehughes/sc-63904/add-feature"
+    echo "  gt-worktree-create kylehughes/no-sc/experiment"
     return 1
 fi
 
 local branch_name="$1"
-local worktree_path="../${branch_name}"
 
-# Create worktree with a new branch.
-git worktree add "$worktree_path" -b "$branch_name" || return 1
+# Derive folder name from branch.
+# Pattern: yourname/sc-NNNNN/description → sc-NNNNN
+# Pattern: yourname/no-sc/description   → no-sc-description
+local folder_name
+if [[ "$branch_name" =~ '.*/sc-([0-9]+)/.*' ]]; then
+    folder_name="sc-${match[1]}"
+elif [[ "$branch_name" =~ '.*/no-sc/(.+)' ]]; then
+    folder_name="no-sc-${match[1]}"
+else
+    echo "Error: Branch name must match pattern 'yourname/sc-NNNNN/description' or 'yourname/no-sc/description'"
+    echo "Got: $branch_name"
+    return 1
+fi
 
-# Enter the worktree and register it with Graphite.
+# Extract ticket for environment variable (empty for no-sc).
+local ticket=""
+if [[ "$branch_name" =~ '.*/sc-([0-9]+)/.*' ]]; then
+    ticket="sc-${match[1]}"
+fi
+
+# Find the common git directory (bare repo or main .git folder).
+local git_common_dir
+git_common_dir="$(git rev-parse --git-common-dir 2>/dev/null)" || {
+    echo "Error: Not in a git repository."
+    return 1
+}
+
+# Resolve to absolute path and get parent directory for worktree placement.
+local git_common_dir_abs
+git_common_dir_abs="$(cd "$git_common_dir" && pwd -P)"
+local worktrees_parent="${git_common_dir_abs:h}"
+local worktree_path="${worktrees_parent}/${folder_name}"
+
+# Check if worktree directory already exists.
+if [[ -e "$worktree_path" ]]; then
+    echo "Error: Directory already exists: $worktree_path"
+    return 1
+fi
+
+# Fetch latest from origin to ensure we branch from up-to-date refs.
+echo "Fetching from origin..."
+git fetch origin || return 1
+
+# Create worktree with a new branch based on origin/main (or origin/master).
+local base_branch
+if git rev-parse --verify origin/main &>/dev/null; then
+    base_branch="origin/main"
+elif git rev-parse --verify origin/master &>/dev/null; then
+    base_branch="origin/master"
+else
+    echo "Error: Could not find origin/main or origin/master."
+    return 1
+fi
+
+echo "Creating worktree at $worktree_path..."
+echo "Branch: $branch_name"
+git worktree add "$worktree_path" -b "$branch_name" "$base_branch" || return 1
+
+# Enter the worktree.
 cd "$worktree_path" || return 1
-gt track
 
-echo "Created worktree at $worktree_path"
+# Generate .envrc for direnv.
+echo "Generating .envrc..."
+cat > .envrc << EOF
+# Auto-generated for worktree
+export DERIVED_DATA_PATH="\$PWD/DerivedData"
+EOF
+
+# Add ticket if present.
+if [[ -n "$ticket" ]]; then
+    cat >> .envrc << EOF
+export SHORTCUT_TICKET="$ticket"
+EOF
+fi
+
+cat >> .envrc << EOF
+
+# Source any additional local config
+[[ -f .envrc.local ]] && source .envrc.local
+EOF
+
+# Activate direnv if available.
+if command -v direnv &>/dev/null; then
+    direnv allow
+    eval "$(direnv export zsh)"
+else
+    echo "Warning: direnv not installed. Run 'source .envrc' manually."
+fi
+
+# Attempt secrets generation if the make target exists.
+if [[ -f Makefile ]] && make -n secrets/generate-for-dev &>/dev/null; then
+    echo "Attempting secrets generation..."
+    if command -v op &>/dev/null && op account list &>/dev/null; then
+        make secrets/generate-for-dev || echo "Warning: Secrets generation failed."
+    else
+        echo "Warning: 1Password not authenticated."
+        echo "  Run 'op signin' then 'make secrets/generate-for-dev'"
+    fi
+fi
+
+# Install git hooks if the make target exists.
+if [[ -f Makefile ]] && make -n git/install-hooks &>/dev/null; then
+    echo "Installing git hooks..."
+    make git/install-hooks || echo "Warning: Git hooks installation failed."
+fi
+
+# Register with Graphite.
+echo "Registering with Graphite..."
+gt track || echo "Warning: Graphite track failed."
+
+echo ""
+echo "Worktree created: $worktree_path"
+echo "Branch: $branch_name"
+[[ -n "$ticket" ]] && echo "Ticket: $ticket"
+echo "Environment: DERIVED_DATA_PATH set via .envrc"
+echo ""
+echo "Next: cd $worktree_path && claude"
