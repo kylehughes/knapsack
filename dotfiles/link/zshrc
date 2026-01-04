@@ -114,6 +114,20 @@ if [[ -d ~/.config/zsh/functions-local ]]; then
     done
 fi
 
+# --- Tmux Pane Naming ---
+
+# Update pane name on directory change (debounced).
+if [[ -n "$TMUX" ]]; then
+    autoload -Uz add-zsh-hook
+
+    _tmux_pane_name_chpwd() {
+        # Only trigger if the function is available.
+        (( $+functions[tmux-pane-name] )) && tmux-pane-name &!
+    }
+
+    add-zsh-hook chpwd _tmux_pane_name_chpwd
+fi
+
 # --- PATH Management ---
 
 # Homebrew (Apple Silicon).
@@ -149,6 +163,11 @@ if command -v pyenv &> /dev/null; then
     export PYENV_ROOT="$HOME/.pyenv"
     export PATH="$PYENV_ROOT/bin:$PATH"
     eval "$(pyenv init -)"
+fi
+
+# Directory environment management.
+if command -v direnv &> /dev/null; then
+    eval "$(direnv hook zsh)"
 fi
 
 # Add custom bin directory.

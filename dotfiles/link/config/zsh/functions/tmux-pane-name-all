@@ -1,0 +1,41 @@
+#!/usr/bin/env zsh
+#===============================================================================
+#  tmux-pane-name-all — Generate AI names for all panes in the current session
+#
+#  USAGE:
+#    tmux-pane-name-all           Name all panes (respects debounce)
+#    tmux-pane-name-all -f        Force update all (skip debounce)
+#
+#  REQUIREMENTS:
+#    zsh >= 4.x, tmux, tmux-pane-name function
+#
+#  EXIT CODES:
+#    0  success
+#    1  not in tmux
+#
+#  AUTHOR:      Kyle Hughes <kyle@kylehugh.es>
+#  LICENSE:     MIT
+#===============================================================================
+
+# --- Argument Parsing ---
+
+local force=""
+[[ "$1" == "-f" || "$1" == "--force" ]] && force="-f"
+
+# --- Environment Check ---
+
+if [[ -z "$TMUX" ]]; then
+    echo "Error: Not in a tmux session" >&2
+    return 1
+fi
+
+# --- Name All Panes ---
+
+# Get all pane IDs in the current session.
+local panes=($(tmux list-panes -s -F '#{pane_id}'))
+
+# Stagger updates to avoid overwhelming the API.
+for pane in $panes; do
+    tmux-pane-name $force "$pane"
+    sleep 0.5
+done
