@@ -1,0 +1,278 @@
+#!/usr/bin/env zsh
+#===============================================================================
+#  gt-worktree-remove — Remove a git worktree and sync with Graphite
+#
+#  USAGE:
+#    gt-worktree-remove [<worktree-path>] [-f|--force] [--no-sync] [-p|--prune-merged]
+#
+#  DESCRIPTION:
+#    Removes a git worktree and runs 'gt sync' to clean up branches. Can be run
+#    from within the worktree to remove (will cd to main worktree first) or from
+#    any location by specifying the path.
+#
+#    If the worktree has uncommitted changes, use --force to remove anyway.
+#    Use --no-sync to skip running 'gt sync' after removal.
+#    Use --prune-merged to also remove worktrees for already-merged PRs.
+#
+#  WORKFLOW:
+#    This script is the cleanup half of a Graphite + worktrees workflow.
+#
+#    The key insight: gt sync runs automatically after removal. This ensures
+#    Graphite can clean up branches immediately, preventing accumulation of
+#    orphaned branches that confuse future syncs.
+#
+#    Typical usage (after PR merges):
+#      $ gt-worktree-remove
+#      Moving to main worktree...
+#      Removing worktree: /path/to/sc-12345
+#      Worktree removed: sc-12345
+#      Running gt sync from main worktree...
+#      PR #123 merged. Delete branch? → y
+#      Done.
+#
+#    Why sync is default: Without immediate cleanup, branches accumulate in
+#    Graphite's tracking. Multiple tracked branches appear as a "stack" to
+#    Graphite, causing it to attempt restacking instead of offering deletion.
+#    Running sync after each removal prevents this entirely.
+#
+#    See also: gt-worktree-create for the creation half of this workflow.
+#
+#    Expected folder structure:
+#      iOS App/
+#      ├── bare.git/           # Bare clone
+#      ├── main/               # Worktree for main branch (fallback destination)
+#      ├── sc-63902/           # Feature worktree (to be removed)
+#      └── no-sc-experiment/   # Another worktree
+#
+#  OPTIONS:
+#    -f, --force         Remove even if worktree has uncommitted changes
+#    --no-sync           Skip running 'gt sync' after removal (sync runs by default)
+#    -p, --prune-merged  Remove all worktrees whose PRs have been merged
+#
+#  REQUIREMENTS:
+#    zsh ≥ 4.x, git, gt (Graphite CLI), gh (GitHub CLI, for --prune-merged)
+#
+#  EXIT CODES:
+#    0  success
+#    1  usage error (bad flags, etc.)
+#    2  missing dependency
+#    >2 script-specific failures
+#
+#  AUTHOR:      Kyle Hughes <kyle@kylehugh.es>
+#  LICENSE:     MIT
+#===============================================================================
+
+local force=false
+local sync=true
+local prune_merged=false
+local worktree_path=""
+
+# Parse arguments.
+while [[ $# -gt 0 ]]; do
+    case "$1" in
+        -f|--force)
+            force=true
+            shift
+            ;;
+        --no-sync)
+            sync=false
+            shift
+            ;;
+        -p|--prune-merged)
+            prune_merged=true
+            shift
+            ;;
+        -*)
+            echo "Error: Unknown option: $1"
+            echo "Usage: gt-worktree-remove [<worktree-path>] [-f|--force] [--no-sync] [-p|--prune-merged]"
+            return 1
+            ;;
+        *)
+            if [[ -z "$worktree_path" ]]; then
+                worktree_path="$1"
+            else
+                echo "Error: Multiple paths specified."
+                return 1
+            fi
+            shift
+            ;;
+    esac
+done
+
+# Find the common git directory.
+local git_common_dir
+git_common_dir="$(git rev-parse --git-common-dir 2>/dev/null)" || {
+    echo "Error: Not in a git repository."
+    return 1
+}
+
+# Resolve to absolute path and get parent directory.
+local git_common_dir_abs
+git_common_dir_abs="$(cd "$git_common_dir" && pwd -P)"
+local worktrees_parent="${git_common_dir_abs:h}"
+
+# If no path specified, use current directory.
+if [[ -z "$worktree_path" ]]; then
+    worktree_path="$(pwd -P)"
+fi
+
+# Resolve to absolute path.
+if [[ "$worktree_path" != /* ]]; then
+    worktree_path="$(cd "$worktree_path" 2>/dev/null && pwd -P)" || {
+        echo "Error: Cannot resolve path: $worktree_path"
+        return 1
+    }
+fi
+
+# Find main worktree for fallback.
+local main_worktree="${worktrees_parent}/main"
+if [[ ! -d "$main_worktree" ]]; then
+    echo "Error: Cannot find main worktree at: $main_worktree"
+    return 1
+fi
+
+# Prevent removing main worktree.
+if [[ "$worktree_path" == "$main_worktree" ]]; then
+    echo "Error: Cannot remove main worktree."
+    return 1
+fi
+
+# If we're currently in the worktree being removed, move out first.
+local current_dir
+current_dir="$(pwd -P)"
+if [[ "$current_dir" == "$worktree_path"* ]]; then
+    echo "Moving to main worktree..."
+    cd "$main_worktree" || return 1
+fi
+
+# Prune worktrees with merged PRs if requested.
+if [[ "$prune_merged" == true ]]; then
+    echo "Checking for worktrees with merged PRs..."
+    local worktree_list
+    worktree_list="$(git -C "$git_common_dir_abs" worktree list --porcelain)"
+
+    local wt_path=""
+    local wt_branch=""
+    local pruned_any=false
+
+    while IFS= read -r line || [[ -n "$line" ]]; do
+        if [[ "$line" == worktree\ * ]]; then
+            wt_path="${line#worktree }"
+        elif [[ "$line" == branch\ * ]]; then
+            wt_branch="${line#branch refs/heads/}"
+        elif [[ -z "$line" ]]; then
+            # End of worktree entry, process it.
+            if [[ -n "$wt_path" && -n "$wt_branch" ]]; then
+                # Skip main worktree and bare repo.
+                if [[ "$wt_path" != "$main_worktree" && "$wt_path" != *"/bare.git" ]]; then
+                    # Skip the worktree we're explicitly removing (handled later).
+                    if [[ "$wt_path" != "$worktree_path" ]]; then
+                        # Check if this branch has a merged PR.
+                        local pr_state
+                        pr_state="$(gh pr view "$wt_branch" --json state --jq '.state' 2>/dev/null)"
+
+                        if [[ "$pr_state" == "MERGED" ]]; then
+                            # Check for uncommitted changes unless forcing.
+                            local has_changes=false
+                            if [[ -n "$(git -C "$wt_path" status --porcelain 2>/dev/null)" ]]; then
+                                has_changes=true
+                            fi
+
+                            if [[ "$has_changes" == true && "$force" != true ]]; then
+                                echo "Skipping ${wt_path:t} (merged PR, but has uncommitted changes)"
+                            else
+                                echo "Removing ${wt_path:t} (PR merged)..."
+                                local prune_args=()
+                                [[ "$force" == true ]] && prune_args+=(--force)
+                                git -C "$git_common_dir_abs" worktree remove "${prune_args[@]}" "$wt_path" 2>/dev/null && pruned_any=true
+                            fi
+                        fi
+                    fi
+                fi
+            fi
+            wt_path=""
+            wt_branch=""
+        fi
+    done <<< "$worktree_list"
+
+    # Handle last entry if file doesn't end with newline.
+    if [[ -n "$wt_path" && -n "$wt_branch" ]]; then
+        if [[ "$wt_path" != "$main_worktree" && "$wt_path" != *"/bare.git" && "$wt_path" != "$worktree_path" ]]; then
+            local pr_state
+            pr_state="$(gh pr view "$wt_branch" --json state --jq '.state' 2>/dev/null)"
+            if [[ "$pr_state" == "MERGED" ]]; then
+                local has_changes=false
+                if [[ -n "$(git -C "$wt_path" status --porcelain 2>/dev/null)" ]]; then
+                    has_changes=true
+                fi
+                if [[ "$has_changes" == true && "$force" != true ]]; then
+                    echo "Skipping ${wt_path:t} (merged PR, but has uncommitted changes)"
+                else
+                    echo "Removing ${wt_path:t} (PR merged)..."
+                    local prune_args=()
+                    [[ "$force" == true ]] && prune_args+=(--force)
+                    git -C "$git_common_dir_abs" worktree remove "${prune_args[@]}" "$wt_path" 2>/dev/null && pruned_any=true
+                fi
+            fi
+        fi
+    fi
+
+    if [[ "$pruned_any" == true ]]; then
+        git -C "$git_common_dir_abs" worktree prune
+        echo ""
+    else
+        echo "No additional worktrees with merged PRs found."
+        echo ""
+    fi
+fi
+
+# Verify it's actually a worktree.
+local worktree_name="${worktree_path:t}"
+if ! git -C "$git_common_dir_abs" worktree list | grep -q "$worktree_path"; then
+    echo "Error: Not a registered worktree: $worktree_path"
+    echo ""
+    echo "Registered worktrees:"
+    git -C "$git_common_dir_abs" worktree list
+    return 1
+fi
+
+# Get the branch name for this worktree.
+local branch_name
+branch_name="$(git -C "$worktree_path" rev-parse --abbrev-ref HEAD 2>/dev/null)"
+
+# Check for uncommitted changes unless forcing.
+if [[ "$force" != true ]]; then
+    if [[ -n "$(git -C "$worktree_path" status --porcelain 2>/dev/null)" ]]; then
+        echo "Error: Worktree has uncommitted changes: $worktree_path"
+        echo "Use --force to remove anyway."
+        return 1
+    fi
+fi
+
+# Remove the worktree.
+echo "Removing worktree: $worktree_path"
+local remove_args=()
+[[ "$force" == true ]] && remove_args+=(--force)
+
+git -C "$git_common_dir_abs" worktree remove "${remove_args[@]}" "$worktree_path" || {
+    echo "Error: Failed to remove worktree."
+    return 1
+}
+
+# Prune any stale worktree references.
+git -C "$git_common_dir_abs" worktree prune
+
+echo ""
+echo "Worktree removed: $worktree_name"
+[[ -n "$branch_name" ]] && echo "Branch was: $branch_name"
+
+# Run gt sync (default) to let Graphite clean up merged branches.
+if [[ "$sync" == true ]]; then
+    echo ""
+    echo "Running gt sync from main worktree..."
+    (cd "$main_worktree" && gt sync) || echo "Warning: gt sync failed."
+fi
+
+echo ""
+echo "Remaining worktrees:"
+git -C "$git_common_dir_abs" worktree list

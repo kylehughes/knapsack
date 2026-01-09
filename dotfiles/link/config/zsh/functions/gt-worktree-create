@@ -22,6 +22,28 @@
 #    Designed for use with a bare repo workflow where all branches are worktrees
 #    stored as siblings to the bare repo.
 #
+#  WORKFLOW:
+#    This script is part of a Graphite + worktrees workflow that preserves the
+#    simplicity of Graphite while enabling parallel development:
+#
+#    1. CREATE: gt-worktree-create <branch>    # This script
+#       → Creates worktree + branch + environment
+#       → Registers with Graphite (gt track)
+#
+#    2. WORK: Use Graphite normally in the worktree
+#       → gt modify -m "feat: ..."   # First commit (branch exists)
+#       → gt submit                   # Push PR
+#       → gt create -m "..."          # Stack more PRs if needed
+#
+#    3. REMOVE: gt-worktree-remove              # After PR merges
+#       → Removes worktree directory
+#       → Runs gt sync automatically
+#       → Graphite offers to delete merged branches
+#
+#    Mental model: The worktree is just a working directory for a Graphite-managed
+#    branch. Creation sets up the directory. Removal tears it down. Branch lifecycle
+#    stays entirely with Graphite.
+#
 #    Expected folder structure:
 #      iOS App/
 #      ├── bare.git/           # Bare clone
@@ -128,9 +150,15 @@ cd "$worktree_path" || return 1
 
 # Generate .envrc for direnv.
 echo "Generating .envrc..."
+
+# Generate a random 26-character lowercase string like Xcode does.
+local random_suffix
+random_suffix=$(LC_ALL=C tr -dc 'a-z' < /dev/urandom | head -c 26)
+local derived_data_path="$HOME/Library/Developer/Xcode/DerivedData/Coast-${random_suffix}"
+
 cat > .envrc << EOF
 # Auto-generated for worktree
-export DERIVED_DATA_PATH="\$PWD/DerivedData"
+export DERIVED_DATA_PATH="$derived_data_path"
 EOF
 
 # Add ticket if present.
