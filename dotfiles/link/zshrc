@@ -1,5 +1,10 @@
 # zsh configuration
 
+# --- Security ---
+
+# New files readable only by owner (rw-------).
+umask 077
+
 # Automatically remove duplicate entries from PATH.
 typeset -U path
 
@@ -14,6 +19,12 @@ setopt HIST_FIND_NO_DUPS
 setopt HIST_IGNORE_DUPS
 setopt HIST_REDUCE_BLANKS
 setopt HIST_VERIFY
+setopt HIST_IGNORE_SPACE         # Commands starting with space not recorded.
+setopt HIST_NO_STORE             # Don't store 'history' command itself.
+setopt HIST_EXPIRE_DUPS_FIRST    # Expire duplicates first when trimming.
+
+# Protect history file permissions.
+[[ -f "$HISTFILE" ]] && chmod 600 "$HISTFILE"
 
 # --- Navigation ---
 
@@ -91,6 +102,11 @@ alias ll='ls -la'
 alias la='ls -A'
 alias l='ls -CF'
 
+# Prevent URL interpretation in network commands.
+alias curl='noglob curl'
+alias wget='noglob wget'
+alias scp='noglob scp'
+
 # --- Environment ---
 
 export EDITOR='vim'
@@ -121,34 +137,9 @@ if [[ -f /opt/homebrew/bin/brew ]]; then
     eval "$(/opt/homebrew/bin/brew shellenv)"
 fi
 
-# Node version manager (lazy-loaded to avoid 200-500ms startup penalty).
-if [[ -d "$HOME/.nvm" ]]; then
-    export NVM_DIR="$HOME/.nvm"
-
-    # Stub functions that load NVM on first use then call the real command.
-    _load_nvm() {
-        unfunction nvm node npm npx 2>/dev/null
-        source "$NVM_DIR/nvm.sh"
-        [[ -s "$NVM_DIR/bash_completion" ]] && source "$NVM_DIR/bash_completion"
-    }
-
-    nvm() { _load_nvm && nvm "$@" }
-    node() { _load_nvm && node "$@" }
-    npm() { _load_nvm && npm "$@" }
-    npx() { _load_nvm && npx "$@" }
-fi
-
-# Ruby version management.
-if command -v rbenv &> /dev/null; then
-    # Skip rehash on startup; run `rbenv rehash` manually after installing gems.
-    eval "$(rbenv init - --no-rehash)"
-fi
-
-# Python version management.
-if command -v pyenv &> /dev/null; then
-    export PYENV_ROOT="$HOME/.pyenv"
-    export PATH="$PYENV_ROOT/bin:$PATH"
-    eval "$(pyenv init -)"
+# Version management (mise) - unified node/ruby/python.
+if command -v mise &> /dev/null; then
+    eval "$(mise activate zsh)"
 fi
 
 # Directory environment management.

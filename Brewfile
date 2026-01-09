@@ -38,12 +38,10 @@ brew "libmagic"
 brew "libpng"
 # Reliable Internet Stream Transport (RIST)
 brew "librist"
-# Platform built on V8 to build network applications
-brew "node"
+# Polyglot runtime and dev tool version manager (replaces nvm/rbenv/pyenv)
+brew "mise"
 # Package for scientific computing with Python
 brew "numpy"
-# Manage multiple Node.js versions
-brew "nvm"
 # Optimized BLAS library
 brew "openblas"
 # Open Visual Inference And Optimization toolkit for AI inference
@@ -54,10 +52,6 @@ brew "pango"
 brew "poetry"
 # PDF rendering library (based on the xpdf-3.0 code base)
 brew "poppler"
-# Python version management
-brew "pyenv"
-# Ruby version manager
-brew "rbenv"
 # Pack repository contents into a single AI-friendly file
 brew "repomix"
 # Search tool like grep and The Silver Searcher
