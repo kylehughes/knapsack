@@ -1,27 +1,28 @@
-#!/bin/bash
-# migrate-to-mise.sh - Migrate from nvm/rbenv/pyenv to mise.
-# Usage: ./scripts/migrate-to-mise.sh
+#!/usr/bin/env bash
+#===============================================================================
+#  migrate-to-mise.sh — Migrate from nvm/rbenv/pyenv to mise
+#
+#  USAGE:
+#    ./scripts/migrate-to-mise.sh
+#
+#  Detects existing tool versions from nvm/rbenv/pyenv, installs them via mise,
+#  and cleans up ~/.profile. Does NOT uninstall old version managers; provides
+#  instructions for manual cleanup.
+#
+#  EXIT CODES:
+#    0  success
+#    1  mise installation failed
+#===============================================================================
 
 set -euo pipefail
+
+source "$(dirname "$0")/lib/common.sh"
 
 # --- Constants ---
 
 PROFILE="$HOME/.profile"
 
 # --- Functions ---
-
-log_step() {
-    echo ""
-    echo "→ $1"
-}
-
-log_success() {
-    echo "✓ $1"
-}
-
-log_skip() {
-    echo "⊘ $1"
-}
 
 get_node_version() {
     if [[ -f "$HOME/.nvm/alias/default" ]]; then
@@ -54,7 +55,6 @@ get_python_version() {
 echo "Migrating to mise (unified version manager)"
 echo "============================================"
 
-# Step 1: Install mise if needed.
 log_step "Checking mise installation"
 if command -v mise &> /dev/null; then
     log_success "mise already installed ($(mise --version | head -1))"
@@ -64,7 +64,6 @@ else
     log_success "mise installed"
 fi
 
-# Step 2: Detect current versions.
 log_step "Detecting current tool versions"
 
 NODE_VERSION=$(get_node_version)
@@ -75,7 +74,6 @@ PYTHON_VERSION=$(get_python_version)
 [[ -n "$RUBY_VERSION" ]] && echo "  Ruby: $RUBY_VERSION" || echo "  Ruby: (not found)"
 [[ -n "$PYTHON_VERSION" ]] && echo "  Python: $PYTHON_VERSION" || echo "  Python: (not found)"
 
-# Step 3: Install versions in mise.
 log_step "Installing versions in mise"
 
 if [[ -n "$NODE_VERSION" ]]; then
@@ -95,19 +93,15 @@ fi
 
 log_success "Versions installed in mise"
 
-# Step 4: Clean up ~/.profile if it exists and contains version manager setup.
 log_step "Cleaning up ~/.profile"
 
 if [[ -f "$PROFILE" ]]; then
     if grep -qE '(nvm\.sh|rbenv init|pyenv init)' "$PROFILE"; then
-        # Backup original.
         cp "$PROFILE" "$PROFILE.bak"
         echo "  Backed up to $PROFILE.bak"
 
-        # Create cleaned version keeping non-version-manager lines.
         grep -vE '(nvm|rbenv|pyenv)' "$PROFILE" | grep -v '^$' | cat -s > "$PROFILE.tmp" || true
 
-        # If file is empty or only whitespace, remove it.
         if [[ ! -s "$PROFILE.tmp" ]] || ! grep -q '[^[:space:]]' "$PROFILE.tmp"; then
             rm -f "$PROFILE" "$PROFILE.tmp"
             log_success "Removed empty ~/.profile"
@@ -122,7 +116,6 @@ else
     log_skip "~/.profile doesn't exist"
 fi
 
-# Step 5: Prompt for cleanup.
 log_step "Old version manager cleanup"
 
 CLEANUP_ITEMS=()
@@ -140,7 +133,6 @@ else
     log_skip "No old version manager directories found"
 fi
 
-# Done.
 echo ""
 echo "============================================"
 log_success "Migration complete!"
