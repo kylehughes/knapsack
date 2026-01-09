@@ -18,6 +18,10 @@ set-up/dotfiles:
 set-up/local-functions:
 	@bash "./scripts/set-up-local-functions.sh"
 
+## Migrate from nvm/rbenv/pyenv to mise.
+migrate/mise:
+	@bash "./scripts/migrate-to-mise.sh"
+
 ## Run all setup tasks.
 set-up/all: set-up/homebrew set-up/dependencies set-up/submodules set-up/dotfiles
 	@echo ""
