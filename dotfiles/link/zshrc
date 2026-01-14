@@ -162,3 +162,6 @@ fi
 
 # Disable git globbing for commands like 'git add *'.
 alias git='noglob git'
+
+# Secure ShellFish iOS terminal integration (clipboard, widgets, notifications).
+[[ -f ~/.shellfishrc ]] && source ~/.shellfishrc
