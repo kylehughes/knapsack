@@ -158,6 +158,8 @@ local derived_data_path="$HOME/Library/Developer/Xcode/DerivedData/Coast-${rando
 
 cat > .envrc << EOF
 # Auto-generated for worktree
+source_up
+
 export DERIVED_DATA_PATH="$derived_data_path"
 EOF
 
