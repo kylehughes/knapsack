@@ -150,6 +150,11 @@ fi
 # Add custom bin directory.
 export PATH="$HOME/bin:$PATH"
 
+# Rust (Cargo).
+if [[ -d "$HOME/.cargo/bin" ]]; then
+    export PATH="$PATH:$HOME/.cargo/bin"
+fi
+
 # LM Studio CLI tools.
 if [[ -d "$HOME/.lmstudio/bin" ]]; then
     export PATH="$PATH:$HOME/.lmstudio/bin"
@@ -165,3 +170,4 @@ alias git='noglob git'
 
 # Secure ShellFish iOS terminal integration (clipboard, widgets, notifications).
 [[ -f ~/.shellfishrc ]] && source ~/.shellfishrc
+
