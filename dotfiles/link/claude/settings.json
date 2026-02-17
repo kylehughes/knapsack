@@ -1,8 +1,4 @@
 {
-  "statusLine": {
-    "type": "command",
-    "command": "~/.claude/statusline.sh"
-  },
   "attribution": {
     "commit": "",
     "pr": ""
@@ -151,6 +147,23 @@
     ],
     "defaultMode": "acceptEdits"
   },
+  "hooks": {
+    "Notification": [
+      {
+        "matcher": "idle_prompt",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "terminal-notifier -title 'Claude Code' -message 'Waiting for input' -sound default"
+          }
+        ]
+      }
+    ]
+  },
+  "statusLine": {
+    "type": "command",
+    "command": "~/.claude/statusline.sh"
+  },
   "enabledPlugins": {
     "apple-platform-build-tools@apple-platform-build-tools": true,
     "migrating-to-swift-concurrency-skill@the-unofficial-swift-concurrency-migration-skill": true,
@@ -178,17 +191,5 @@
     }
   },
   "alwaysThinkingEnabled": true,
-  "hooks": {
-    "Notification": [
-      {
-        "matcher": "idle_prompt",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "terminal-notifier -title 'Claude Code' -message 'Waiting for input' -sound default"
-          }
-        ]
-      }
-    ]
-  }
+  "skipDangerousModePermissionPrompt": true
 }
