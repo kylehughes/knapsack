@@ -1,0 +1,38 @@
+#!/usr/bin/env zsh
+#===============================================================================
+#  brew-maintain — Run all Homebrew maintenance tasks in sequence
+#
+#  USAGE:
+#    brew-maintain
+#
+#  OPTIONS:
+#    None
+#
+#  REQUIREMENTS:
+#    zsh ≥ 4.x, brew (Homebrew)
+#
+#  EXIT CODES:
+#    0  success
+#    1  usage error (bad flags, etc.)
+#    2  missing dependency
+#    >2 script-specific failures
+#
+#  AUTHOR:      Kyle Hughes <kyle@kylehugh.es>
+#  LICENSE:     MIT
+#===============================================================================
+
+# Fetch the latest formulae and cask definitions.
+echo "Updating Homebrew..."
+brew update || return 1
+
+# Upgrade all outdated packages.
+echo "Upgrading packages..."
+brew upgrade || return 1
+
+# Remove formulae installed only as dependencies that are no longer needed.
+echo "Removing unused dependencies..."
+brew autoremove || return 1
+
+# Remove old versions and clear the download cache.
+echo "Cleaning up..."
+brew cleanup || return 1
