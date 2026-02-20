@@ -33,6 +33,8 @@ When modifying dotfiles:
 Knapsack/
 ├── README.md             # Main documentation
 ├── CLAUDE.md             # This file
+├── GEMINI.md             # Symlink → CLAUDE.md (Gemini CLI)
+├── AGENTS.md             # Symlink → CLAUDE.md (Codex CLI)
 ├── Brewfile              # Homebrew dependencies
 ├── Makefile              # Main makefile
 ├── dotfiles/             # Configuration files
@@ -40,7 +42,10 @@ Knapsack/
 │   └── link/             # Files to symlink
 │       ├── config/       # XDG config directory
 │       │   └── ghostty/  # Ghostty terminal config
-│       ├── claude/       # Claude AI config
+│       ├── agents/       # Shared agent skills (symlinks → claude/)
+│       ├── claude/       # Claude AI config (source of truth)
+│       ├── codex/        # Codex CLI config (symlinks → claude/)
+│       ├── gemini/       # Gemini CLI config (symlinks → claude/)
 │       ├── gitconfig     # Git configuration
 │       ├── tmux.conf     # tmux configuration
 │       ├── vim/          # vim plugins and config

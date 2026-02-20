@@ -17,7 +17,7 @@ Custom zsh functions available in `~/.config/zsh/functions/` (named `tool-action
 
 ## Computer-Using Agents
 
-Three CLI agents are installed on this machine. Each can be invoked headlessly for second opinions or delegation.
+Three CLI agents are installed on this machine. Each can be invoked headlessly for second opinions or delegation. All three share the same global instructions via symlinks (`~/.gemini/GEMINI.md`, `~/.codex/AGENTS.md` → `~/.claude/CLAUDE.md`) and skills via the agentskills.io standard path (`~/.agents/skills` → `~/.claude/skills`).
 
 | Agent | Best model | Headless invocation |
 |-------|-----------|---------------------|
