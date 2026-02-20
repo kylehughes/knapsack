@@ -36,6 +36,7 @@ brew "poppler"              # PDF rendering library
 
 # === AI & Scientific Computing ===
 
+brew "gemini-cli"           # Google Gemini AI CLI
 brew "numpy"                # Scientific computing (Python)
 brew "openblas"             # Optimized BLAS library
 brew "openvino"             # Intel AI inference toolkit
@@ -63,4 +64,5 @@ brew "keyring"              # System keyring access (Python)
 
 # === Casks ===
 
+cask "codex"                # OpenAI Codex CLI
 cask "xcodes-app"           # Xcode version manager
