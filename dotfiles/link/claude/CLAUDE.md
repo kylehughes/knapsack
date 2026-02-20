@@ -15,6 +15,31 @@ Match the repository's existing commit style:
 
 Custom zsh functions available in `~/.config/zsh/functions/` (named `tool-action`, e.g., `git-add-amend-force-push`). Local overrides in `functions-local/`.
 
+## Computer-Using Agents
+
+Three CLI agents are installed on this machine. Each can be invoked headlessly for second opinions or delegation.
+
+| Agent | Best model | Headless invocation |
+|-------|-----------|---------------------|
+| Claude Code | `claude-opus-4-6` | `claude -p --model opus "prompt"` |
+| Gemini CLI | `gemini-3.1-pro-preview` | `gemini -m gemini-3.1-pro-preview -p "prompt"` |
+| Codex CLI | `gpt-5.3-codex` | `codex exec --full-auto -m gpt-5.3-codex -c model_reasoning_effort="xhigh" "prompt"` |
+
+Common options:
+
+```bash
+# Claude Code — restrict tools, custom system prompt
+claude -p --model opus --allowed-tools "Read Grep Glob" "prompt"
+
+# Gemini CLI — output format
+gemini -m gemini-3.1-pro-preview -o json -p "prompt"
+
+# Codex CLI — capture output to file
+codex exec --full-auto -m gpt-5.3-codex -c model_reasoning_effort="xhigh" -o output.txt "prompt"
+```
+
+All three accept piped stdin (e.g., `echo "context" | claude -p "prompt"`).
+
 ## Skills
 
 Use Skills to discover project-specific patterns and conventions.
