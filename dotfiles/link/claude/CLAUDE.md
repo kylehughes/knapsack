@@ -23,7 +23,7 @@ Three CLI agents are installed on this machine. Each can be invoked headlessly f
 |-------|-----------|---------------------|
 | Claude Code | `claude-opus-4-6` | `claude -p --model opus "prompt"` |
 | Gemini CLI | `gemini-3.1-pro-preview` | `gemini -m gemini-3.1-pro-preview -p "prompt"` |
-| Codex CLI | `gpt-5.3-codex` | `codex exec --full-auto -m gpt-5.3-codex -c model_reasoning_effort="xhigh" "prompt"` |
+| Codex CLI | `gpt-5.4` | `codex exec --full-auto -m gpt-5.4 -c model_reasoning_effort="xhigh" "prompt"` |
 
 Common options:
 
@@ -35,7 +35,7 @@ claude -p --model opus --allowed-tools "Read Grep Glob" "prompt"
 gemini -m gemini-3.1-pro-preview -o json -p "prompt"
 
 # Codex CLI — capture output to file
-codex exec --full-auto -m gpt-5.3-codex -c model_reasoning_effort="xhigh" -o output.txt "prompt"
+codex exec --full-auto -m gpt-5.4 -c model_reasoning_effort="xhigh" -o output.txt "prompt"
 ```
 
 All three accept piped stdin (e.g., `echo "context" | claude -p "prompt"`).
@@ -52,3 +52,6 @@ Use Skills to discover project-specific patterns and conventions.
 1. **Align with idiomatic platform patterns.** We leverage platform conventions and paradigms rather than inventing our own. This improves framework integration, makes code feel familiar to any domain developer, and ensures our software behaves as users expect.
 1. **Invent empathetically.** When we must create abstractions, we minimize the learning curve by making solutions obvious, self-explanatory, and minimally intrusive. We respect that being forced to learn others' inventions can be frustrating.
 1. **Build deliberately, import selectively.** We consider internal solutions before dependencies. Third-party code increases our surface area for bugs, security issues, and maintenance overhead. When a focused internal implementation meets our needs, we prefer it.
+
+## Gemini Added Memories
+- When writing or modifying evaluation scenarios, NEVER put the exact API parameters, property names, or technical 'answers' in the natural language prompt. Always write prompts as a real human user would (e.g., 'make it a checklist' instead of 'set checklistEnabled: true') to ensure the evaluation accurately tests inference.
