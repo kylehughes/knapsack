@@ -168,7 +168,10 @@
     "apple-platform-build-tools@apple-platform-build-tools": true,
     "migrating-to-swift-concurrency-skill@the-unofficial-swift-concurrency-migration-skill": true,
     "programming-swift-skill@the-unofficial-swift-programming-language-skill": true,
-    "swift-lsp@claude-plugins-official": true
+    "swift-lsp@claude-plugins-official": true,
+    "claude-md-management@claude-plugins-official": true,
+    "skill-creator@claude-plugins-official": true,
+    "apple-platform-development@making-good-software": true
   },
   "extraKnownMarketplaces": {
     "apple-platform-build-tools-claude-code-plugin": {
@@ -187,6 +190,12 @@
       "source": {
         "source": "github",
         "repo": "kylehughes/the-unofficial-swift-programming-language-skill"
+      }
+    },
+    "making-good-software": {
+      "source": {
+        "source": "github",
+        "repo": "kylehughes/claude-plugins-for-making-good-software"
       }
     }
   },
