@@ -21,6 +21,10 @@ brew "mise"                 # Version manager (node/ruby/python)
 brew "poetry"               # Python package management
 brew "uv"                   # Fast Python installer (Rust)
 brew "virtualenv"           # Python virtual environments
+
+# === AI Tools ===
+
+brew "gemini-cli"           # Google Gemini AI CLI
 brew "repomix"              # Pack repo for AI context
 
 # === Media Processing ===
@@ -34,35 +38,28 @@ brew "libass"               # ASS/SSA subtitle renderer
 brew "libheif"              # HEIF image codec
 brew "poppler"              # PDF rendering library
 
-# === AI & Scientific Computing ===
+# === Scientific Computing ===
 
-brew "gemini-cli"           # Google Gemini AI CLI
 brew "numpy"                # Scientific computing (Python)
 brew "openblas"             # Optimized BLAS library
 brew "openvino"             # Intel AI inference toolkit
 
 # === Libraries ===
 
-# Graphics and text rendering.
 brew "cairo"                # Vector graphics
-brew "harfbuzz"             # OpenType text shaping
-brew "pango"                # i18n text layout
-
-# System and networking.
 brew "glib"                 # Core C library
 brew "gnutls"               # TLS library
-brew "librist"              # Reliable Internet Stream Transport
-
-# Image and file handling.
-brew "libpng"               # PNG library
-brew "libmagic"             # File type detection
-brew "liblqr"               # Seam carving library
-
-# Memory and security.
+brew "harfbuzz"             # OpenType text shaping
 brew "jemalloc"             # Memory allocator
 brew "keyring"              # System keyring access (Python)
+brew "liblqr"               # Seam carving library
+brew "libmagic"             # File type detection
+brew "libpng"               # PNG library
+brew "librist"              # Reliable Internet Stream Transport
+brew "pango"                # i18n text layout
 
 # === Casks ===
 
+cask "claude-code@latest"    # Anthropic Claude Code CLI
 cask "codex"                # OpenAI Codex CLI
 cask "xcodes-app"           # Xcode version manager
