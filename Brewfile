@@ -17,6 +17,7 @@ brew "tmux"                 # Terminal multiplexer
 
 # === Development ===
 
+brew "gh"                   # GitHub CLI
 brew "mise"                 # Version manager (node/ruby/python)
 brew "poetry"               # Python package management
 brew "uv"                   # Fast Python installer (Rust)

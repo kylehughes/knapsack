@@ -21,9 +21,9 @@ Three CLI agents are installed on this machine. Each can be invoked headlessly f
 
 | Agent | Best model | Headless invocation |
 |-------|-----------|---------------------|
-| Claude Code | `claude-opus-4-6` | `claude -p --model opus "prompt"` |
+| Claude Code | `claude-opus-4-7` | `claude -p --model opus "prompt"` |
 | Gemini CLI | `gemini-3.1-pro-preview` | `gemini -m gemini-3.1-pro-preview -p "prompt"` |
-| Codex CLI | `gpt-5.4` | `codex exec --full-auto -m gpt-5.4 -c model_reasoning_effort="xhigh" "prompt"` |
+| Codex CLI | `gpt-5.5` | `codex exec --full-auto -m gpt-5.5 -c model_reasoning_effort="xhigh" "prompt"` |
 
 Common options:
 
@@ -35,7 +35,7 @@ claude -p --model opus --allowed-tools "Read Grep Glob" "prompt"
 gemini -m gemini-3.1-pro-preview -o json -p "prompt"
 
 # Codex CLI — capture output to file
-codex exec --full-auto -m gpt-5.4 -c model_reasoning_effort="xhigh" -o output.txt "prompt"
+codex exec --full-auto -m gpt-5.5 -c model_reasoning_effort="xhigh" -o output.txt "prompt"
 ```
 
 All three accept piped stdin (e.g., `echo "context" | claude -p "prompt"`).
