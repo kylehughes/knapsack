@@ -3,7 +3,7 @@ migrate/mise:
 	@bash "./scripts/migrate-to-mise.sh"
 
 ## Run all setup tasks.
-set-up/all: set-up/homebrew set-up/dependencies set-up/submodules set-up/dotfiles
+set-up/all: set-up/homebrew set-up/dependencies set-up/dotfiles
 	@echo ""
 	@echo "✓ All setup tasks complete!"
 
@@ -22,7 +22,3 @@ set-up/homebrew:
 ## Create local functions directory for machine-specific functions.
 set-up/local-functions:
 	@bash "./scripts/set-up-local-functions.sh"
-
-## Initialize and update git submodules.
-set-up/submodules:
-	@bash "./scripts/set-up-submodules.sh"

@@ -18,7 +18,6 @@ Or run individual setup tasks:
 ```sh
 make set-up/homebrew        # Install Homebrew
 make set-up/dependencies    # Install dependencies from Brewfile
-make set-up/submodules      # Initialize git submodules
 make set-up/dotfiles        # Install dotfiles
 make set-up/local-functions # Create local functions directory
 ```

@@ -165,6 +165,9 @@ fi
 # Source local profile if it exists.
 [[ -f ~/.profile ]] && source ~/.profile
 
+# Deduplicate again after machine-local profile additions.
+typeset -U path
+
 # Disable git globbing for commands like 'git add *'.
 alias git='noglob git'
 
