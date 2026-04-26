@@ -1,0 +1,49 @@
+{
+  "hooks": {
+    "SessionStart": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bunx --silent moshi-hooks --source codex",
+            "timeout": 45
+          }
+        ],
+        "matcher": "startup|resume"
+      }
+    ],
+    "PreToolUse": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bunx --silent moshi-hooks --source codex",
+            "timeout": 45
+          }
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bunx --silent moshi-hooks --source codex",
+            "timeout": 45
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bunx --silent moshi-hooks --source codex",
+            "timeout": 45
+          }
+        ]
+      }
+    ]
+  }
+}

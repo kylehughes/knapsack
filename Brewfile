@@ -11,6 +11,7 @@ brew "gcc"                  # GNU compiler collection
 
 brew "coreutils"            # GNU File, Shell, and Text utilities
 brew "jq"                   # JSON processor
+brew "mosh"                 # Mobile shell for resilient remote sessions
 brew "ripgrep"              # Fast grep alternative (rg)
 brew "terminal-notifier"    # macOS notifications from command-line
 brew "tmux"                 # Terminal multiplexer

@@ -157,6 +157,71 @@
             "command": "terminal-notifier -title 'Claude Code' -message 'Waiting for input' -sound default"
           }
         ]
+      },
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bunx moshi-hooks # moshi-hooks",
+            "async": true
+          }
+        ],
+        "matcher": "permission_prompt|idle_prompt"
+      }
+    ],
+    "SessionStart": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bunx moshi-hooks # moshi-hooks",
+            "async": true
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bunx moshi-hooks # moshi-hooks",
+            "async": true
+          }
+        ]
+      }
+    ],
+    "SubagentStop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bunx moshi-hooks # moshi-hooks",
+            "async": true
+          }
+        ]
+      }
+    ],
+    "PreToolUse": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bunx moshi-hooks # moshi-hooks",
+            "async": true
+          }
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bunx moshi-hooks # moshi-hooks",
+            "async": true
+          }
+        ]
       }
     ]
   },
@@ -171,7 +236,8 @@
     "swift-lsp@claude-plugins-official": true,
     "claude-md-management@claude-plugins-official": true,
     "skill-creator@claude-plugins-official": true,
-    "apple-platform-development@making-good-software": true
+    "apple-platform-development@making-good-software": true,
+    "figma@claude-plugins-official": true
   },
   "extraKnownMarketplaces": {
     "apple-platform-build-tools-claude-code-plugin": {
@@ -200,6 +266,6 @@
     }
   },
   "alwaysThinkingEnabled": true,
-  "effortLevel": "medium",
+  "effortLevel": "xhigh",
   "skipDangerousModePermissionPrompt": true
 }
