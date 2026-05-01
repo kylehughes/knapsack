@@ -3,6 +3,10 @@
 # Install: brew bundle install
 # Check:   brew bundle check
 
+# === Taps ===
+
+tap "bro3886/tap"           # rem-cli formula
+
 # === Build Tools ===
 
 brew "gcc"                  # GNU compiler collection
@@ -12,6 +16,7 @@ brew "gcc"                  # GNU compiler collection
 brew "coreutils"            # GNU File, Shell, and Text utilities
 brew "jq"                   # JSON processor
 brew "mosh"                 # Mobile shell for resilient remote sessions
+brew "rem-cli"              # macOS Reminders CLI
 brew "ripgrep"              # Fast grep alternative (rg)
 brew "terminal-notifier"    # macOS notifications from command-line
 brew "tmux"                 # Terminal multiplexer
