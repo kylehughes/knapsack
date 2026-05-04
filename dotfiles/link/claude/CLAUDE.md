@@ -40,6 +40,10 @@ codex exec --full-auto -m gpt-5.5 -c model_reasoning_effort="xhigh" -o output.tx
 
 All three accept piped stdin (e.g., `echo "context" | claude -p "prompt"`).
 
+### Codex Spark Delegation
+
+When working as Codex and a stronger model has already inspected the codebase and formed a concrete plan, actively look for low-ambiguity implementation slices that can be handed to multiple `gpt-5.3-codex-spark` workers in parallel. Use Spark as fast execution capacity, not as the planner: give each worker a narrow file or module ownership boundary, explicit acceptance criteria, and permission to edit directly without touching unrelated work. Keep the primary Codex agent responsible for architecture, sequencing, integration, review, and final verification. Do not delegate work that still needs product judgment, unclear API design, or cross-cutting coordination.
+
 ## Skills
 
 Use Skills to discover project-specific patterns and conventions.
