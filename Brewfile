@@ -18,6 +18,7 @@ brew "jq"                   # JSON processor
 brew "mosh"                 # Mobile shell for resilient remote sessions
 brew "rem-cli"              # macOS Reminders CLI
 brew "ripgrep"              # Fast grep alternative (rg)
+brew "tailscale"            # Tailscale CLI and daemon
 brew "terminal-notifier"    # macOS notifications from command-line
 brew "tmux"                 # Terminal multiplexer
 
