@@ -44,9 +44,9 @@ All three accept piped stdin (e.g., `echo "context" | claude -p "prompt"`).
 
 Use the current runtime's native subagent mechanism for routine delegation. Do not route subagent work through another headless CLI agent unless the user explicitly asks for that agent, the task is an intentional cross-model second opinion, or the workflow specifically requires that external agent. If a skill references a runtime-specific agent tool, translate the intent onto the current runtime's native subagent mechanism and pass the relevant agent instructions as prompt context.
 
-### Codex Spark Delegation
+### Fast Worker Delegation
 
-When working as Codex and a stronger model has already inspected the codebase and formed a concrete plan, actively look for low-ambiguity implementation slices that can be handed to multiple `gpt-5.3-codex-spark` workers in parallel. Use Spark as fast execution capacity, not as the planner: give each worker a narrow file or module ownership boundary, explicit acceptance criteria, and permission to edit directly without touching unrelated work. Keep the primary Codex agent responsible for architecture, sequencing, integration, review, and final verification. Do not delegate work that still needs product judgment, unclear API design, or cross-cutting coordination.
+When the current runtime offers fast worker models, actively look for low-ambiguity implementation slices that can be handed to multiple workers in parallel after the primary agent has inspected the codebase and formed a concrete plan. Use fast workers as execution capacity, not as planners: give each worker a narrow file or module ownership boundary, explicit acceptance criteria, and permission to edit directly without touching unrelated work. Keep the primary agent responsible for architecture, sequencing, integration, review, and final verification. Do not delegate work that still needs product judgment, unclear API design, or cross-cutting coordination.
 
 ## Skills
 
