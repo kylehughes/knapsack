@@ -7,6 +7,7 @@ umask 077
 
 # Automatically remove duplicate entries from PATH.
 typeset -U path
+typeset -U fpath
 
 # --- History ---
 
@@ -33,15 +34,25 @@ setopt AUTO_PUSHD           # Push directories to stack automatically.
 setopt PUSHD_IGNORE_DUPS
 setopt PUSHD_SILENT
 
+# --- PATH Management ---
+
+# Homebrew lives at a fixed Apple Silicon location, so avoid running
+# `brew shellenv` in every interactive shell.
+if [[ -d /opt/homebrew ]]; then
+    export HOMEBREW_PREFIX=/opt/homebrew
+    export HOMEBREW_CELLAR=/opt/homebrew/Cellar
+    export HOMEBREW_REPOSITORY=/opt/homebrew
+    path=(/opt/homebrew/bin /opt/homebrew/sbin $path)
+    [[ -d /opt/homebrew/share/zsh/site-functions ]] && fpath=(/opt/homebrew/share/zsh/site-functions $fpath)
+    [[ -n "${MANPATH-}" ]] && export MANPATH=":${MANPATH#:}"
+    export INFOPATH="/opt/homebrew/share/info:${INFOPATH:-}"
+fi
+
 # --- Completion ---
 
-# Cache completions and only regenerate once per day.
+# Use the cached completion dump without repeated security scans.
 autoload -Uz compinit
-if [[ -n ~/.zcompdump(#qN.mh+24) ]]; then
-    compinit
-else
-    compinit -C
-fi
+compinit -C
 zstyle ':completion:*' menu select
 zstyle ':completion:*' matcher-list 'm:{a-z}={A-Z}'    # Case-insensitive matching.
 zstyle ':completion:*' list-colors ''
@@ -65,18 +76,53 @@ GENGAR_PURPLE='%F{135}'      # Medium purple.
 GENGAR_BRIGHT='%F{177}'      # Bright purple/pink.
 GENGAR_WHITE='%F{255}'       # Almost white for contrast.
 
-# Display git branch in prompt.
-git_branch() {
-    local branch=$(git symbolic-ref --short HEAD 2>/dev/null)
-    if [[ -n $branch ]]; then
-        echo "${GENGAR_BRIGHT}git:${GENGAR_WHITE}$branch%f "
+# Display git branch in prompt without shelling out on every redraw.
+typeset -g GIT_BRANCH_PROMPT=""
+typeset -g _GIT_PROMPT_PWD=""
+typeset -g _GIT_PROMPT_HEAD_FILE=""
+typeset -g _GIT_PROMPT_HEAD_VALUE=""
+
+update_git_prompt() {
+    local git_dir head_value branch
+
+    if [[ "$PWD" != "$_GIT_PROMPT_PWD" ]]; then
+        _GIT_PROMPT_PWD="$PWD"
+        _GIT_PROMPT_HEAD_FILE=""
+        _GIT_PROMPT_HEAD_VALUE=""
+
+        git_dir=$(command git rev-parse --git-dir 2>/dev/null) || {
+            GIT_BRANCH_PROMPT=""
+            return
+        }
+
+        [[ "$git_dir" != /* ]] && git_dir="${PWD:A}/$git_dir"
+        _GIT_PROMPT_HEAD_FILE="${git_dir:A}/HEAD"
+    fi
+
+    if [[ ! -r "$_GIT_PROMPT_HEAD_FILE" ]]; then
+        GIT_BRANCH_PROMPT=""
+        _GIT_PROMPT_HEAD_VALUE=""
+        return
+    fi
+
+    head_value="$(<"$_GIT_PROMPT_HEAD_FILE")"
+    [[ "$head_value" == "$_GIT_PROMPT_HEAD_VALUE" ]] && return
+
+    _GIT_PROMPT_HEAD_VALUE="$head_value"
+    if [[ "$head_value" == ref:\ refs/heads/* ]]; then
+        branch="${head_value#ref: refs/heads/}"
+        GIT_BRANCH_PROMPT="${GENGAR_BRIGHT}git:${GENGAR_WHITE}${branch}%f "
+    else
+        GIT_BRANCH_PROMPT=""
     fi
 }
 
+autoload -Uz add-zsh-hook
+add-zsh-hook precmd update_git_prompt
 setopt PROMPT_SUBST
 
 # Gengar-themed prompt.
-PROMPT='${GENGAR_PURPLE}%1~%f $(git_branch)${GENGAR_WHITE}%#%f '
+PROMPT='${GENGAR_PURPLE}%1~%f ${GIT_BRANCH_PROMPT}${GENGAR_WHITE}%#%f '
 
 # --- Aliases ---
 
@@ -130,21 +176,28 @@ if [[ -d ~/.config/zsh/functions-local ]]; then
     done
 fi
 
-# --- PATH Management ---
-
-# Homebrew (Apple Silicon).
-if [[ -f /opt/homebrew/bin/brew ]]; then
-    eval "$(/opt/homebrew/bin/brew shellenv)"
-fi
-
 # Version management (mise) - unified node/ruby/python.
 if command -v mise &> /dev/null; then
     eval "$(mise activate zsh)"
 fi
 
 # Directory environment management.
-if command -v direnv &> /dev/null; then
-    eval "$(direnv hook zsh)"
+if [[ -x /opt/homebrew/bin/direnv ]]; then
+    direnv_hook() {
+        trap -- '' SIGINT
+        eval "$(/opt/homebrew/bin/direnv export zsh)"
+        trap - SIGINT
+    }
+
+    typeset -ag precmd_functions
+    if (( ! ${precmd_functions[(I)direnv_hook]} )); then
+        precmd_functions=(direnv_hook $precmd_functions)
+    fi
+
+    typeset -ag chpwd_functions
+    if (( ! ${chpwd_functions[(I)direnv_hook]} )); then
+        chpwd_functions=(direnv_hook $chpwd_functions)
+    fi
 fi
 
 # Add custom bin directory.

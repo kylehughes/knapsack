@@ -30,7 +30,6 @@ set background=dark
 set cursorline
 set lbr
 set number
-set showcmd
 syntax enable
 
 " Line wrapping at 120 characters.
@@ -58,7 +57,10 @@ set hlsearch
 nnoremap <leader><space> :nohlsearch<cr>
 
 " General settings
-au FocusLost * :wa              " Save on focus lost.
+augroup AutoSave
+    autocmd!
+    autocmd FocusLost * silent! update
+augroup END
 set encoding=utf-8
 set hidden
 set laststatus=2
@@ -83,8 +85,18 @@ set backupskip=/tmp/*,/private/tmp/*
 set directory=~/.vim-tmp,~/.tmp,~/tmp,/var/tmp,/tmp
 set writebackup
 
+" Avoid expensive redraw and persistence features for large files.
+augroup LargeFilePerformance
+    autocmd!
+    autocmd BufReadPre * if getfsize(expand("<afile>")) > 1048576 | let b:large_file = 1 | setlocal noswapfile noundofile | endif
+    autocmd BufReadPost * if exists("b:large_file") | setlocal syntax=OFF nocursorline norelativenumber colorcolumn= | endif
+augroup END
+
 " Disable automatic comment continuation.
-autocmd FileType * setlocal formatoptions-=c formatoptions-=r formatoptions-=o
+augroup FileTypeSettings
+    autocmd!
+    autocmd FileType * setlocal formatoptions-=c formatoptions-=r formatoptions-=o
+augroup END
 
 " --- Key Mappings ---
 
@@ -135,11 +147,13 @@ function! BC_GetChar()
 endfunction
 
 " Use relative line numbers in normal mode, absolute in insert mode.
-:au FocusLost * :set number
-:au FocusGained * :set relativenumber
-
-autocmd InsertEnter * :set number
-autocmd InsertLeave * :set relativenumber
+augroup NumberMode
+    autocmd!
+    autocmd FocusLost * set number
+    autocmd FocusGained * if !exists("b:large_file") | set relativenumber | endif
+    autocmd InsertEnter * set number
+    autocmd InsertLeave * if !exists("b:large_file") | set relativenumber | endif
+augroup END
 
 function! NumberToggle()
     if(&relativenumber == 1)
