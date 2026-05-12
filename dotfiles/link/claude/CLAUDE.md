@@ -17,7 +17,7 @@ Custom zsh functions available in `~/.config/zsh/functions/` (named `tool-action
 
 ## Computer-Using Agents
 
-Three CLI agents are installed on this machine. Each can be invoked headlessly for second opinions or delegation. All three share the same global instructions via symlinks (`~/.gemini/GEMINI.md`, `~/.codex/AGENTS.md` → `~/.claude/CLAUDE.md`) and skills via the agentskills.io standard path (`~/.agents/skills` → `~/.claude/skills`).
+Three CLI agents are installed on this machine. Invoke them headlessly for explicit user requests, cross-model second opinions, or workflows that specifically require that agent. Do not treat them as interchangeable subagent backends. All three share the same global instructions via symlinks (`~/.gemini/GEMINI.md`, `~/.codex/AGENTS.md` → `~/.claude/CLAUDE.md`) and skills via the agentskills.io standard path (`~/.agents/skills` → `~/.claude/skills`).
 
 | Agent | Best model | Headless invocation |
 |-------|-----------|---------------------|
@@ -39,6 +39,10 @@ codex exec --full-auto -m gpt-5.5 -c model_reasoning_effort="xhigh" -o output.tx
 ```
 
 All three accept piped stdin (e.g., `echo "context" | claude -p "prompt"`).
+
+### Delegation
+
+Use the current runtime's native subagent mechanism for routine delegation. Do not route subagent work through another headless CLI agent unless the user explicitly asks for that agent, the task is an intentional cross-model second opinion, or the workflow specifically requires that external agent. If a skill references a runtime-specific agent tool, translate the intent onto the current runtime's native subagent mechanism and pass the relevant agent instructions as prompt context.
 
 ### Codex Spark Delegation
 
