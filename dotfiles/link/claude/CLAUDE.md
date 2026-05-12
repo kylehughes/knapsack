@@ -46,7 +46,7 @@ Use the current runtime's native subagent mechanism for routine delegation. Do n
 
 ### Fast Worker Delegation
 
-When the current runtime offers fast worker models, actively look for low-ambiguity implementation slices that can be handed to multiple workers in parallel after the primary agent has inspected the codebase and formed a concrete plan. Use fast workers as execution capacity, not as planners: give each worker a narrow file or module ownership boundary, explicit acceptance criteria, and permission to edit directly without touching unrelated work. Keep the primary agent responsible for architecture, sequencing, integration, review, and final verification. Do not delegate work that still needs product judgment, unclear API design, or cross-cutting coordination.
+When the current runtime offers fast worker models, actively look for low-ambiguity implementation slices that can be handed to multiple workers in parallel after the primary agent has inspected the codebase and formed a concrete plan. For Codex, use `gpt-5.3-codex-spark` workers for these slices. Use fast workers as execution capacity, not as planners: give each worker a narrow file or module ownership boundary, explicit acceptance criteria, and permission to edit directly without touching unrelated work. Keep the primary agent responsible for architecture, sequencing, integration, review, and final verification. Do not delegate work that still needs product judgment, unclear API design, or cross-cutting coordination.
 
 ## Skills
 
