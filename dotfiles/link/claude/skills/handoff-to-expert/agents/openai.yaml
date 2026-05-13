@@ -1,4 +1,4 @@
 interface:
   display_name: "Handoff to Expert"
-  short_description: "Prepare a complete escalation brief"
-  default_prompt: "Use $handoff-to-expert to create a complete no-context escalation brief for this stuck programming problem."
+  short_description: "Prepare a standalone escalation brief"
+  default_prompt: "Use $handoff-to-expert to create a standalone no-repo-access escalation brief for this stuck programming problem."
