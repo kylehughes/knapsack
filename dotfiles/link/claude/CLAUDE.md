@@ -52,6 +52,12 @@ When the current runtime offers fast worker models, actively look for low-ambigu
 
 Use Skills to discover project-specific patterns and conventions.
 
+## README Documentation
+
+READMEs are a specific kind of user-facing documentation, not just file inventories. When editing a README, consider the whole document: whether the sections are in an intuitive order, whether the reader gets useful context before detail, and whether information is progressively disclosed from common use to maintainer details. Do not make isolated edits that leave the document awkward, duplicative, stale, or harder to scan.
+
+Prioritize useful information over fluff. Keep prose concise, but include enough context for someone to understand what the repository or project is, how to use it, and where to go next.
+
 ## Software Development Tenets
 
 1. **Be pragmatic, not dogmatic.** We choose solutions based on maintainability and robustness rather than architectural purity. Complexity must justify itself with tangible benefits beyond novelty.
