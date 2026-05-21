@@ -46,7 +46,23 @@ Use the current runtime's native subagent mechanism for routine delegation. Do n
 
 ### Fast Worker Delegation
 
-When the current runtime offers fast worker models, actively look for low-ambiguity implementation slices that can be handed to multiple workers in parallel after the primary agent has inspected the codebase and formed a concrete plan. For Codex, use `gpt-5.3-codex-spark` workers for these slices. Use fast workers as execution capacity, not as planners: give each worker a narrow file or module ownership boundary, explicit acceptance criteria, and permission to edit directly without touching unrelated work. Keep the primary agent responsible for architecture, sequencing, integration, review, and final verification. Do not delegate work that still needs product judgment, unclear API design, or cross-cutting coordination.
+This section is standing user authorization to use the current runtime's native subagent mechanism for routine delegation. Do not wait for the user to ask again when the task satisfies these rules.
+
+When the current runtime offers fast worker models, delegate low-ambiguity implementation slices by default after the primary agent has inspected the codebase and formed a concrete plan. For Codex, use `gpt-5.3-codex-spark` worker agents for those slices.
+
+Use fast workers as execution capacity, not as planners. A good Spark task has all of these properties:
+
+- The intended change is already planned by the primary agent.
+- The write scope is narrow and can be named as specific files, modules, or tests.
+- The acceptance criteria are concrete enough that the worker can edit directly.
+- The work does not require product judgment, unclear API design, or cross-cutting coordination.
+- The primary agent can review and integrate the result without blocking other useful work.
+
+Strong delegation candidates include straightforward bug fixes, mechanical refactors, adding focused tests, updating call sites after an API decision, small UI/state edits with clear behavior, and documentation changes with a clear target structure.
+
+Keep work local when the next step is still investigative, the task needs architectural judgment, files are heavily coupled, the edit is tiny enough that delegation overhead dominates, or the user asks the primary agent to handle it directly.
+
+For each worker, provide a narrow ownership boundary, relevant context, explicit acceptance criteria, and permission to edit directly without touching unrelated work. Tell workers they are not alone in the codebase and must not revert user or peer changes. Keep the primary agent responsible for architecture, sequencing, integration, review, final verification, and the final response.
 
 ## Skills
 
