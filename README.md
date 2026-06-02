@@ -19,6 +19,7 @@ Or run individual setup tasks:
 make set-up/homebrew        # Install Homebrew
 make set-up/dependencies    # Install dependencies from Brewfile
 make set-up/dotfiles        # Install dotfiles
+make set-up/idb             # Install Facebook idb companion and client
 make set-up/local-functions # Create local functions directory
 ```
 
@@ -85,6 +86,10 @@ brew bundle install    # Install all dependencies
 brew bundle check      # Check for missing packages
 brew bundle cleanup    # Remove unlisted packages
 ```
+
+`make set-up/idb` finishes the idb setup after Homebrew dependencies are
+installed. The idb companion is managed by Homebrew, and the Python client is
+managed as a `uv` tool so the `idb` executable is available from `~/.local/bin`.
 
 ## Development
 

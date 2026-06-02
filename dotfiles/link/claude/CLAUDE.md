@@ -15,6 +15,8 @@ Match the repository's existing commit style:
 
 Custom zsh functions available in `~/.config/zsh/functions/` (named `tool-action`, e.g., `git-add-amend-force-push`). Local overrides in `functions-local/`.
 
+Facebook idb is installed for iOS simulator/device automation (`idb` via `uv tool`, `idb_companion` via Homebrew).
+
 ## Computer-Using Agents
 
 Three CLI agents are installed on this machine. Invoke them headlessly for explicit user requests, cross-model second opinions, or workflows that specifically require that agent. Do not treat them as interchangeable subagent backends. All three share the same global instructions via symlinks (`~/.gemini/GEMINI.md`, `~/.codex/AGENTS.md` → `~/.claude/CLAUDE.md`) and skills via the agentskills.io standard path (`~/.agents/skills` → `~/.claude/skills`).

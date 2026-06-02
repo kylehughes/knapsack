@@ -6,6 +6,7 @@
 # === Taps ===
 
 tap "bro3886/tap"           # rem-cli formula
+tap "facebook/fb"           # idb-companion formula
 
 # === Build Tools ===
 
@@ -25,6 +26,7 @@ brew "tmux"                 # Terminal multiplexer
 # === Development ===
 
 brew "gh"                   # GitHub CLI
+brew "facebook/fb/idb-companion" # iOS simulator/device automation companion
 brew "mise"                 # Version manager (node/ruby/python)
 brew "poetry"               # Python package management
 brew "uv"                   # Fast Python installer (Rust)
