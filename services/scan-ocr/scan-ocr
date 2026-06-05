@@ -1,0 +1,189 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+# scan-ocr
+# Source: /Users/kyle/knapsack/services/scan-ocr
+# LaunchAgent: /Users/kyle/Library/LaunchAgents/com.kyle.scan-ocr.plist
+# Logs: /Users/kyle/Library/Logs/scan-ocr.log
+# Purpose: OCR PDFs from /Users/Shared/Scans into iCloud Drive/New Documents/Scans.
+
+PATH="/opt/homebrew/bin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin"
+
+INBOX="/Users/Shared/Scans"
+DEST="$HOME/Library/Mobile Documents/com~apple~CloudDocs/New Documents/Scans"
+WORK="$HOME/Library/Caches/scan-ocr"
+LOG="$HOME/Library/Logs/scan-ocr.log"
+LOCKDIR="$WORK/lock"
+MAX_LOG_BYTES=$((5 * 1024 * 1024))
+
+log() {
+  printf '%s %s\n' "$(date '+%Y-%m-%d %H:%M:%S')" "$*" >> "$LOG"
+}
+
+rotate_log() {
+  if [[ -f "$LOG" ]]; then
+    local bytes
+    bytes=$(stat -f '%z' "$LOG" 2>/dev/null || echo 0)
+
+    if (( bytes > MAX_LOG_BYTES )); then
+      mv -f -- "$LOG" "$LOG.1"
+    fi
+  fi
+}
+
+cleanup() {
+  rm -f -- "$LOCKDIR/pid" 2>/dev/null || true
+  rmdir "$LOCKDIR" 2>/dev/null || true
+}
+
+cleanup_temps() {
+  find "$WORK" -maxdepth 1 -type f -name '*.ocr.*' -delete
+}
+
+acquire_lock() {
+  if mkdir "$LOCKDIR" 2>/dev/null; then
+    printf '%s\n' "$$" > "$LOCKDIR/pid"
+    return 0
+  fi
+
+  if [[ -f "$LOCKDIR/pid" ]]; then
+    local pid
+    pid=$(cat "$LOCKDIR/pid" 2>/dev/null || true)
+
+    if [[ "$pid" =~ ^[0-9]+$ ]] && kill -0 "$pid" 2>/dev/null; then
+      log "Another scan-ocr run is active with pid $pid; exiting."
+      return 1
+    fi
+  fi
+
+  log "Removing stale lock."
+  rm -rf -- "$LOCKDIR"
+
+  if mkdir "$LOCKDIR" 2>/dev/null; then
+    printf '%s\n' "$$" > "$LOCKDIR/pid"
+    return 0
+  fi
+
+  log "Could not acquire lock; exiting."
+  return 1
+}
+
+stable_file() {
+  local file="$1"
+  local previous current attempts
+
+  previous=""
+  attempts=0
+
+  while (( attempts < 12 )); do
+    if [[ ! -f "$file" ]]; then
+      return 1
+    fi
+
+    current=$(stat -f '%z:%m' "$file" 2>/dev/null || true)
+
+    if [[ -n "$current" && "$current" == "$previous" && "${current%%:*}" != "0" ]]; then
+      return 0
+    fi
+
+    previous="$current"
+    attempts=$((attempts + 1))
+    sleep 5
+  done
+
+  return 1
+}
+
+unique_dest() {
+  local path="$1"
+  local dir base name ext n candidate
+
+  dir=$(dirname "$path")
+  base=$(basename "$path")
+  name="${base%.*}"
+  ext="${base##*.}"
+  candidate="$path"
+  n=1
+
+  while [[ -e "$candidate" ]]; do
+    candidate="$dir/$name $n.$ext"
+    n=$((n + 1))
+  done
+
+  printf '%s\n' "$candidate"
+}
+
+mkdir -p "$INBOX" "$DEST" "$WORK" "$(dirname "$LOG")"
+rotate_log
+
+if ! command -v ocrmypdf >/dev/null 2>&1; then
+  log "ocrmypdf is not installed or not on PATH. Install it with: brew install ocrmypdf"
+  exit 1
+fi
+
+if ! acquire_lock; then
+  exit 0
+fi
+trap cleanup EXIT
+trap 'exit 143' HUP INT TERM
+cleanup_temps
+
+find "$INBOX" -maxdepth 1 -type f -iname '*.pdf' -print0 | while IFS= read -r -d '' pdf; do
+  base=$(basename "$pdf")
+  tmp=$(mktemp "$WORK/${base}.ocr.XXXXXX")
+  dest_tmp=""
+  moved=0
+
+  if ! stable_file "$pdf"; then
+    rm -f -- "$tmp"
+    log "Skipping unstable file: $base"
+    continue
+  fi
+
+  out=$(unique_dest "$DEST/$base")
+  log "OCR start: $base"
+
+  if ocrmypdf --skip-text --optimize 1 "$pdf" "$tmp" >> "$LOG" 2>&1; then
+    if ! dest_tmp=$(mktemp "$DEST/.${base}.move.XXXXXX"); then
+      rm -f -- "$tmp"
+      log "OCR completed but could not create destination temp file: $base"
+      continue
+    fi
+
+    if cp -p -- "$tmp" "$dest_tmp"; then
+      for _ in 1 2 3 4 5; do
+        out=$(unique_dest "$DEST/$base")
+
+        if mv -n -- "$dest_tmp" "$out"; then
+          if [[ ! -e "$dest_tmp" ]]; then
+            moved=1
+            break
+          fi
+        fi
+
+        sleep 1
+      done
+    else
+      rm -f -- "$dest_tmp"
+      rm -f -- "$tmp"
+      log "OCR completed but copy to destination failed: $base"
+      continue
+    fi
+
+    rm -f -- "$tmp"
+
+    if (( moved == 1 )); then
+      if rm -f -- "$pdf"; then
+        log "OCR done: $base -> $out"
+      else
+        log "OCR moved but original could not be removed: $base -> $out"
+      fi
+    else
+      rm -f -- "$dest_tmp"
+      log "OCR completed but final move failed: $base"
+    fi
+  else
+    rm -f -- "$tmp"
+    log "OCR failed: $base"
+  fi
+done
