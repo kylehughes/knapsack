@@ -11,6 +11,10 @@ Match the repository's existing commit style:
 - Run `git log --oneline -10` to understand patterns
 - Write in the user's voice, never credit AI
 
+## Pull Requests
+
+When creating a pull request, assign it to me (Kyle Hughes, GitHub `kylehughes`).
+
 ## Shell Environment
 
 Custom zsh functions available in `~/.config/zsh/functions/` (named `tool-action`, e.g., `git-add-amend-force-push`). Local overrides in `functions-local/`.
