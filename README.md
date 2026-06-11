@@ -27,18 +27,29 @@ make set-up/local-functions # Create local functions directory
 
 ### Dotfiles
 
-Configuration files managed by `make set-up/dotfiles`:
+Configuration files managed by `make set-up/dotfiles`. Symlinked files take
+effect immediately when edited in the repository; copied files require
+re-running the setup task. If a symlink destination is already a real
+directory, the setup script backs it up to `<path>.backup.<timestamp>` before
+linking.
 
 | Configuration | Type | Description |
 | --- | --- | --- |
-| `claude/CLAUDE.md` | Symlink | Claude AI configuration. |
-| `config/ghostty/*` | Symlink | Ghostty terminal configuration. |
+| `claude/CLAUDE.md` | Symlink | Global instructions for all AI agents. |
+| `claude/settings.json` | Symlink | Claude Code settings (model, permissions, hooks, plugins). |
+| `claude/statusline.sh` | Symlink | Claude Code status line script. |
+| `claude/agents/*`, `claude/skills/*` | Symlink | Custom subagents and skills. |
+| `agents/`, `codex/`, `gemini/` | Symlink | Re-export the Claude configuration to Codex CLI, Gemini CLI, and the agentskills.io path. |
+| `config/ghostty/*` | Symlink | Ghostty terminal configuration and theme. |
+| `config/mise/*` | Symlink | mise tool version pins (node, ruby). |
 | `config/zsh/functions/*` | Symlink | Custom shell functions. |
 | `gitconfig` | Symlink | Global git configuration. |
-| `gitconfig_local` | Copy | Local git overrides (not tracked). |
+| `gitconfig_local` | Copy | Machine-specific git settings, including user identity (not tracked). |
+| `gitignore_global` | Symlink | Global git ignore patterns. |
 | `tmux.conf` | Symlink | tmux configuration. |
-| `vim/*` | Symlink | vim configuration and plugins. |
+| `vim/*` | Symlink | vim plugins and color schemes. |
 | `vimrc` | Symlink | vim configuration. |
+| `zshenv` | Symlink | Environment for non-interactive shells (mise shims, uv tools). |
 | `zshrc` | Symlink | zsh shell configuration. |
 
 ### Shell Functions
@@ -57,6 +68,20 @@ Custom zsh functions for common workflows, autoloaded from `~/.config/zsh/functi
 | `git-log-pretty` | Show formatted log with details on one line. | `git-log-pretty [options]` |
 | `git-push-upstream` | Push current branch and set upstream tracking. | `git-push-upstream` |
 | `git-status-diff` | Show status and diff for review. | `git-status-diff` |
+
+#### Graphite Worktree Functions
+
+| Function | Description | Usage |
+| --- | --- | --- |
+| `gt-worktree-create` | Create a git worktree with full project setup, registered with Graphite. | `gt-worktree-create <branch-name>` |
+| `gt-worktree-remove` | Remove a worktree after its PR merges and run `gt sync`. | `gt-worktree-remove [<path>] [options]` |
+
+#### Maintenance and Media Functions
+
+| Function | Description | Usage |
+| --- | --- | --- |
+| `brew-maintain` | Update, upgrade, autoremove, and clean up Homebrew. | `brew-maintain` |
+| `ffmpeg-reduce-size` | Re-encode a video to reduce its file size. | `ffmpeg-reduce-size <video-file>` |
 
 Functions follow the `tool-action` naming convention for clarity and tab completion support.
 
@@ -90,6 +115,26 @@ brew bundle cleanup    # Remove unlisted packages
 `make set-up/idb` finishes the idb setup after Homebrew dependencies are
 installed. The idb companion is managed by Homebrew, and the Python client is
 managed as a `uv` tool so the `idb` executable is available from `~/.local/bin`.
+
+## Services
+
+Long-running launchd services live in `services/`, each with its own install
+and uninstall scripts. Services are per-machine opt-ins: the repository
+propagates them between computers, but they are not part of `make set-up/all`
+and their dependencies are not in the Brewfile. Install a service (and the
+dependencies its installer asks for) only on the machine that should run it.
+
+| Service | Description |
+| --- | --- |
+| `scan-ocr` | Watches `/Users/Shared/Scans` and OCRs incoming PDFs into iCloud Drive. Requires `ocrmypdf` on that machine. Install with `services/scan-ocr/install.sh`. |
+
+## AI Agents
+
+The Claude configuration in `dotfiles/link/claude/` is the source of truth for
+all three CLI agents on this machine. Codex CLI (`~/.codex`), Gemini CLI
+(`~/.gemini`), and the agentskills.io path (`~/.agents`) receive the same
+instructions and skills through symlinks, so `CLAUDE.md` and `skills/` are
+maintained once.
 
 ## Development
 

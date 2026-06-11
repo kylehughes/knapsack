@@ -41,18 +41,24 @@ Knapsack/
 │   ├── copy/             # Files to copy (gitconfig_local)
 │   └── link/             # Files to symlink
 │       ├── config/       # XDG config directory
-│       │   └── ghostty/  # Ghostty terminal config
+│       │   ├── ghostty/  # Ghostty terminal config and Gengar theme
+│       │   ├── mise/     # mise tool version pins (node, ruby)
+│       │   └── zsh/      # Custom shell functions
 │       ├── agents/       # Shared agent skills (symlinks → claude/)
 │       ├── claude/       # Claude AI config (source of truth)
 │       ├── codex/        # Codex CLI config (symlinks → claude/)
 │       ├── gemini/       # Gemini CLI config (symlinks → claude/)
 │       ├── gitconfig     # Git configuration
+│       ├── gitignore_global # Global git ignore patterns
 │       ├── tmux.conf     # tmux configuration
 │       ├── vim/          # vim plugins and config
 │       ├── vimrc         # vim configuration
+│       ├── zshenv        # Environment for non-interactive shells
 │       └── zshrc         # zsh configuration
-├── scripts/              # Utility scripts
-│   └── set-up-dotfiles.sh
+├── scripts/              # Setup scripts (set-up-*.sh, migrate-to-mise.sh)
+│   └── lib/common.sh     # Shared logging and Homebrew helpers
+├── services/             # launchd services with install/uninstall scripts
+│   └── scan-ocr/         # OCRs scanned PDFs into iCloud Drive
 └── makefiles/            # Makefile includes
     └── set-up.mk
 ```
@@ -117,8 +123,8 @@ The repository uses a custom "Gengar" theme (purple-based) across all terminal a
 
 ### Shell (zsh)
 - Minimal configuration without oh-my-zsh
-- Custom PATH management with deduplication via `dedup_path()` function
-- Integrates with Homebrew, rbenv (Ruby), and pyenv (Python)
+- PATH deduplication via zsh's `typeset -U path`
+- Integrates with Homebrew, mise (node/ruby), and direnv
 - Sources `~/.profile` if it exists
 - Git aliases for common operations
 - Custom functions autoloaded from `~/.config/zsh/functions/`
@@ -176,6 +182,14 @@ The repository implements custom zsh functions using XDG Base Directory specific
 - `git-log-pretty` - Formatted one-line log (replaces `git l` alias)
 - `git-push-upstream` - Push and set upstream tracking for new branches
 - `git-status-diff` - Review changes before committing
+
+#### Graphite Worktrees
+- `gt-worktree-create` - Create a worktree with full project setup, registered with Graphite
+- `gt-worktree-remove` - Remove a worktree after its PR merges and run `gt sync`
+
+#### Maintenance and Media
+- `brew-maintain` - Update, upgrade, autoremove, and clean up Homebrew
+- `ffmpeg-reduce-size` - Re-encode a video to reduce its file size
 
 ### Adding New Functions
 
