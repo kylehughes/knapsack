@@ -64,12 +64,14 @@
     smudge = git-lfs smudge -- %f
     process = git-lfs filter-process
     required = true
+
+# --- Credentials ---
+
+# The empty helper clears any system-level helpers before deferring to gh.
 [credential "https://github.com"]
-	helper = 
-	helper = !/opt/homebrew/bin/gh auth git-credential
+    helper =
+    helper = !/opt/homebrew/bin/gh auth git-credential
+
 [credential "https://gist.github.com"]
-	helper = 
-	helper = !/opt/homebrew/bin/gh auth git-credential
-[user]
-	name = Kyle Hughes
-	email = me@kylehugh.es
+    helper =
+    helper = !/opt/homebrew/bin/gh auth git-credential
