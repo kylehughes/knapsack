@@ -3,7 +3,7 @@ set -euo pipefail
 
 PATH="/opt/homebrew/bin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin"
 
-SERVICE_DIR="/Users/kyle/knapsack/services/scan-ocr"
+SERVICE_DIR="/Users/kyle/Knapsack/services/scan-ocr"
 BIN_LINK="/Users/kyle/bin/scan-ocr"
 PLIST_LINK="/Users/kyle/Library/LaunchAgents/com.kyle.scan-ocr.plist"
 LABEL="com.kyle.scan-ocr"

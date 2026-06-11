@@ -2,7 +2,7 @@
 set -euo pipefail
 
 # scan-ocr
-# Source: /Users/kyle/knapsack/services/scan-ocr
+# Source: /Users/kyle/Knapsack/services/scan-ocr
 # LaunchAgent: /Users/kyle/Library/LaunchAgents/com.kyle.scan-ocr.plist
 # Logs: /Users/kyle/Library/Logs/scan-ocr.log
 # Purpose: OCR PDFs from /Users/Shared/Scans into iCloud Drive/New Documents/Scans.
