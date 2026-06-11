@@ -65,6 +65,20 @@ function action_copy_do() {
     cp "$2" "$HOME/$1"
 }
 
+# Move aside a real directory occupying a symlink destination.
+# ln -sfn cannot replace a real directory; it nests the link inside it instead,
+# which silently leaves the repository configuration inactive.
+# Args: $1 - destination path
+function back_up_existing_directory() {
+    local dest="$1"
+
+    if [[ -d "$dest" && ! -L "$dest" ]]; then
+        local backup="$dest.backup.$(date +%Y%m%d%H%M%S)"
+        log_arrow "backing up existing directory $dest to $backup"
+        mv "$dest" "$backup"
+    fi
+}
+
 # --- Link Action Functions ---
 
 function action_link_header() {
@@ -118,6 +132,7 @@ function do_action() {
                     if [[ -d "$configdir" ]]; then
                         configBase="$(basename "$configdir")"
                         configDest="$HOME/.config/$configBase"
+                        back_up_existing_directory "$configDest"
                         log_success "linking $configDest"
                         ln -sfn "$configdir" "$configDest"
                     fi
@@ -134,6 +149,7 @@ function do_action() {
                     log_success "linking $fileDest/$subfileBase"
                     ln -sf "$subfile" "$fileDest/$subfileBase"
                 elif [[ -d "$subfile" ]]; then
+                    back_up_existing_directory "$fileDest/$subfileBase"
                     log_success "linking $fileDest/$subfileBase"
                     ln -sfn "$subfile" "$fileDest/$subfileBase"
                 fi

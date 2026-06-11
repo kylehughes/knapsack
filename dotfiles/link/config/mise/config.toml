@@ -1,6 +1,4 @@
+# Major-version pins so mise tracks patch and security releases.
 [tools]
-node = "20"
-ruby = "3.4.1"
-python = "3.12.5"
-rust = "latest"
-bun = "latest"
+node = "22"
+ruby = "3.4"
