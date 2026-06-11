@@ -10,7 +10,8 @@
 #    log_success  Print a success message (✓)
 #    log_skip     Print a skip message (⊘)
 #    log_error    Print an error message to stderr (✗)
-#    trust_homebrew_formula  Trust a third-party Homebrew formula when supported
+#    trust_homebrew_formula     Trust a third-party Homebrew formula when supported
+#    trust_third_party_formulae Trust every third-party formula in the Brewfile
 #===============================================================================
 
 log_step() {
@@ -37,4 +38,10 @@ trust_homebrew_formula() {
     if brew help trust > /dev/null 2>&1; then
         brew trust --formula "$formula"
     fi
+}
+
+trust_third_party_formulae() {
+    # Trust every third-party formula in the Brewfile before a bundle install.
+    trust_homebrew_formula "bro3886/tap/rem-cli"
+    trust_homebrew_formula "facebook/fb/idb-companion"
 }

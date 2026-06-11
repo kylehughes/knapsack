@@ -41,7 +41,7 @@ if [[ ! -f "Brewfile" ]]; then
     exit 1
 fi
 
-trust_homebrew_formula "bro3886/tap/rem-cli"
+trust_third_party_formulae
 
 echo "Running brew bundle install..."
 brew bundle install

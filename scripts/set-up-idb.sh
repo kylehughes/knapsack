@@ -42,7 +42,7 @@ fi
 
 if ! command_exists idb_companion; then
     echo "Installing idb companion from Brewfile..."
-    trust_homebrew_formula "bro3886/tap/rem-cli"
+    trust_third_party_formulae
     brew bundle install --file "$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)/Brewfile"
 else
     log_skip "idb companion already installed"
