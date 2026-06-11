@@ -78,11 +78,20 @@ set visualbell
 set wildmenu
 set wildmode=list:longest
 
-" Backup configuration
+" Backup, swap, and undo configuration. Centralized directories keep backup,
+" swap, and undo files out of working directories and persistent across
+" reboots. The trailing double slash encodes the full path into filenames to
+" avoid collisions between same-named files.
+for s:dir in ['backup', 'swap', 'undo']
+    if !isdirectory($HOME . '/.vim/' . s:dir)
+        call mkdir($HOME . '/.vim/' . s:dir, 'p', 0700)
+    endif
+endfor
 set backup
-set backupdir=~/.vim-tmp,~/.tmp,~/tmp,/var/tmp,/tmp
+set backupdir=~/.vim/backup//
 set backupskip=/tmp/*,/private/tmp/*
-set directory=~/.vim-tmp,~/.tmp,~/tmp,/var/tmp,/tmp
+set directory=~/.vim/swap//
+set undodir=~/.vim/undo//
 set writebackup
 
 " Avoid expensive redraw and persistence features for large files.
@@ -108,13 +117,13 @@ map <Enter> o<ESC>
 map <S-Enter> O<ESC>
 
 " Navigate wrapped lines naturally.
-nnoremap j gj 
+nnoremap j gj
 nnoremap k gk
 xnoremap j gj
 xnoremap k gk
 
 " Jump 5 lines at a time with J/K.
-nmap J 5j 
+nmap J 5j
 nmap K 5k
 xmap J 5j
 xmap K 5k
@@ -169,10 +178,10 @@ nnoremap <C-n> :call NumberToggle()<cr>
 nnoremap gg ggz.
 
 " Window resizing shortcuts.
-map <leader>w- <C-W>- 
-map <leader>w+ <C-W>+ 
-map <leader>w[ <C-W>= 
-map <leader>w] <C-W>_ 
+map <leader>w- <C-W>-
+map <leader>w+ <C-W>+
+map <leader>w[ <C-W>=
+map <leader>w] <C-W>_
 
 " Navigate between splits with g + hjkl.
 nmap gh <C-w>h
@@ -189,5 +198,3 @@ inoremap <up> <nop>
 inoremap <down> <nop>
 inoremap <left> <nop>
 inoremap <right> <nop>
-nnoremap j gj
-nnoremap k gk
