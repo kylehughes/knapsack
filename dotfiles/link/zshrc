@@ -12,8 +12,8 @@ typeset -U fpath
 # --- History ---
 
 HISTFILE=~/.zsh_history
-HISTSIZE=10000
-SAVEHIST=10000
+HISTSIZE=100000
+SAVEHIST=100000
 setopt APPEND_HISTORY
 setopt SHARE_HISTORY
 setopt HIST_FIND_NO_DUPS
@@ -50,9 +50,14 @@ fi
 
 # --- Completion ---
 
-# Use the cached completion dump without repeated security scans.
+# Rebuild the completion dump at most once a day so newly installed tools get
+# completions; otherwise use the cached dump without repeated security scans.
 autoload -Uz compinit
-compinit -C
+if [[ -n ~/.zcompdump(#qN.mh+24) ]]; then
+    compinit
+else
+    compinit -C
+fi
 zstyle ':completion:*' menu select
 zstyle ':completion:*' matcher-list 'm:{a-z}={A-Z}'    # Case-insensitive matching.
 zstyle ':completion:*' list-colors ''
@@ -62,8 +67,13 @@ setopt ALWAYS_TO_END
 # --- Key Bindings ---
 
 bindkey -e  # Emacs mode.
+
+# Bind both normal- and application-mode arrow sequences; terminals send
+# either depending on cursor key mode.
 bindkey '^[[A' history-search-backward
 bindkey '^[[B' history-search-forward
+bindkey '^[OA' history-search-backward
+bindkey '^[OB' history-search-forward
 
 # Bracketed paste prevents shell interpretation during paste.
 autoload -Uz bracketed-paste-magic
