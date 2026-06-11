@@ -16,8 +16,8 @@ window-padding-y = 10
 cursor-style = block
 cursor-style-blink = true
 
-# Scrollback
-scrollback-limit = 10000
+# Scrollback buffer size in bytes (not lines), allocated lazily per surface.
+scrollback-limit = 100000000
 
 # macOS specific
 macos-option-as-alt = true
