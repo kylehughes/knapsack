@@ -14,6 +14,10 @@ set -euo pipefail
 
 source "$(dirname "$0")/lib/common.sh"
 
+# --- Constants ---
+
+IDB_PYTHON_VERSION="3.13"
+
 # --- Functions ---
 
 command_exists() {
@@ -38,6 +42,7 @@ fi
 
 if ! command_exists idb_companion; then
     echo "Installing idb companion from Brewfile..."
+    trust_homebrew_formula "bro3886/tap/rem-cli"
     brew bundle install --file "$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)/Brewfile"
 else
     log_skip "idb companion already installed"
@@ -45,10 +50,10 @@ fi
 
 if ! uv tool list | grep -q '^fb-idb '; then
     echo "Installing idb client with uv..."
-    uv tool install fb-idb
+    uv tool install --python "$IDB_PYTHON_VERSION" fb-idb
 else
     echo "Upgrading idb client with uv..."
-    uv tool upgrade fb-idb
+    uv tool upgrade --python "$IDB_PYTHON_VERSION" fb-idb
 fi
 
 echo ""
