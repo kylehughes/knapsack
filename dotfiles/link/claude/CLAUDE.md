@@ -27,7 +27,7 @@ Three CLI agents are installed on this machine. Invoke them headlessly for expli
 
 | Agent | Best model | Headless invocation |
 |-------|-----------|---------------------|
-| Claude Code | `claude-fable-5` | `claude -p --model claude-fable-5 "prompt"` |
+| Claude Code | `claude-opus-4-8` | `claude -p --model claude-opus-4-8 "prompt"` |
 | Gemini CLI | `gemini-3.1-pro-preview` | `gemini -m gemini-3.1-pro-preview -p "prompt"` |
 | Codex CLI | `gpt-5.5` | `codex exec --full-auto -m gpt-5.5 -c model_reasoning_effort="xhigh" "prompt"` |
 
@@ -35,7 +35,7 @@ Common options:
 
 ```bash
 # Claude Code — restrict tools, custom system prompt
-claude -p --model claude-fable-5 --allowed-tools "Read Grep Glob" "prompt"
+claude -p --model claude-opus-4-8 --allowed-tools "Read Grep Glob" "prompt"
 
 # Gemini CLI — output format
 gemini -m gemini-3.1-pro-preview -o json -p "prompt"
