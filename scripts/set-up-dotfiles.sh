@@ -141,6 +141,11 @@ function do_action() {
             fi
             
             # For other directories, link files and subdirectories.
+            # A stale whole-directory symlink at the destination (e.g. an older
+            # ~/.vim pointing into the repo) would make the per-file links below
+            # resolve back through it into the repository itself, creating
+            # self-referential symlinks. Replace it with a real directory first.
+            [[ -L "$fileDest" ]] && rm "$fileDest"
             mkdir -p "$fileDest"
 
             for subfile in "$file"/*; do
