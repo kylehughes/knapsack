@@ -164,9 +164,16 @@
     "claude-md-management@claude-plugins-official": true,
     "skill-creator@claude-plugins-official": true,
     "apple-platform-development@making-good-software": true,
-    "figma@claude-plugins-official": true
+    "figma@claude-plugins-official": true,
+    "codex@openai-codex": true
   },
   "extraKnownMarketplaces": {
+    "openai-codex": {
+      "source": {
+        "source": "github",
+        "repo": "openai/codex-plugin-cc"
+      }
+    },
     "apple-platform-build-tools-claude-code-plugin": {
       "source": {
         "source": "github",
@@ -194,6 +201,5 @@
   },
   "alwaysThinkingEnabled": true,
   "effortLevel": "xhigh",
-  "skipDangerousModePermissionPrompt": true,
-  "model": "claude-fable-5[1m]"
+  "skipDangerousModePermissionPrompt": true
 }
