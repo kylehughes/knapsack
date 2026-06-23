@@ -21,6 +21,19 @@ Custom zsh functions available in `~/.config/zsh/functions/` (named `tool-action
 
 Facebook idb is installed for iOS simulator/device automation (`idb` via `uv tool`, `idb_companion` via Homebrew).
 
+## Apple Documentation
+
+Apple renders its developer documentation client-side with JavaScript, so fetching `developer.apple.com` URLs directly returns an empty shell. [sosumi.ai](https://sosumi.ai/) renders the page server-side and returns clean Markdown.
+
+Claude Code and Codex have the **sosumi** MCP server registered (via `make set-up/mcp-servers` in Knapsack) — prefer its search/fetch tools when they are available. For any agent without it (e.g. Gemini) or a quick one-off fetch, rewrite the URL through the proxy instead:
+
+- **Apple docs** — replace the `developer.apple.com` host with `sosumi.ai`, keeping the path. Covers `/documentation/…`, `/design/human-interface-guidelines/…`, and `/videos/…`.
+  - `https://developer.apple.com/documentation/swiftui/view` → `https://sosumi.ai/documentation/swiftui/view`
+- **External Swift-DocC sites** (GitHub Pages, Swift Package Index) — prefix the full URL with `https://sosumi.ai/external/`.
+  - `https://sosumi.ai/external/https://apple.github.io/swift-argument-parser/documentation/argumentparser/`
+
+It renders one page on demand per request — use it for targeted lookups, not bulk crawling.
+
 ## Computer-Using Agents
 
 Three CLI agents are installed on this machine. Invoke them headlessly for explicit user requests, cross-model second opinions, or workflows that specifically require that agent. Do not treat them as interchangeable subagent backends. All three share the same global instructions via symlinks (`~/.gemini/GEMINI.md`, `~/.codex/AGENTS.md` → `~/.claude/CLAUDE.md`) and skills via the agentskills.io standard path (`~/.agents/skills` → `~/.claude/skills`).

@@ -20,6 +20,7 @@ make set-up/homebrew        # Install Homebrew
 make set-up/dependencies    # Install dependencies from Brewfile
 make set-up/dotfiles        # Install dotfiles
 make set-up/idb             # Install Facebook idb companion and client
+make set-up/mcp-servers     # Register shared MCP servers with Claude Code and Codex
 make set-up/local-functions # Create local functions directory
 ```
 
@@ -135,6 +136,15 @@ all three CLI agents on this machine. Codex CLI (`~/.codex`), Gemini CLI
 (`~/.gemini`), and the agentskills.io path (`~/.agents`) receive the same
 instructions and skills through symlinks, so `CLAUDE.md` and `skills/` are
 maintained once.
+
+Shared MCP servers are registered separately by `make set-up/mcp-servers`.
+Because each agent keeps its MCP configuration in a large, stateful,
+secret-bearing file (`~/.claude.json`, `~/.codex/config.toml`) that cannot be
+symlinked, the setup script registers servers through each tool's own CLI
+instead, and re-running it leaves existing servers untouched. The declared list
+lives in `scripts/set-up-mcp-servers.sh`; today it registers
+[sosumi.ai](https://sosumi.ai/), which renders Apple's JavaScript-only developer
+documentation into Markdown.
 
 ## Development
 

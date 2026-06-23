@@ -3,7 +3,7 @@ migrate/mise:
 	@bash "./scripts/migrate-to-mise.sh"
 
 ## Run all setup tasks.
-set-up/all: set-up/homebrew set-up/dependencies set-up/dotfiles set-up/idb
+set-up/all: set-up/homebrew set-up/dependencies set-up/dotfiles set-up/idb set-up/mcp-servers
 	@echo ""
 	@echo "✓ All setup tasks complete!"
 
@@ -26,3 +26,7 @@ set-up/idb:
 ## Create local functions directory for machine-specific functions.
 set-up/local-functions:
 	@bash "./scripts/set-up-local-functions.sh"
+
+## Register shared MCP servers with Claude Code and Codex.
+set-up/mcp-servers:
+	@bash "./scripts/set-up-mcp-servers.sh"
