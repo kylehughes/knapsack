@@ -139,6 +139,7 @@
     ],
     "defaultMode": "acceptEdits"
   },
+  "model": "claude-fable-5[1m]",
   "hooks": {
     "Notification": [
       {
@@ -201,6 +202,6 @@
   },
   "alwaysThinkingEnabled": true,
   "effortLevel": "xhigh",
-  "skipDangerousModePermissionPrompt": true,
-  "tui": "fullscreen"
+  "tui": "fullscreen",
+  "skipDangerousModePermissionPrompt": true
 }
