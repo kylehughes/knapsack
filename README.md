@@ -40,7 +40,8 @@ linking.
 | `claude/settings.json` | Symlink | Claude Code settings (model, permissions, hooks, plugins). |
 | `claude/statusline.sh` | Symlink | Claude Code status line script. |
 | `claude/agents/*`, `claude/skills/*` | Symlink | Custom subagents and skills. |
-| `agents/`, `codex/`, `gemini/` | Symlink | Re-export the Claude configuration to Codex CLI, Gemini CLI, and the agentskills.io path. |
+| `agents/`, `gemini/` | Symlink | Re-export the Claude configuration to Gemini CLI and the agentskills.io path. |
+| `codex/` | Symlink | Re-exports the Claude instructions to Codex CLI; `codex/agents/` holds native Codex subagent definitions (TOML), since Codex cannot read the Claude agent format. |
 | `config/ghostty/*` | Symlink | Ghostty terminal configuration and theme. |
 | `config/mise/*` | Symlink | mise tool version pins (node, ruby). |
 | `config/zsh/functions/*` | Symlink | Custom shell functions. |
@@ -135,7 +136,9 @@ The Claude configuration in `dotfiles/link/claude/` is the source of truth for
 all three CLI agents on this machine. Codex CLI (`~/.codex`), Gemini CLI
 (`~/.gemini`), and the agentskills.io path (`~/.agents`) receive the same
 instructions and skills through symlinks, so `CLAUDE.md` and `skills/` are
-maintained once.
+maintained once. Subagent definitions are the exception: Claude Code reads
+Markdown agents and Codex reads TOML, so `codex/agents/` defines its
+fast-worker subagents natively.
 
 Shared MCP servers are registered separately by `make set-up/mcp-servers`.
 Because each agent keeps its MCP configuration in a large, stateful,

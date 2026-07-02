@@ -151,6 +151,16 @@
           }
         ]
       }
+    ],
+    "UserPromptSubmit": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "echo 'Delegation: planned edits with named files and acceptance criteria go to fast-worker-sonnet (trivial mechanical edits: fast-worker-haiku), not inline. Investigation, design, and tiny edits stay inline.'"
+          }
+        ]
+      }
     ]
   },
   "statusLine": {

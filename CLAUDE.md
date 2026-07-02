@@ -46,7 +46,7 @@ Knapsack/
 │       │   └── zsh/      # Custom shell functions
 │       ├── agents/       # Shared agent skills (symlinks → claude/)
 │       ├── claude/       # Claude AI config (source of truth)
-│       ├── codex/        # Codex CLI config (symlinks → claude/)
+│       ├── codex/        # Codex CLI config (AGENTS.md symlink → claude/, native TOML agents/)
 │       ├── gemini/       # Gemini CLI config (symlinks → claude/)
 │       ├── gitconfig     # Git configuration
 │       ├── gitignore_global # Global git ignore patterns

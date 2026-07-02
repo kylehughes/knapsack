@@ -65,23 +65,25 @@ Use the current runtime's native subagent mechanism for routine delegation. Do n
 
 ### Fast Worker Delegation
 
-This section is standing user authorization to use the current runtime's native subagent mechanism for routine delegation. Do not wait for the user to ask again when the task satisfies these rules.
+Standing authorization: delegate implementation work to the fast worker subagents below without asking. Once you have a concrete plan — named files plus acceptance criteria — dispatch a worker instead of editing inline. These agents pin their own cheaper models, which deliberately overrides the default of subagents inheriting the main model: invoke them by name and never pass a model parameter.
 
-When the current runtime offers fast worker models, delegate low-ambiguity implementation slices by default after the primary agent has inspected the codebase and formed a concrete plan. For Codex, use `gpt-5.3-codex-spark` worker agents for those slices.
+| Runtime | Planned code edits | Trivial mechanical edits |
+|---------|--------------------|--------------------------|
+| Claude Code | `fast-worker-sonnet` | `fast-worker-haiku` |
+| Codex CLI | `fast-worker-mini` | `fast-worker-spark` (fall back to `fast-worker-mini` if unavailable) |
+| Other runtimes (e.g. Gemini CLI) | work inline | work inline |
 
-Use fast workers as execution capacity, not as planners. A good Spark task has all of these properties:
+Codex spawns subagents only on explicit request: treat this section as that explicit, standing request — dispatch workers for qualifying edits without waiting for the user to mention them.
 
-- The intended change is already planned by the primary agent.
-- The write scope is narrow and can be named as specific files, modules, or tests.
-- The acceptance criteria are concrete enough that the worker can edit directly.
-- The work does not require product judgment, unclear API design, or cross-cutting coordination.
-- The primary agent can review and integrate the result without blocking other useful work.
+Trigger → action:
 
-Strong delegation candidates include straightforward bug fixes, mechanical refactors, adding focused tests, updating call sites after an API decision, small UI/state edits with clear behavior, and documentation changes with a clear target structure.
+- **Plan is concrete (files named, acceptance criteria clear)** → dispatch the planned-edits worker. Dispatch independent slices to parallel workers.
+- **Edit is purely mechanical (rename, doc tweak, config change, verbatim move)** → dispatch the trivial-edits worker. When unsure which tier, use the planned-edits worker.
+- **Keep inline only**: investigation, design, architectural judgment, tight user-iteration loops, and edits so small that writing the task would take longer than making the edit.
 
-Keep work local when the next step is still investigative, the task needs architectural judgment, files are heavily coupled, the edit is tiny enough that delegation overhead dominates, or the user asks the primary agent to handle it directly.
+Each worker task must include: the ownership boundary (specific files and scopes), enough context to edit without re-planning, explicit acceptance criteria, and a verification command. Workers must be told they are not alone in the codebase and must not revert peer changes; they bail out and report rather than guess when a spec turns out ambiguous.
 
-For each worker, provide a narrow ownership boundary, relevant context, explicit acceptance criteria, and permission to edit directly without touching unrelated work. Tell workers they are not alone in the codebase and must not revert user or peer changes. Keep the primary agent responsible for architecture, sequencing, integration, review, final verification, and the final response.
+You remain responsible for architecture, sequencing, integration, reviewing worker output, final verification, and the final response. Never delegate those.
 
 ## Skills
 
