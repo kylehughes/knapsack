@@ -38,7 +38,10 @@ Run `asc doctor` first, always. Fix what it reports before analyzing.
   API ad hoc. Discover unfamiliar commands with `asc search <term>` or
   `asc docs list`.
 - Download raw reports into the cache, not the repo:
-  `~/.cache/app-store-business-analyst/<bundle-id>/{sales,analytics,reviews,market}/`.
+  `~/.cache/app-store-business-analyst/vendor-<num>/sales/` for Sales & Trends
+  (vendor-wide reports) and
+  `~/.cache/app-store-business-analyst/<bundle-id>/{analytics,reviews,market}/`
+  for app-scoped data.
   Use deterministic file names (`SALES_SUMMARY_DAILY_2026-07-01.tsv`). The
   cache is the durable history — Apple expires old daily reports, so backfill
   early with `scripts/backfill-sales.sh` and never delete the cache.

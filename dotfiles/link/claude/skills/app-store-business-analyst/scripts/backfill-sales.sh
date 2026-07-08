@@ -3,9 +3,12 @@
 # Missing periods (404s) are skipped, existing cache files are not re-fetched.
 #
 # Usage:
-#   backfill-sales.sh --vendor NUM --bundle-id ID --frequency DAILY|MONTHLY \
+#   backfill-sales.sh --vendor NUM --frequency DAILY|MONTHLY \
 #     --from DATE --to DATE [--type SALES] [--subtype SUMMARY] [--version V] \
 #     [--profile NAME]
+#
+# Reports are vendor-wide (all apps under the vendor number), so the cache is
+# keyed by vendor, not app.
 #
 # DATE format matches the frequency: DAILY YYYY-MM-DD, MONTHLY YYYY-MM.
 
@@ -16,7 +19,6 @@ SUBTYPE="SUMMARY"
 FREQUENCY=""
 VERSION=""
 VENDOR="${ASC_VENDOR_NUMBER:-}"
-BUNDLE_ID=""
 FROM=""
 TO=""
 PROFILE=""
@@ -28,7 +30,6 @@ while [[ $# -gt 0 ]]; do
         --frequency) FREQUENCY="$2"; shift 2 ;;
         --version) VERSION="$2"; shift 2 ;;
         --vendor) VENDOR="$2"; shift 2 ;;
-        --bundle-id) BUNDLE_ID="$2"; shift 2 ;;
         --from) FROM="$2"; shift 2 ;;
         --to) TO="$2"; shift 2 ;;
         --profile) PROFILE="$2"; shift 2 ;;
@@ -36,22 +37,22 @@ while [[ $# -gt 0 ]]; do
     esac
 done
 
-[[ -n "$VENDOR" && -n "$BUNDLE_ID" && -n "$FREQUENCY" && -n "$FROM" && -n "$TO" ]] || {
-    echo "required: --vendor (or ASC_VENDOR_NUMBER), --bundle-id, --frequency, --from, --to" >&2
+[[ -n "$VENDOR" && -n "$FREQUENCY" && -n "$FROM" && -n "$TO" ]] || {
+    echo "required: --vendor (or ASC_VENDOR_NUMBER), --frequency, --from, --to" >&2
     exit 2
 }
 
 if [[ -z "$VERSION" ]]; then
     case "$TYPE" in
         SUBSCRIPTION|SUBSCRIPTION_EVENT|SUBSCRIBER) VERSION="1_3" ;;
-        *) VERSION="1_1" ;;
+        *) VERSION="1_0" ;;
     esac
 fi
 
 PROFILE_ARGS=()
 [[ -n "$PROFILE" ]] && PROFILE_ARGS=(--profile "$PROFILE")
 
-CACHE_DIR="${HOME}/.cache/app-store-business-analyst/${BUNDLE_ID}/sales"
+CACHE_DIR="${HOME}/.cache/app-store-business-analyst/vendor-${VENDOR}/sales"
 mkdir -p "$CACHE_DIR"
 
 next_period() {

@@ -25,10 +25,11 @@ the timing rules that keep analysis honest.
 ## Sales & Trends Reports
 
 Delivered as gzipped TSV (`--decompress` writes plain `.tsv`). Reports cover
-**all apps under the vendor number** — always filter rows to the app under
-analysis (`Apple Identifier` column = numeric app ID; SKU column also works).
+**all apps under the vendor number** — cache them per vendor
+(`vendor-<num>/sales/`), and always filter rows to the app under analysis
+(`Apple Identifier` column = numeric app ID; SKU column also works).
 
-### SALES (subtype SUMMARY, version 1_1)
+### SALES (subtype SUMMARY, version 1_0 — the latest; the API rejects 1_1)
 
 One row per product/date/country/type combination.
 
