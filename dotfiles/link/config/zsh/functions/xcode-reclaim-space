@@ -1,0 +1,52 @@
+#!/usr/bin/env zsh
+#===============================================================================
+#  xcode-reclaim-space — Reclaim disk from Xcode and simulator artifacts
+#
+#  USAGE:
+#    xcode-reclaim-space
+#
+#  OPTIONS:
+#    None
+#
+#  REQUIREMENTS:
+#    zsh ≥ 4.x, xcrun (Xcode command line tools), tmutil
+#
+#  EXIT CODES:
+#    0  success
+#    1  usage error or aborted
+#    2  missing dependency
+#    >2 script-specific failures
+#
+#  AUTHOR:      Kyle Hughes <kyle@kylehugh.es>
+#  LICENSE:     MIT
+#===============================================================================
+
+# Clearing DerivedData breaks in-progress builds, so confirm before running.
+echo "This clears DerivedData, prunes stale simulators, and deletes local"
+echo "Time Machine snapshots. Run it only when no builds are in progress."
+echo -n "Continue? [y/N] "
+read -r reply
+if [[ "$reply" != [yY] ]]; then
+    echo "Aborted."
+    return 1
+fi
+
+# Report reclaimable sizes before cleaning.
+echo "Before:"
+du -sh ~/Library/Developer/Xcode/DerivedData 2>/dev/null
+du -sh ~/Library/Developer/CoreSimulator/Devices 2>/dev/null
+
+# Remove build intermediates; Xcode regenerates them on the next build.
+echo "Clearing DerivedData..."
+rm -rf ~/Library/Developer/Xcode/DerivedData/* || return 1
+
+# Delete simulators for runtimes that are no longer installed.
+echo "Pruning unavailable simulators..."
+xcrun simctl delete unavailable || return 1
+
+# Delete APFS local snapshots; the NAS backup remains intact.
+echo "Deleting local Time Machine snapshots..."
+sudo tmutil deletelocalsnapshots / || return 1
+
+echo "After:"
+df -h /System/Volumes/Data | awk 'NR==2 {print $4" free ("$5" used)"}'

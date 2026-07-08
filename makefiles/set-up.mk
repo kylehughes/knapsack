@@ -30,3 +30,7 @@ set-up/local-functions:
 ## Register shared MCP servers with Claude Code and Codex.
 set-up/mcp-servers:
 	@bash "./scripts/set-up-mcp-servers.sh"
+
+## Tune macOS for heavy parallel development (opt-in; requires sudo).
+set-up/performance:
+	@bash "./scripts/set-up-performance.sh"

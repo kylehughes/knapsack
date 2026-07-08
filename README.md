@@ -22,6 +22,7 @@ make set-up/dotfiles        # Install dotfiles
 make set-up/idb             # Install Facebook idb companion and client
 make set-up/mcp-servers     # Register shared MCP servers with Claude Code and Codex
 make set-up/local-functions # Create local functions directory
+make set-up/performance     # Tune macOS for heavy parallel development (opt-in)
 ```
 
 ## Structure
@@ -85,6 +86,7 @@ Custom zsh functions for common workflows, autoloaded from `~/.config/zsh/functi
 | --- | --- | --- |
 | `brew-maintain` | Update, upgrade, autoremove, and clean up Homebrew. | `brew-maintain` |
 | `ffmpeg-reduce-size` | Re-encode a video to reduce its file size. | `ffmpeg-reduce-size <video-file>` |
+| `xcode-reclaim-space` | Clear DerivedData, prune stale simulators, and delete local Time Machine snapshots. | `xcode-reclaim-space` |
 
 Functions follow the `tool-action` naming convention for clarity and tab completion support.
 
@@ -160,6 +162,24 @@ All scripts and configuration files follow consistent documentation patterns:
 - **Section headers**: Title Case sections marked with `--- Section Name ---`.
 - **Comments**: Complete sentences with periods, explaining why not what.
 - **No decorations**: Clean, readable formatting without excessive separators.
+
+## Performance
+
+`make set-up/performance` applies idempotent, reversible tunings for machines
+that run many concurrent simulators and builds: it caps Xcode's compile tasks
+per build so parallel builds do not oversubscribe the CPU, disables App Nap and
+UI animations, excludes `DerivedData` and `CoreSimulator` from Time Machine, and
+turns off Power Nap. It is an opt-in task (it requires `sudo` and changes
+interface preferences), so it is not part of `make set-up/all`.
+
+On Apple Silicon there is no software toggle that trades longevity for speed —
+the machine already runs at full clocks on AC power. The one lever for sustained
+performance under load is thermal headroom, so keep the laptop on a stand or in
+clamshell mode with an external display.
+
+Reclaiming disk is a separate, periodic task: run `xcode-reclaim-space` when no
+builds are in progress to clear build intermediates, prune stale simulators, and
+delete local snapshots.
 
 ## Theme
 
