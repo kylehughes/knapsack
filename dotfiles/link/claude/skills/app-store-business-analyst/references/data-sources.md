@@ -73,10 +73,13 @@ subsequent renew/cancel counts) and note the approximation.
   they age past the window.
 - Date formats: daily/weekly `YYYY-MM-DD` (weekly accepts Monday-start or
   Sunday-end per `asc`), monthly `YYYY-MM`, yearly `YYYY`.
-- Apple does not retain fine-grained reports forever (daily reports expire
-  after roughly a year; weekly/monthly last longer). **Backfill immediately
-  and treat the cache as the durable record.** Exact horizons unverified —
-  when a fetch 404s on an old date, that's the horizon, not an error.
+- **SUBSCRIPTION and SUBSCRIPTION_EVENT reports are daily-only** (verified
+  empirically 2026-07: monthly/weekly requests return "no report available").
+  Build monthly aggregates by summing daily files; event reports exist only
+  on days with at least one event.
+- Retention horizons (verified empirically 2026-07): monthly SALES reports
+  reach back ~12 months; older dates return "no report available".
+  **Backfill immediately and treat the cache as the durable record.**
 - A 404 also means "no data for that period" for small apps (common for
   DAILY SUBSCRIPTION_EVENT). Zero-sales days simply have no rows/report.
 
