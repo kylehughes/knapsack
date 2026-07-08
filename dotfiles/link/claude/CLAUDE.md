@@ -1,99 +1,71 @@
 # CLAUDE.md (~/.claude/CLAUDE.md)
 
-Global instructions for all repositories on this machine.
+Global instructions for all repositories on this machine — macOS, orchestrated by the `~/Knapsack` dotfiles repository. Codex CLI reads this same file through `~/.codex/AGENTS.md`, so keep guidance runtime-neutral except where a runtime is named.
 
-This is a macOS machine orchestrated with dotfiles, including this one, from `~/Knapsack`.
+## Git
 
-## Git Commits
-
-Match the repository's existing commit style:
-
-- Run `git log --oneline -10` to understand patterns
-- Write in the user's voice, never credit AI
-
-## Pull Requests
-
-When creating a pull request, assign it to me (Kyle Hughes, GitHub `kylehughes`).
+- Match the repository's existing commit style (check `git log --oneline -10`). Write in my voice; never credit AI.
+- Assign pull requests to me: Kyle Hughes, GitHub `kylehughes`.
 
 ## Shell Environment
 
-Custom zsh functions available in `~/.config/zsh/functions/` (named `tool-action`, e.g., `git-add-amend-force-push`). Local overrides in `functions-local/`.
-
-Facebook idb is installed for iOS simulator/device automation (`idb` via `uv tool`, `idb_companion` via Homebrew).
+- Custom zsh functions live in `~/.config/zsh/functions/`, named `tool-action` (e.g., `git-add-amend-force-push`). Machine-local overrides in `functions-local/`.
+- Facebook idb is installed for iOS simulator/device automation (`idb` via `uv tool`, `idb_companion` via Homebrew).
 
 ## Apple Documentation
 
-Apple renders its developer documentation client-side with JavaScript, so fetching `developer.apple.com` URLs directly returns an empty shell. [sosumi.ai](https://sosumi.ai/) renders the page server-side and returns clean Markdown.
+`developer.apple.com` renders client-side, so fetching it directly returns an empty shell. Prefer the **sosumi** MCP server's search/fetch tools (registered for Claude Code and Codex via `make set-up/mcp-servers` in Knapsack). Without them, rewrite the URL through [sosumi.ai](https://sosumi.ai/), which renders the page server-side as Markdown:
 
-Claude Code and Codex have the **sosumi** MCP server registered (via `make set-up/mcp-servers` in Knapsack) — prefer its search/fetch tools when they are available. For any agent without it (e.g. Gemini) or a quick one-off fetch, rewrite the URL through the proxy instead:
+- **Apple docs** — swap the host, keep the path: `https://sosumi.ai/documentation/swiftui/view`. Covers `/documentation/…`, `/design/human-interface-guidelines/…`, and `/videos/…`.
+- **External Swift-DocC sites** — prefix the full URL: `https://sosumi.ai/external/https://apple.github.io/swift-argument-parser/documentation/argumentparser/`.
 
-- **Apple docs** — replace the `developer.apple.com` host with `sosumi.ai`, keeping the path. Covers `/documentation/…`, `/design/human-interface-guidelines/…`, and `/videos/…`.
-  - `https://developer.apple.com/documentation/swiftui/view` → `https://sosumi.ai/documentation/swiftui/view`
-- **External Swift-DocC sites** (GitHub Pages, Swift Package Index) — prefix the full URL with `https://sosumi.ai/external/`.
-  - `https://sosumi.ai/external/https://apple.github.io/swift-argument-parser/documentation/argumentparser/`
+It renders one page per request — use it for targeted lookups, not crawling.
 
-It renders one page on demand per request — use it for targeted lookups, not bulk crawling.
+## Agents
 
-## Computer-Using Agents
+Claude Code and Codex CLI are installed and share these instructions and skills (`~/.agents/skills` → `~/.claude/skills`).
 
-Three CLI agents are installed on this machine. Invoke them headlessly for explicit user requests, cross-model second opinions, or workflows that specifically require that agent. Do not treat them as interchangeable subagent backends. All three share the same global instructions via symlinks (`~/.gemini/GEMINI.md`, `~/.codex/AGENTS.md` → `~/.claude/CLAUDE.md`) and skills via the agentskills.io standard path (`~/.agents/skills` → `~/.claude/skills`).
+### Headless Invocation
 
-| Agent | Best model | Headless invocation |
-|-------|-----------|---------------------|
-| Claude Code | `claude-opus-4-8` | `claude -p --model claude-opus-4-8 "prompt"` |
-| Gemini CLI | `gemini-3.1-pro-preview` | `gemini -m gemini-3.1-pro-preview -p "prompt"` |
-| Codex CLI | `gpt-5.5` | `codex exec --full-auto -m gpt-5.5 -c model_reasoning_effort="xhigh" "prompt"` |
-
-Common options:
+Invoke an agent headlessly only when the user asks for it, for an intentional cross-model second opinion, or when a workflow requires that specific agent — never as an interchangeable subagent backend.
 
 ```bash
-# Claude Code — restrict tools, custom system prompt
-claude -p --model claude-opus-4-8 --allowed-tools "Read Grep Glob" "prompt"
+# Claude Code (add --allowed-tools "Read Grep Glob" to restrict tools)
+claude -p --model claude-opus-4-8 "prompt"
 
-# Gemini CLI — output format
-gemini -m gemini-3.1-pro-preview -o json -p "prompt"
-
-# Codex CLI — capture output to file
-codex exec --full-auto -m gpt-5.5 -c model_reasoning_effort="xhigh" -o output.txt "prompt"
+# Codex CLI (add -o output.txt to capture output)
+codex exec --full-auto -m gpt-5.5 -c model_reasoning_effort="xhigh" "prompt"
 ```
 
-All three accept piped stdin (e.g., `echo "context" | claude -p "prompt"`).
+Both accept piped stdin: `echo "context" | claude -p "prompt"`.
 
 ### Delegation
 
-Use the current runtime's native subagent mechanism for routine delegation. Do not route subagent work through another headless CLI agent unless the user explicitly asks for that agent, the task is an intentional cross-model second opinion, or the workflow specifically requires that external agent. If a skill references a runtime-specific agent tool, translate the intent onto the current runtime's native subagent mechanism and pass the relevant agent instructions as prompt context.
+Route routine delegation through the current runtime's native subagent mechanism. If a skill references another runtime's agent tool, translate the intent onto the native mechanism and pass the agent instructions as prompt context.
 
-### Fast Worker Delegation
+#### Fast Workers
 
-Standing authorization: delegate implementation work to the fast worker subagents below without asking. Once you have a concrete plan — named files plus acceptance criteria — dispatch a worker instead of editing inline. These agents pin their own cheaper models, which deliberately overrides the default of subagents inheriting the main model: invoke them by name and never pass a model parameter.
+Standing authorization: once a plan is concrete — named files plus acceptance criteria — dispatch a fast worker instead of editing inline, and dispatch independent slices to parallel workers. These agents pin their own cheaper models: invoke them by name and never pass a model parameter. (Codex: this section is the explicit standing request to spawn subagents.)
 
 | Runtime | Planned code edits | Trivial mechanical edits |
 |---------|--------------------|--------------------------|
 | Claude Code | `fast-worker-sonnet` | `fast-worker-haiku` |
-| Codex CLI | `fast-worker-mini` | `fast-worker-spark` (fall back to `fast-worker-mini` if unavailable) |
-| Other runtimes (e.g. Gemini CLI) | work inline | work inline |
+| Codex CLI | `fast-worker-mini` | `fast-worker-spark` (fall back to `fast-worker-mini`) |
 
-Codex spawns subagents only on explicit request: treat this section as that explicit, standing request — dispatch workers for qualifying edits without waiting for the user to mention them.
+- Purely mechanical edits (rename, doc tweak, config change, verbatim move) go to the trivial-edits worker; when unsure which tier, use the planned-edits worker.
+- Keep inline: investigation, design, architectural judgment, tight user-iteration loops, and edits smaller than the task description would be.
+- Every worker task states the ownership boundary (files and scopes), enough context to edit without re-planning, acceptance criteria, and a verification command. Workers are not alone in the codebase: they must not revert peer changes, and they bail out and report rather than guess at an ambiguous spec.
+- Never delegate architecture, sequencing, integration, review of worker output, final verification, or the final response.
 
-Trigger → action:
+## Writing
 
-- **Plan is concrete (files named, acceptance criteria clear)** → dispatch the planned-edits worker. Dispatch independent slices to parallel workers.
-- **Edit is purely mechanical (rename, doc tweak, config change, verbatim move)** → dispatch the trivial-edits worker. When unsure which tier, use the planned-edits worker.
-- **Keep inline only**: investigation, design, architectural judgment, tight user-iteration loops, and edits so small that writing the task would take longer than making the edit.
+### READMEs
 
-Each worker task must include: the ownership boundary (specific files and scopes), enough context to edit without re-planning, explicit acceptance criteria, and a verification command. Workers must be told they are not alone in the codebase and must not revert peer changes; they bail out and report rather than guess when a spec turns out ambiguous.
+READMEs are user-facing documentation, not file inventories. Edit the whole document, not just a section: sections in intuitive order, context before detail, progressive disclosure from common use to maintainer detail. Do not leave a README awkward, duplicative, stale, or harder to scan. Prefer useful information over fluff — concise, but complete enough to know what the project is, how to use it, and where to go next.
 
-You remain responsible for architecture, sequencing, integration, reviewing worker output, final verification, and the final response. Never delegate those.
+### Evaluation Scenarios
 
-## Skills
-
-Use Skills to discover project-specific patterns and conventions.
-
-## README Documentation
-
-READMEs are a specific kind of user-facing documentation, not just file inventories. When editing a README, consider the whole document: whether the sections are in an intuitive order, whether the reader gets useful context before detail, and whether information is progressively disclosed from common use to maintainer details. Do not make isolated edits that leave the document awkward, duplicative, stale, or harder to scan.
-
-Prioritize useful information over fluff. Keep prose concise, but include enough context for someone to understand what the repository or project is, how to use it, and where to go next.
+When writing or modifying evaluation scenarios, never put the exact API parameters, property names, or technical "answers" in the natural-language prompt. Write prompts as a real user would ("make it a checklist", not "set checklistEnabled: true") so the evaluation tests inference.
 
 ## Software Development Tenets
 
@@ -103,6 +75,3 @@ Prioritize useful information over fluff. Keep prose concise, but include enough
 1. **Align with idiomatic platform patterns.** We leverage platform conventions and paradigms rather than inventing our own. This improves framework integration, makes code feel familiar to any domain developer, and ensures our software behaves as users expect.
 1. **Invent empathetically.** When we must create abstractions, we minimize the learning curve by making solutions obvious, self-explanatory, and minimally intrusive. We respect that being forced to learn others' inventions can be frustrating.
 1. **Build deliberately, import selectively.** We consider internal solutions before dependencies. Third-party code increases our surface area for bugs, security issues, and maintenance overhead. When a focused internal implementation meets our needs, we prefer it.
-
-## Gemini Added Memories
-- When writing or modifying evaluation scenarios, NEVER put the exact API parameters, property names, or technical 'answers' in the natural language prompt. Always write prompts as a real human user would (e.g., 'make it a checklist' instead of 'set checklistEnabled: true') to ensure the evaluation accurately tests inference.
