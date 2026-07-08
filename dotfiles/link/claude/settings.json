@@ -139,7 +139,7 @@
     ],
     "defaultMode": "acceptEdits"
   },
-  "model": "claude-fable-5[1m]",
+  "model": "opus[1m]",
   "hooks": {
     "Notification": [
       {
@@ -174,9 +174,10 @@
     "swift-lsp@claude-plugins-official": true,
     "claude-md-management@claude-plugins-official": true,
     "skill-creator@claude-plugins-official": true,
-    "apple-platform-development@making-good-software": true,
     "figma@claude-plugins-official": true,
-    "codex@openai-codex": true
+    "codex@openai-codex": true,
+    "apple-platform@making-good-software": true,
+    "universal@making-good-software": true
   },
   "extraKnownMarketplaces": {
     "openai-codex": {
@@ -206,12 +207,13 @@
     "making-good-software": {
       "source": {
         "source": "github",
-        "repo": "kylehughes/claude-plugins-for-making-good-software"
-      }
+        "repo": "kylehughes/agent-plugins-for-making-good-software"
+      },
+      "autoUpdate": true
     }
   },
   "alwaysThinkingEnabled": true,
-  "effortLevel": "xhigh",
+  "effortLevel": "high",
   "tui": "fullscreen",
   "skipDangerousModePermissionPrompt": true
 }
