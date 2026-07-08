@@ -44,11 +44,12 @@ linking.
 | `codex/` | Symlink | Re-exports the Claude instructions to Codex CLI; `codex/agents/` holds native Codex subagent definitions (TOML), since Codex cannot read the Claude agent format. |
 | `config/ghostty/*` | Symlink | Ghostty terminal configuration and theme. |
 | `config/mise/*` | Symlink | mise tool version pins (node, ruby). |
+| `config/tmux/*` | Symlink | tmux helper scripts (adaptive multi-row window list). |
 | `config/zsh/functions/*` | Symlink | Custom shell functions. |
 | `gitconfig` | Symlink | Global git configuration. |
 | `gitconfig_local` | Copy | Machine-specific git settings, including user identity (not tracked). |
 | `gitignore_global` | Symlink | Global git ignore patterns. |
-| `tmux.conf` | Symlink | tmux configuration. |
+| `tmux.conf` | Symlink | tmux configuration; window tabs reflow across up to five rows to fit the client size. |
 | `vim/*` | Symlink | vim plugins and color schemes. |
 | `vimrc` | Symlink | vim configuration. |
 | `zshenv` | Symlink | Environment for non-interactive shells (mise shims, uv tools). |

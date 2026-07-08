@@ -43,6 +43,7 @@ Knapsack/
 │       ├── config/       # XDG config directory
 │       │   ├── ghostty/  # Ghostty terminal config and Gengar theme
 │       │   ├── mise/     # mise tool version pins (node, ruby)
+│       │   ├── tmux/     # tmux helper scripts (adaptive multi-row window list)
 │       │   └── zsh/      # Custom shell functions
 │       ├── agents/       # Shared agent skills (symlinks → claude/)
 │       ├── claude/       # Claude AI config (source of truth)
