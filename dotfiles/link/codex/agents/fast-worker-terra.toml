@@ -1,8 +1,8 @@
-# fast-worker-mini — Fast implementation worker for planned code edits (gpt-5.4-mini).
+# fast-worker-terra — Fast implementation worker for planned code edits (gpt-5.6-terra).
 
-name = "fast-worker-mini"
+name = "fast-worker-terra"
 description = "Fast implementation worker for planned code edits. Use proactively whenever the orchestrator has a concrete plan with named files and acceptance criteria — delegate the edit instead of performing it inline. Provide the plan, file list, relevant context, and a verification command. Not for investigation, design, or ambiguous work."
-model = "gpt-5.4-mini"
+model = "gpt-5.6-terra"
 model_reasoning_effort = "medium"
 sandbox_mode = "workspace-write"
 

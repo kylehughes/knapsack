@@ -1,8 +1,9 @@
-# fast-worker-spark — Ultra-fast worker for trivial mechanical edits (gpt-5.3-codex-spark).
+# fast-worker-luna — Ultra-fast worker for trivial mechanical edits (gpt-5.6-luna).
 
-name = "fast-worker-spark"
-description = "Ultra-fast worker for trivial mechanical edits: renames, doc tweaks, comment updates, config value changes, find-and-replace, moving code verbatim. Use proactively for edits that need no judgment beyond following instructions exactly. Anything requiring interpretation goes to fast-worker-mini instead."
-model = "gpt-5.3-codex-spark"
+name = "fast-worker-luna"
+description = "Ultra-fast worker for trivial mechanical edits: renames, doc tweaks, comment updates, config value changes, find-and-replace, moving code verbatim. Use proactively for edits that need no judgment beyond following instructions exactly. Anything requiring interpretation goes to fast-worker-terra instead."
+model = "gpt-5.6-luna"
+model_reasoning_effort = "low"
 sandbox_mode = "workspace-write"
 
 developer_instructions = """

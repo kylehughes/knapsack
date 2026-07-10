@@ -34,7 +34,7 @@ Invoke an agent headlessly only when the user asks for it, for an intentional cr
 claude -p --model claude-opus-4-8 "prompt"
 
 # Codex CLI (add -o output.txt to capture output)
-codex exec --full-auto -m gpt-5.5 -c model_reasoning_effort="xhigh" "prompt"
+codex exec --full-auto -m gpt-5.6-sol -c model_reasoning_effort="max" "prompt"
 ```
 
 Both accept piped stdin: `echo "context" | claude -p "prompt"`.
@@ -50,7 +50,9 @@ Standing authorization: once a plan is concrete — named files plus acceptance 
 | Runtime | Planned code edits | Trivial mechanical edits |
 |---------|--------------------|--------------------------|
 | Claude Code | `fast-worker-sonnet` | `fast-worker-haiku` |
-| Codex CLI | `fast-worker-mini` | `fast-worker-spark` (fall back to `fast-worker-mini`) |
+| Codex CLI | `fast-worker-terra` (`gpt-5.6-terra`, `medium`) | `fast-worker-luna` (`gpt-5.6-luna`, `low`; fall back to `fast-worker-terra`) |
+
+For Codex, reserve `gpt-5.6-sol` at `max` effort only for explicit, quality-first headless work requiring the strongest reasoning. Use Terra at `medium` for balanced planned implementation and Luna at `low` for literal, latency-sensitive edits.
 
 - Purely mechanical edits (rename, doc tweak, config change, verbatim move) go to the trivial-edits worker; when unsure which tier, use the planned-edits worker.
 - Keep inline: investigation, design, architectural judgment, tight user-iteration loops, and edits smaller than the task description would be.

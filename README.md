@@ -143,6 +143,13 @@ maintained once. Subagent definitions are the exception: Claude Code reads
 Markdown agents and Codex reads TOML, so `codex/agents/` defines its
 fast-worker subagents natively.
 
+Codex uses three tiers: `gpt-5.6-sol` at `max` effort only for explicit,
+quality-first headless work requiring the strongest reasoning;
+`fast-worker-terra` (`gpt-5.6-terra`, `medium`) for balanced planned
+implementation; and `fast-worker-luna` (`gpt-5.6-luna`, `low`) for literal,
+latency-sensitive edits, with Terra as its fallback. The native TOML
+definitions pin the model and effort for both routine workers.
+
 Shared MCP servers are registered separately by `make set-up/mcp-servers`.
 Because each agent keeps its MCP configuration in a large, stateful,
 secret-bearing file (`~/.claude.json`, `~/.codex/config.toml`) that cannot be
