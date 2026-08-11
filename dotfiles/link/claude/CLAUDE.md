@@ -23,7 +23,7 @@ It renders one page per request — use it for targeted lookups, not crawling.
 
 ## Agents
 
-Claude Code and Codex CLI are installed and share these instructions and skills (`~/.agents/skills` → `~/.claude/skills`).
+Claude Code and Codex CLI are installed and share these instructions; Codex reads this file through `~/.codex/AGENTS.md`. Skills reach Claude Code through its plugin system (declared in the settings base) and reach Codex through the `skills` CLI (`make set-up/agent-skills` in Knapsack).
 
 ### Headless Invocation
 

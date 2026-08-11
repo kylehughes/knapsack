@@ -3,9 +3,13 @@ migrate/mise:
 	@bash "./scripts/migrate-to-mise.sh"
 
 ## Run all setup tasks.
-set-up/all: set-up/homebrew set-up/dependencies set-up/dotfiles set-up/idb set-up/mcp-servers
+set-up/all: set-up/homebrew set-up/dependencies set-up/dotfiles set-up/idb set-up/mcp-servers set-up/agent-skills
 	@echo ""
 	@echo "✓ All setup tasks complete!"
+
+## Install shared agent skills for Codex via the skills CLI.
+set-up/agent-skills:
+	@bash "./scripts/set-up-agent-skills.sh"
 
 ## Install dependencies from Brewfile.
 set-up/dependencies:

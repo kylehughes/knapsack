@@ -46,7 +46,6 @@ Knapsack/
 │   │   │   ├── mise/     # mise tool version pins (node, ruby)
 │   │   │   ├── tmux/     # tmux helper scripts (adaptive multi-row window list)
 │   │   │   └── zsh/      # Custom shell functions
-│   │   ├── agents/       # Shared agent skills (symlinks → claude/)
 │   │   ├── claude/       # Claude AI config (source of truth)
 │   │   ├── codex/        # Codex CLI config (AGENTS.md symlink → claude/, native TOML agents/)
 │   │   ├── gemini/       # Gemini CLI config (symlinks → claude/)

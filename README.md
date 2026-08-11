@@ -21,6 +21,7 @@ make set-up/dependencies    # Install dependencies from Brewfile
 make set-up/dotfiles        # Install dotfiles
 make set-up/idb             # Install Facebook idb companion and client
 make set-up/mcp-servers     # Register shared MCP servers with Claude Code and Codex
+make set-up/agent-skills    # Install shared agent skills for Codex via the skills CLI
 make set-up/local-functions # Create local functions directory
 make set-up/performance     # Tune macOS for heavy parallel development (opt-in)
 ```
@@ -47,7 +48,7 @@ Code, then running `git pull && make set-up/dotfiles`.
 | `~/.claude/settings.machine.json` | Merge overlay | Machine-specific Claude Code settings, deep-merged on top of the shared base (not tracked). |
 | `claude/statusline.sh` | Symlink | Claude Code status line script. |
 | `claude/agents/*`, `claude/skills/*` | Symlink | Custom subagents and skills. |
-| `agents/`, `gemini/` | Symlink | Re-export the Claude configuration to Gemini CLI and the agentskills.io path. |
+| `gemini/` | Symlink | Re-export the Claude configuration to Gemini CLI. |
 | `codex/` | Symlink | Re-exports the Claude instructions to Codex CLI; `codex/agents/` holds native Codex subagent definitions (TOML), since Codex cannot read the Claude agent format. |
 | `config/ghostty/*` | Symlink | Ghostty terminal configuration and theme. |
 | `config/mise/*` | Symlink | mise tool version pins (node, ruby). |
@@ -142,12 +143,16 @@ dependencies its installer asks for) only on the machine that should run it.
 ## AI Agents
 
 The Claude configuration in `dotfiles/link/claude/` is the source of truth for
-all three CLI agents on this machine. Codex CLI (`~/.codex`), Gemini CLI
-(`~/.gemini`), and the agentskills.io path (`~/.agents`) receive the same
-instructions and skills through symlinks, so `CLAUDE.md` and `skills/` are
-maintained once. Subagent definitions are the exception: Claude Code reads
+all three CLI agents on this machine. Codex CLI (`~/.codex`) and Gemini CLI
+(`~/.gemini`) receive the same instructions through symlinks, so `CLAUDE.md`
+is maintained once. Subagent definitions are the exception: Claude Code reads
 Markdown agents and Codex reads TOML, so `codex/agents/` defines its
-fast-worker subagents natively.
+fast-worker subagents natively. Skills follow a different path per agent:
+Claude Code loads them through its plugin system (declared in
+`dotfiles/merge/claude/settings.json`), while Codex installs them from GitHub
+via the `skills` CLI, a machine-owned package manager — `make
+set-up/agent-skills` runs it against the list declared in
+`scripts/set-up-agent-skills.sh`.
 
 Codex uses three tiers: `gpt-5.6-sol` at `max` effort only for explicit,
 quality-first headless work requiring the strongest reasoning;
