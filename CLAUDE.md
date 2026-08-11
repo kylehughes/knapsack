@@ -24,7 +24,7 @@ source ~/.zshrc
 When modifying dotfiles:
 - Files in `dotfiles/link/` are symlinked to the home directory - changes here affect the live configuration
 - Files in `dotfiles/copy/` are copied during setup - changes require re-running `make set-up/dotfiles`
-- Files in `dotfiles/merge/` (e.g. Claude Code settings) are deep-merged with a machine-local overlay (`~/.claude/settings.machine.json`, auto-created as `{}` if missing) and written, not linked, to their destination; arrays are replaced wholesale rather than merged, so the overlay must never define `permissions` or `hooks` unless it means to replace them entirely. Runtime drift that Claude Code writes into the generated file is reported as a diff and discarded on the next setup run. Re-run `make set-up/dotfiles` after changing the base or the overlay
+- Files in `dotfiles/merge/` (e.g. Claude Code settings) are deep-merged with a machine-local overlay (`~/.claude/settings.machine.json`, auto-created as `{}` if missing) and written, not linked, to their destination. Arrays are replaced wholesale rather than merged, so the overlay must never define `permissions` or `hooks` unless it means to replace them entirely. Runtime drift that Claude Code writes into the generated file is reported as a diff and discarded on the next setup run; re-run `make set-up/dotfiles` after changing the base or the overlay. The merge step currently handles only `dotfiles/merge/claude/settings.json`; a new merge file requires extending `scripts/set-up-dotfiles.sh`. Never edit the generated `~/.claude/settings.json` directly — regeneration discards direct edits
 - Local git configuration goes in `~/.gitconfig_local` (not tracked in repo)
 - XDG config directories (like `~/.config/ghostty/`) are symlinked from `dotfiles/link/config/`
 
@@ -192,6 +192,7 @@ The repository implements custom zsh functions using XDG Base Directory specific
 #### Maintenance and Media
 - `brew-maintain` - Update, upgrade, autoremove, and clean up Homebrew
 - `ffmpeg-reduce-size` - Re-encode a video to reduce its file size
+- `xcode-reclaim-space` - Reclaim disk from Xcode and simulator artifacts
 
 #### Claude Code
 - `claude-fable` - Launch a single session on Fable 5 without changing the default model

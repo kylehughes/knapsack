@@ -38,16 +38,16 @@ either side also require re-running the setup task. If a symlink destination
 is already a real directory, the setup script backs it up to
 `<path>.backup.<timestamp>` before linking.
 
-On existing machines, pick up the settings restructure by quitting Claude
-Code, then running `git pull && make set-up/dotfiles`.
+On existing machines, pick up the settings and skills restructure by quitting
+Claude Code, then running `git pull && make set-up/dotfiles set-up/agent-skills`.
 
 | Configuration | Type | Description |
 | --- | --- | --- |
 | `claude/CLAUDE.md` | Symlink | Global instructions for all AI agents. |
 | `merge/claude/settings.json` | Merge | Shared base for Claude Code settings (model, permissions, hooks, plugins), deep-merged into a generated `~/.claude/settings.json`. |
-| `~/.claude/settings.machine.json` | Merge overlay | Machine-specific Claude Code settings, deep-merged on top of the shared base (not tracked). |
+| `~/.claude/settings.machine.json` | Merge overlay | Machine-specific Claude Code settings, deep-merged on top of the shared base (not tracked). Objects merge; arrays such as `permissions` and `hooks` replace the base wholesale. |
 | `claude/statusline.sh` | Symlink | Claude Code status line script. |
-| `claude/agents/*`, `claude/skills/*` | Symlink | Custom subagents and skills. |
+| `claude/agents/*` | Symlink | Custom subagents. |
 | `gemini/` | Symlink | Re-export the Claude configuration to Gemini CLI. |
 | `codex/` | Symlink | Re-exports the Claude instructions to Codex CLI; `codex/agents/` holds native Codex subagent definitions (TOML), since Codex cannot read the Claude agent format. |
 | `config/ghostty/*` | Symlink | Ghostty terminal configuration and theme. |
@@ -94,6 +94,12 @@ Custom zsh functions for common workflows, autoloaded from `~/.config/zsh/functi
 | `brew-maintain` | Update, upgrade, autoremove, and clean up Homebrew. | `brew-maintain` |
 | `ffmpeg-reduce-size` | Re-encode a video to reduce its file size. | `ffmpeg-reduce-size <video-file>` |
 | `xcode-reclaim-space` | Clear DerivedData, prune stale simulators, and delete local Time Machine snapshots. | `xcode-reclaim-space` |
+
+#### Claude Code Functions
+
+| Function | Description | Usage |
+| --- | --- | --- |
+| `claude-fable` | Launch a single Claude Code session on Fable 5 without changing the default model. | `claude-fable [claude arguments]` |
 
 Functions follow the `tool-action` naming convention for clarity and tab completion support.
 
@@ -142,17 +148,20 @@ dependencies its installer asks for) only on the machine that should run it.
 
 ## AI Agents
 
-The Claude configuration in `dotfiles/link/claude/` is the source of truth for
-all three CLI agents on this machine. Codex CLI (`~/.codex`) and Gemini CLI
-(`~/.gemini`) receive the same instructions through symlinks, so `CLAUDE.md`
-is maintained once. Subagent definitions are the exception: Claude Code reads
-Markdown agents and Codex reads TOML, so `codex/agents/` defines its
-fast-worker subagents natively. Skills follow a different path per agent:
-Claude Code loads them through its plugin system (declared in
+The instructions in `dotfiles/link/claude/CLAUDE.md` are the source of truth
+for all three CLI agents on this machine. Codex CLI (`~/.codex`) and Gemini
+CLI (`~/.gemini`) receive the same instructions through symlinks, so
+`CLAUDE.md` is maintained once. Subagent definitions are the exception:
+Claude Code reads Markdown agents and Codex reads TOML, so `codex/agents/`
+defines its fast-worker subagents natively. Skills follow a different path
+per agent: Claude Code loads them through its plugin system (declared in
 `dotfiles/merge/claude/settings.json`), while Codex installs them from GitHub
 via the `skills` CLI, a machine-owned package manager — `make
 set-up/agent-skills` runs it against the list declared in
-`scripts/set-up-agent-skills.sh`.
+`scripts/set-up-agent-skills.sh`. Adding a skill for both runtimes requires
+enabling the plugin in the settings base and adding the `repo|skill` pair to
+`AGENT_SKILLS` in `scripts/set-up-agent-skills.sh`, then running `make
+set-up/dotfiles set-up/agent-skills`.
 
 Codex uses three tiers: `gpt-5.6-sol` at `max` effort only for explicit,
 quality-first headless work requiring the strongest reasoning;
