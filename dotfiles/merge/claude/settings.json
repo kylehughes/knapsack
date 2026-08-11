@@ -178,7 +178,7 @@
     "codex@openai-codex": true,
     "apple-platform@making-good-software": true,
     "universal@making-good-software": true,
-    "writing-prose-like-a-human@writing-prose-like-a-human": true
+    "writing-prose-like-a-human-for-agents@writing-prose-like-a-human": true
   },
   "extraKnownMarketplaces": {
     "openai-codex": {
