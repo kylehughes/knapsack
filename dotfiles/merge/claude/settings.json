@@ -177,7 +177,8 @@
     "figma@claude-plugins-official": true,
     "codex@openai-codex": true,
     "apple-platform@making-good-software": true,
-    "universal@making-good-software": true
+    "universal@making-good-software": true,
+    "writing-prose-like-a-human@writing-prose-like-a-human": true
   },
   "extraKnownMarketplaces": {
     "openai-codex": {
@@ -208,6 +209,13 @@
       "source": {
         "source": "github",
         "repo": "kylehughes/agent-plugins-for-making-good-software"
+      },
+      "autoUpdate": true
+    },
+    "writing-prose-like-a-human": {
+      "source": {
+        "source": "github",
+        "repo": "kylehughes/writing-prose-like-a-human-for-agents"
       },
       "autoUpdate": true
     }

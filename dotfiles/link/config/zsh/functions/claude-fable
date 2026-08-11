@@ -1,0 +1,26 @@
+#!/usr/bin/env zsh
+#===============================================================================
+#  claude-fable — Launch Claude Code with Fable 5 for a single session
+#
+#  USAGE:
+#    claude-fable [claude arguments]
+#
+#  OPTIONS:
+#    None
+#
+#  REQUIREMENTS:
+#    zsh ≥ 4.x, claude
+#
+#  EXIT CODES:
+#    0  success
+#    1  usage error (bad flags, etc.)
+#    2  missing dependency
+#    >2 script-specific failures
+#
+#  AUTHOR:      Kyle Hughes <kyle@kylehugh.es>
+#  LICENSE:     MIT
+#===============================================================================
+
+# The --model flag scopes the model to this session only; unlike /model, it
+# never rewrites the default model in ~/.claude/settings.json.
+claude --model 'claude-fable-5[1m]' "$@"

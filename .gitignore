@@ -19,6 +19,10 @@ dotfiles/link/vim/undo/
 
 .claude/settings.local.json
 
+# A machine whose ~/.claude/settings.json symlink still points at the old
+# tracked path can recreate a stray file there before it re-runs setup.
+dotfiles/link/claude/settings.json
+
 ################################################################################
 # zsh
 ################################################################################

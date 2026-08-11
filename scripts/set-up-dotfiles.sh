@@ -9,7 +9,7 @@
 #    None
 #
 #  REQUIREMENTS:
-#    bash ≥ 3.x, coreutils (cp, ln, cmp)
+#    bash ≥ 3.x, coreutils (cp, ln, cmp), jq
 #
 #  EXIT CODES:
 #    0  success
@@ -176,8 +176,74 @@ function do_action() {
     done
 }
 
+# --- Merge Action Functions ---
+
+# Generate ~/.claude/settings.json by deep-merging the tracked base with an
+# untracked, machine-specific overlay. Unlike copy/link, this destination
+# cannot be a plain symlink because its contents vary per machine.
+function merge_claude_settings() {
+    local base="$PATH_DOTFILES/merge/claude/settings.json"
+    local overlay="$HOME/.claude/settings.machine.json"
+    local dest="$HOME/.claude/settings.json"
+    local stale="$PATH_DOTFILES/link/claude/settings.json"
+    local temp
+
+    if [[ ! -f "$base" ]]; then
+        log_arrow "no merge base found, skipping"
+        return
+    fi
+
+    log_header "merging claude settings into: $dest"
+
+    if ! command -v jq > /dev/null; then
+        log_error "jq is required to merge claude settings"
+        exit 2
+    fi
+
+    # A machine still running the pre-merge symlink can write a stray file
+    # back into the repository at the old tracked path. Clear it so the
+    # symlink cannot resolve there again.
+    if [[ -e "$stale" ]]; then
+        log_arrow "removing stray file at $stale"
+        rm "$stale"
+    fi
+
+    mkdir -p "$HOME/.claude"
+
+    if [[ ! -e "$overlay" ]]; then
+        log_arrow "creating empty overlay at $overlay"
+        echo '{}' > "$overlay"
+    fi
+
+    # Guard against zero-byte or non-object overlays, which would abort the
+    # merge with an opaque jq error.
+    if ! jq -e 'type == "object"' "$overlay" > /dev/null 2>&1; then
+        log_error "overlay $overlay is not a JSON object; fix or delete it"
+        exit 3
+    fi
+
+    # jq's * operator deep-merges objects key by key but replaces arrays
+    # wholesale, so the overlay must never define permissions or hooks
+    # unless it means to replace them entirely.
+    # The temp file lives beside the destination so mv is an atomic rename,
+    # replacing even an old symlink without a zero-settings window.
+    temp="$HOME/.claude/.settings.json.tmp.$$"
+    jq -s '.[0] * (.[1] // {})' "$base" "$overlay" > "$temp"
+
+    # Runtime state written by Claude Code accumulates in the generated file;
+    # show what is being reset before discarding it.
+    if [[ -f "$dest" ]] && ! cmp -s "$temp" "$dest"; then
+        log_arrow "discarding runtime drift in $dest:"
+        diff "$dest" "$temp" || true
+    fi
+
+    mv -f "$temp" "$dest"
+    log_success "generated $dest"
+}
+
 # --- Main ---
 
 do_action "copy"
 do_action "link"
+merge_claude_settings
 log_header "done"

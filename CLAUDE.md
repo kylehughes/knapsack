@@ -6,7 +6,7 @@ Note: This repository also installs a global Claude configuration at `~/.claude/
 
 ## Repository Overview
 
-This is a personal dotfiles repository ("Knapsack") for macOS development environments. It manages configuration files for various development tools through a combination of symlinks and copies.
+This is a personal dotfiles repository ("Knapsack") for macOS development environments. It manages configuration files for various development tools through a combination of symlinks, copies, and merges.
 
 ## Key Commands
 
@@ -24,6 +24,7 @@ source ~/.zshrc
 When modifying dotfiles:
 - Files in `dotfiles/link/` are symlinked to the home directory - changes here affect the live configuration
 - Files in `dotfiles/copy/` are copied during setup - changes require re-running `make set-up/dotfiles`
+- Files in `dotfiles/merge/` (e.g. Claude Code settings) are deep-merged with a machine-local overlay (`~/.claude/settings.machine.json`, auto-created as `{}` if missing) and written, not linked, to their destination; arrays are replaced wholesale rather than merged, so the overlay must never define `permissions` or `hooks` unless it means to replace them entirely. Runtime drift that Claude Code writes into the generated file is reported as a diff and discarded on the next setup run. Re-run `make set-up/dotfiles` after changing the base or the overlay
 - Local git configuration goes in `~/.gitconfig_local` (not tracked in repo)
 - XDG config directories (like `~/.config/ghostty/`) are symlinked from `dotfiles/link/config/`
 
@@ -39,23 +40,24 @@ Knapsack/
 ├── Makefile              # Main makefile
 ├── dotfiles/             # Configuration files
 │   ├── copy/             # Files to copy (gitconfig_local)
-│   └── link/             # Files to symlink
-│       ├── config/       # XDG config directory
-│       │   ├── ghostty/  # Ghostty terminal config and Gengar theme
-│       │   ├── mise/     # mise tool version pins (node, ruby)
-│       │   ├── tmux/     # tmux helper scripts (adaptive multi-row window list)
-│       │   └── zsh/      # Custom shell functions
-│       ├── agents/       # Shared agent skills (symlinks → claude/)
-│       ├── claude/       # Claude AI config (source of truth)
-│       ├── codex/        # Codex CLI config (AGENTS.md symlink → claude/, native TOML agents/)
-│       ├── gemini/       # Gemini CLI config (symlinks → claude/)
-│       ├── gitconfig     # Git configuration
-│       ├── gitignore_global # Global git ignore patterns
-│       ├── tmux.conf     # tmux configuration
-│       ├── vim/          # vim plugins and config
-│       ├── vimrc         # vim configuration
-│       ├── zshenv        # Environment for non-interactive shells
-│       └── zshrc         # zsh configuration
+│   ├── link/             # Files to symlink
+│   │   ├── config/       # XDG config directory
+│   │   │   ├── ghostty/  # Ghostty terminal config and Gengar theme
+│   │   │   ├── mise/     # mise tool version pins (node, ruby)
+│   │   │   ├── tmux/     # tmux helper scripts (adaptive multi-row window list)
+│   │   │   └── zsh/      # Custom shell functions
+│   │   ├── agents/       # Shared agent skills (symlinks → claude/)
+│   │   ├── claude/       # Claude AI config (source of truth)
+│   │   ├── codex/        # Codex CLI config (AGENTS.md symlink → claude/, native TOML agents/)
+│   │   ├── gemini/       # Gemini CLI config (symlinks → claude/)
+│   │   ├── gitconfig     # Git configuration
+│   │   ├── gitignore_global # Global git ignore patterns
+│   │   ├── tmux.conf     # tmux configuration
+│   │   ├── vim/          # vim plugins and config
+│   │   ├── vimrc         # vim configuration
+│   │   ├── zshenv        # Environment for non-interactive shells
+│   │   └── zshrc         # zsh configuration
+│   └── merge/            # Files deep-merged with machine-local overlays (Claude settings)
 ├── scripts/              # Setup scripts (set-up-*.sh, migrate-to-mise.sh)
 │   └── lib/common.sh     # Shared logging and Homebrew helpers
 ├── services/             # launchd services with install/uninstall scripts
@@ -191,6 +193,9 @@ The repository implements custom zsh functions using XDG Base Directory specific
 #### Maintenance and Media
 - `brew-maintain` - Update, upgrade, autoremove, and clean up Homebrew
 - `ffmpeg-reduce-size` - Re-encode a video to reduce its file size
+
+#### Claude Code
+- `claude-fable` - Launch a single session on Fable 5 without changing the default model
 
 ### Adding New Functions
 
