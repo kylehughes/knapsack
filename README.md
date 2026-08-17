@@ -153,7 +153,7 @@ for all three CLI agents on this machine. Codex CLI (`~/.codex`) and Gemini
 CLI (`~/.gemini`) receive the same instructions through symlinks, so
 `CLAUDE.md` is maintained once. Subagent definitions are the exception:
 Claude Code reads Markdown agents and Codex reads TOML, so `codex/agents/`
-defines its fast-worker subagents natively. Skills follow a different path
+defines its fast-worker subagent natively. Skills follow a different path
 per agent: Claude Code loads them through its plugin system (declared in
 `dotfiles/merge/claude/settings.json`), while Codex installs them from GitHub
 via the `skills` CLI, a machine-owned package manager — `make
@@ -163,12 +163,13 @@ enabling the plugin in the settings base and adding the `repo|skill` pair to
 `AGENT_SKILLS` in `scripts/set-up-agent-skills.sh`, then running `make
 set-up/dotfiles set-up/agent-skills`.
 
-Codex uses three tiers: `gpt-5.6-sol` at `max` effort only for explicit,
-quality-first headless work requiring the strongest reasoning;
-`fast-worker-terra` (`gpt-5.6-terra`, `medium`) for balanced planned
-implementation; and `fast-worker-luna` (`gpt-5.6-luna`, `low`) for literal,
-latency-sensitive edits, with Terra as its fallback. The native TOML
-definitions pin the model and effort for both routine workers.
+Each runtime holds back a strongest model for explicit, quality-first
+work — Opus 5 on Claude Code, `gpt-5.6-sol` at `max` effort on Codex —
+and delegates everything else to cheap fast workers. Claude Code splits
+that delegated work into two tiers: `fast-worker-sonnet` for planned
+edits, `fast-worker-haiku` for mechanical ones. Codex has one worker,
+`fast-worker-luna` (`gpt-5.6-luna`, `medium`), for both. The native TOML
+definition pins Luna's model and effort.
 
 Shared MCP servers are registered separately by `make set-up/mcp-servers`.
 Because each agent keeps its MCP configuration in a large, stateful,

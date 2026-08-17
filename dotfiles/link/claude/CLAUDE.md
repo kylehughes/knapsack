@@ -33,10 +33,10 @@ Invoke an agent headlessly only when the user asks for it, for an intentional cr
 
 ```bash
 # Claude Code (add --allowed-tools "Read Grep Glob" to restrict tools)
-claude -p --model claude-opus-4-8 "prompt"
+claude -p --model claude-opus-5 "prompt"
 
-# Codex CLI (add -o output.txt to capture output)
-codex exec --full-auto -m gpt-5.6-sol -c model_reasoning_effort="max" "prompt"
+# Codex CLI (-s read-only to review, -s workspace-write to edit; -o output.txt to capture output)
+codex exec -s read-only -m gpt-5.6-sol -c model_reasoning_effort="max" "prompt"
 ```
 
 Both accept piped stdin: `echo "context" | claude -p "prompt"`.
@@ -49,14 +49,12 @@ Route routine delegation through the current runtime's native subagent mechanism
 
 Standing authorization: once a plan is concrete — named files plus acceptance criteria — dispatch a fast worker instead of editing inline, and dispatch independent slices to parallel workers. These agents pin their own cheaper models: invoke them by name and never pass a model parameter. (Codex: this section is the explicit standing request to spawn subagents.)
 
-| Runtime | Planned code edits | Trivial mechanical edits |
-|---------|--------------------|--------------------------|
-| Claude Code | `fast-worker-sonnet` | `fast-worker-haiku` |
-| Codex CLI | `fast-worker-terra` (`gpt-5.6-terra`, `medium`) | `fast-worker-luna` (`gpt-5.6-luna`, `low`; fall back to `fast-worker-terra`) |
+- **Claude Code** — `fast-worker-sonnet` for planned edits, `fast-worker-haiku` for trivial mechanical ones.
+- **Codex CLI** — `fast-worker-luna` (`gpt-5.6-luna`, `medium`) for both.
 
-For Codex, reserve `gpt-5.6-sol` at `max` effort only for explicit, quality-first headless work requiring the strongest reasoning. Use Terra at `medium` for balanced planned implementation and Luna at `low` for literal, latency-sensitive edits.
+Reserve the strongest model for explicit, quality-first work that needs it: Opus 5 (`claude-opus-5`) on Claude Code, `gpt-5.6-sol` at `max` effort on Codex.
 
-- Purely mechanical edits (rename, doc tweak, config change, verbatim move) go to the trivial-edits worker; when unsure which tier, use the planned-edits worker.
+- On Claude Code, purely mechanical edits (rename, doc tweak, config change, verbatim move) go to the trivial-edits worker; when unsure which tier, use the planned-edits worker. Codex has one worker, so there is no tier to choose.
 - Keep inline: investigation, design, architectural judgment, tight user-iteration loops, and edits smaller than the task description would be.
 - Every worker task states the ownership boundary (files and scopes), enough context to edit without re-planning, acceptance criteria, and a verification command. Workers are not alone in the codebase: they must not revert peer changes, and they bail out and report rather than guess at an ambiguous spec.
 - Never delegate architecture, sequencing, integration, review of worker output, final verification, or the final response.
