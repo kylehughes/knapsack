@@ -47,9 +47,9 @@ Claude Code, then running `git pull && make set-up/dotfiles set-up/agent-skills`
 | `merge/claude/settings.json` | Merge | Shared base for Claude Code settings (model, permissions, hooks, plugins), deep-merged into a generated `~/.claude/settings.json`. |
 | `~/.claude/settings.machine.json` | Merge overlay | Machine-specific Claude Code settings, deep-merged on top of the shared base (not tracked). Objects merge; arrays such as `permissions` and `hooks` replace the base wholesale. |
 | `claude/statusline.sh` | Symlink | Claude Code status line script. |
-| `claude/agents/*` | Symlink | Custom subagents. |
+| `claude/agents/` | Symlink | Reserved for specialized Claude Code subagents. |
 | `gemini/` | Symlink | Re-export the Claude configuration to Gemini CLI. |
-| `codex/` | Symlink | Re-exports the Claude instructions to Codex CLI; `codex/agents/` holds native Codex subagent definitions (TOML), since Codex cannot read the Claude agent format. |
+| `codex/` | Symlink | Re-exports the Claude instructions to Codex CLI; `codex/agents/` is reserved for specialized native Codex subagents. |
 | `config/ghostty/*` | Symlink | Ghostty terminal configuration and theme. |
 | `config/mise/*` | Symlink | mise tool version pins (node, ruby). |
 | `config/tmux/*` | Symlink | tmux helper scripts (adaptive multi-row window list). |
@@ -99,7 +99,7 @@ Custom zsh functions for common workflows, autoloaded from `~/.config/zsh/functi
 
 | Function | Description | Usage |
 | --- | --- | --- |
-| `claude-fable` | Launch a single Claude Code session on Fable 5 without changing the default model. | `claude-fable [claude arguments]` |
+| `claude-fable` | Launch a single Claude Code session on the current Fable model alias without changing the default model. | `claude-fable [claude arguments]` |
 
 Functions follow the `tool-action` naming convention for clarity and tab completion support.
 
@@ -151,10 +151,10 @@ dependencies its installer asks for) only on the machine that should run it.
 The instructions in `dotfiles/link/claude/CLAUDE.md` are the source of truth
 for all three CLI agents on this machine. Codex CLI (`~/.codex`) and Gemini
 CLI (`~/.gemini`) receive the same instructions through symlinks, so
-`CLAUDE.md` is maintained once. Subagent definitions are the exception:
-Claude Code reads Markdown agents and Codex reads TOML, so `codex/agents/`
-defines its fast-worker subagent natively. Skills follow a different path
-per agent: Claude Code loads them through its plugin system (declared in
+`CLAUDE.md` is maintained once. Subagent execution follows each runtime's
+native mechanism; the `claude/agents/` and `codex/agents/` directories are
+reserved for specialized definitions when a task needs one. Skills follow a
+different path per agent: Claude Code loads them through its plugin system (declared in
 `dotfiles/merge/claude/settings.json`), while Codex installs them from GitHub
 via the `skills` CLI, a machine-owned package manager — `make
 set-up/agent-skills` runs it against the list declared in
@@ -163,13 +163,14 @@ enabling the plugin in the settings base and adding the `repo|skill` pair to
 `AGENT_SKILLS` in `scripts/set-up-agent-skills.sh`, then running `make
 set-up/dotfiles set-up/agent-skills`.
 
-Each runtime holds back a strongest model for explicit, quality-first
-work — Opus 5 on Claude Code, `gpt-5.6-sol` at `max` effort on Codex —
-and delegates everything else to cheap fast workers. Claude Code splits
-that delegated work into two tiers: `fast-worker-sonnet` for planned
-edits, `fast-worker-haiku` for mechanical ones. Codex has one worker,
-`fast-worker-luna` (`gpt-5.6-luna`, `medium`), for both. The native TOML
-definition pins Luna's model and effort.
+Delegation guidance lives in the shared instructions. It favors each
+runtime's built-in exploration and worker agents for bounded independent
+work, with model selection treated as a per-invocation soft default. The
+policy covers when to delegate, task contracts, context inheritance, and
+Claude Code and Codex model preferences without requiring a fixed worker
+inventory. See the [Claude Code subagents documentation](https://code.claude.com/docs/en/sub-agents)
+and [Codex subagents documentation](https://learn.chatgpt.com/docs/agent-configuration/subagents)
+for runtime-specific behavior.
 
 Shared MCP servers are registered separately by `make set-up/mcp-servers`.
 Because each agent keeps its MCP configuration in a large, stateful,

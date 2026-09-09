@@ -45,19 +45,18 @@ Both accept piped stdin: `echo "context" | claude -p "prompt"`.
 
 Route routine delegation through the current runtime's native subagent mechanism. If a skill references another runtime's agent tool, translate the intent onto the native mechanism and pass the agent instructions as prompt context.
 
-#### Fast Workers
+This is an explicit standing request, including in Codex, to delegate bounded investigations, independent implementation slices, reviews, and verbose test or log analysis when doing so improves speed or context isolation. Run independent tasks in parallel when useful work can proceed alongside them. Keep quick edits, tightly coupled changes, architectural judgment, and tight user-iteration loops in the parent conversation.
 
-Standing authorization: once a plan is concrete — named files plus acceptance criteria — dispatch a fast worker instead of editing inline, and dispatch independent slices to parallel workers. These agents pin their own cheaper models: invoke them by name and never pass a model parameter. (Codex: this section is the explicit standing request to spawn subagents.)
+Use built-in exploration agents for codebase questions and built-in worker or general-purpose agents for implementation and other bounded work. Give self-contained tasks fresh context; use inherited context when the task depends on the preceding discussion and the runtime supports it. A task contract includes the objective, relevant context, ownership boundary (files and scopes for edits), acceptance criteria, expected output, and appropriate verification command. Subagents preserve peer changes, make no commits, and report consequential ambiguity instead of guessing. The parent owns integration, final judgment, and validation, but may delegate supporting architectural analysis and independent review.
 
-- **Claude Code** — `fast-worker-sonnet` for planned edits, `fast-worker-haiku` for trivial mechanical ones.
-- **Codex CLI** — `fast-worker-luna` (`gpt-5.6-luna`, `medium`) for both.
+These are soft per-call model defaults, subject to the runtime and the user's explicit choice:
 
-Reserve the strongest model for explicit, quality-first work that needs it: Opus 5 (`claude-opus-5`) on Claude Code, `gpt-5.6-sol` at `max` effort on Codex.
+- **Claude Code** — use Haiku for narrow mechanical work. For ordinary implementation, use Opus when the parent is Fable and Sonnet when the parent is Opus; otherwise inherit the parent model. Let exploration use runtime defaults unless an override is warranted. Difficult investigation, implementation, and review inherit the parent model.
+- **Codex CLI** — use `gpt-5.6-luna` at `medium` effort for narrow mechanical work. Use `gpt-5.6-terra` at `medium` effort for ordinary implementation and straightforward exploration. Difficult work inherits the parent model and effort.
 
-- On Claude Code, purely mechanical edits (rename, doc tweak, config change, verbatim move) go to the trivial-edits worker; when unsure which tier, use the planned-edits worker. Codex has one worker, so there is no tier to choose.
-- Keep inline: investigation, design, architectural judgment, tight user-iteration loops, and edits smaller than the task description would be.
-- Every worker task states the ownership boundary (files and scopes), enough context to edit without re-planning, acceptance criteria, and a verification command. Workers are not alone in the codebase: they must not revert peer changes, and they bail out and report rather than guess at an ambiguous spec.
-- Never delegate architecture, sequencing, integration, review of worker output, final verification, or the final response.
+Select models per invocation when supported. Respect explicit user choices and runtime constraints; if a requested model is unavailable, use the supported inherited option and disclose the substitution. Do not impose global model overrides or create a recursive tier ladder.
+
+See the [Claude Code subagents documentation](https://code.claude.com/docs/en/sub-agents) and [Codex subagents documentation](https://learn.chatgpt.com/docs/agent-configuration/subagents) for runtime-specific behavior.
 
 ## Writing
 

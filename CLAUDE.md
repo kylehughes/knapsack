@@ -65,6 +65,13 @@ Knapsack/
     └── set-up.mk
 ```
 
+## Agent Configuration
+
+The shared agent instructions live in `dotfiles/link/claude/CLAUDE.md` and
+are re-exported to Claude Code, Codex CLI, and Gemini CLI. The runtime-native
+agent directories are reserved for specialized subagents; routine delegation
+uses each tool's built-in subsystem.
+
 ## Conventions
 
 ### Directory and File Naming
@@ -195,7 +202,7 @@ The repository implements custom zsh functions using XDG Base Directory specific
 - `xcode-reclaim-space` - Reclaim disk from Xcode and simulator artifacts
 
 #### Claude Code
-- `claude-fable` - Launch a single session on Fable 5 without changing the default model
+- `claude-fable` - Launch a single session on the current Fable model alias without changing the default model
 
 ### Adding New Functions
 
