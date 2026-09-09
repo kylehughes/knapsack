@@ -21,7 +21,7 @@ make set-up/dependencies    # Install dependencies from Brewfile
 make set-up/dotfiles        # Install dotfiles
 make set-up/idb             # Install Facebook idb companion and client
 make set-up/mcp-servers     # Register shared MCP servers with Claude Code and Codex
-make set-up/agent-skills    # Install shared agent skills for Codex via the skills CLI
+make set-up/agent-skills    # Install Knapsack's standalone Codex writing skill
 make set-up/local-functions # Create local functions directory
 make set-up/performance     # Tune macOS for heavy parallel development (opt-in)
 ```
@@ -38,14 +38,15 @@ either side also require re-running the setup task. If a symlink destination
 is already a real directory, the setup script backs it up to
 `<path>.backup.<timestamp>` before linking.
 
-On existing machines, pick up the settings and skills restructure by quitting
-Claude Code, then running `git pull && make set-up/dotfiles set-up/agent-skills`.
+On existing machines, quit Claude Code, then run `git pull && make
+set-up/dotfiles`. Capture any Claude Code app changes in the settings base or
+machine overlay first; setup regenerates the file from those sources.
 
 | Configuration | Type | Description |
 | --- | --- | --- |
 | `claude/CLAUDE.md` | Symlink | Global instructions for all AI agents. |
-| `merge/claude/settings.json` | Merge | Shared base for Claude Code settings (model, permissions, hooks, plugins), deep-merged into a generated `~/.claude/settings.json`. |
-| `~/.claude/settings.machine.json` | Merge overlay | Machine-specific Claude Code settings, deep-merged on top of the shared base (not tracked). Objects merge; arrays such as `permissions` and `hooks` replace the base wholesale. |
+| `merge/claude/settings.json` | Merge | Tracked base for shared Claude Code settings, including plugin declarations, deep-merged into a generated `~/.claude/settings.json`. |
+| `~/.claude/settings.machine.json` | Merge overlay | Untracked machine-specific Claude Code settings, including plugin declarations. Objects merge; nested arrays such as `permissions.allow` and each hooks event array replace the base value wholesale. |
 | `claude/statusline.sh` | Symlink | Claude Code status line script. |
 | `claude/agents/` | Symlink | Reserved for specialized Claude Code subagents. |
 | `gemini/` | Symlink | Re-export the Claude configuration to Gemini CLI. |
@@ -153,15 +154,16 @@ for all three CLI agents on this machine. Codex CLI (`~/.codex`) and Gemini
 CLI (`~/.gemini`) receive the same instructions through symlinks, so
 `CLAUDE.md` is maintained once. Subagent execution follows each runtime's
 native mechanism; the `claude/agents/` and `codex/agents/` directories are
-reserved for specialized definitions when a task needs one. Skills follow a
-different path per agent: Claude Code loads them through its plugin system (declared in
-`dotfiles/merge/claude/settings.json`), while Codex installs them from GitHub
-via the `skills` CLI, a machine-owned package manager — `make
-set-up/agent-skills` runs it against the list declared in
-`scripts/set-up-agent-skills.sh`. Adding a skill for both runtimes requires
-enabling the plugin in the settings base and adding the `repo|skill` pair to
-`AGENT_SKILLS` in `scripts/set-up-agent-skills.sh`, then running `make
-set-up/dotfiles set-up/agent-skills`.
+reserved for specialized definitions when a task needs one. Claude Code's full
+settings, including plugin declarations and marketplaces, are generated from
+the tracked base and machine overlay. Changes made through the Claude app are
+discarded when setup regenerates the file unless they are captured in one of
+those sources. Codex manages plugins locally through its app or CLI.
+
+`make set-up/agent-skills` installs the standalone Codex
+`writing-prose-like-a-human` skill from the `repo|skill` declaration in
+`scripts/set-up-agent-skills.sh`; its corresponding Claude Code plugin is
+declared in the settings base.
 
 Delegation guidance lives in the shared instructions. It favors each
 runtime's built-in exploration and worker agents for bounded independent
@@ -177,9 +179,19 @@ Because each agent keeps its MCP configuration in a large, stateful,
 secret-bearing file (`~/.claude.json`, `~/.codex/config.toml`) that cannot be
 symlinked, the setup script registers servers through each tool's own CLI
 instead, and re-running it leaves existing servers untouched. The declared list
-lives in `scripts/set-up-mcp-servers.sh`; today it registers
+lives in `scripts/lib/agent-mcp-servers.sh`; today it registers
 [sosumi.ai](https://sosumi.ai/), which renders Apple's JavaScript-only developer
 documentation into Markdown.
+
+### Agent Verification
+
+`make check/agents` is read-only. It verifies Knapsack-owned instructions and
+agent symlinks, valid JSON and the expected complete generated Claude settings
+(including declared plugins), launcher syntax, and the registered MCP server's
+expected URL and transport. It skips optional agent CLIs that are not installed.
+It does not require a Codex plugin inventory or perform network health checks.
+
+`make test/agents` runs the fixture-based tests for that verification tooling.
 
 ## Development
 

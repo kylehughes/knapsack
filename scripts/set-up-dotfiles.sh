@@ -29,6 +29,8 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
 PATH_DOTFILES="$REPO_ROOT/dotfiles"
 
+source "$SCRIPT_DIR/lib/claude-settings.sh"
+
 # --- Logging Functions ---
 
 function log_header()   {
@@ -150,6 +152,12 @@ function do_action() {
 
             for subfile in "$file"/*; do
                 subfileBase="$(basename "$subfile")"
+                # settings.json used to be linked from this directory. It is
+                # now generated from local state after linking completes.
+                if [[ "$action" == "link" && "$subfile" == "$PATH_DOTFILES/link/claude/settings.json" ]]; then
+                    log_arrow "skipping obsolete Claude settings link"
+                    continue
+                fi
                 if [[ -f "$subfile" ]]; then
                     log_success "linking $fileDest/$subfileBase"
                     ln -sf "$subfile" "$fileDest/$subfileBase"
@@ -186,7 +194,7 @@ function merge_claude_settings() {
     local overlay="$HOME/.claude/settings.machine.json"
     local dest="$HOME/.claude/settings.json"
     local stale="$PATH_DOTFILES/link/claude/settings.json"
-    local temp
+    local temp drift_keys
 
     if [[ ! -f "$base" ]]; then
         log_arrow "no merge base found, skipping"
@@ -215,26 +223,30 @@ function merge_claude_settings() {
         echo '{}' > "$overlay"
     fi
 
-    # Guard against zero-byte or non-object overlays, which would abort the
-    # merge with an opaque jq error.
-    if ! jq -e 'type == "object"' "$overlay" > /dev/null 2>&1; then
-        log_error "overlay $overlay is not a JSON object; fix or delete it"
+    # The temp file lives beside the destination so mv is an atomic rename,
+    # replacing even an old symlink without a zero-settings window.
+    temp="$(mktemp "$HOME/.claude/.settings.json.tmp.XXXXXX")"
+    if ! compose_claude_settings "$base" "$overlay" > "$temp"; then
+        rm -f "$temp"
         exit 3
     fi
 
-    # jq's * operator deep-merges objects key by key but replaces arrays
-    # wholesale, so the overlay must never define permissions or hooks
-    # unless it means to replace them entirely.
-    # The temp file lives beside the destination so mv is an atomic rename,
-    # replacing even an old symlink without a zero-settings window.
-    temp="$HOME/.claude/.settings.json.tmp.$$"
-    jq -s '.[0] * (.[1] // {})' "$base" "$overlay" > "$temp"
-
     # Runtime state written by Claude Code accumulates in the generated file;
-    # show what is being reset before discarding it.
+    # report only the top-level keys that regeneration resets.
     if [[ -f "$dest" ]] && ! cmp -s "$temp" "$dest"; then
-        log_arrow "discarding runtime drift in $dest:"
-        diff "$dest" "$temp" || true
+        if ! drift_keys="$(jq -r -s '
+            .[0] as $current | .[1] as $desired |
+            [($current | keys[]), ($desired | keys[])] | unique[] as $key |
+            select((($current | has($key)) != ($desired | has($key)))
+                or (($current[$key]) != ($desired[$key]))) | $key
+        ' "$dest" "$temp" 2> /dev/null | paste -sd ', ' -)"; then
+            log_error "could not read generated Claude settings; repair $dest before rerunning setup"
+            rm -f "$temp"
+            exit 3
+        fi
+        if [[ -n "$drift_keys" ]]; then
+            log_arrow "discarding runtime drift in top-level keys: $drift_keys"
+        fi
     fi
 
     mv -f "$temp" "$dest"

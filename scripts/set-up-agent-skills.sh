@@ -1,16 +1,15 @@
 #!/usr/bin/env bash
 #===============================================================================
-#  set-up-agent-skills.sh — Install shared agent skills for Codex via the skills CLI
+#  set-up-agent-skills.sh — Install Knapsack's standalone Codex writing skill
 #
 #  USAGE:
 #    ./scripts/set-up-agent-skills.sh
 #
-#  Installs the Agent Skills (agentskills.io) that Knapsack wants available for
-#  Codex, using the skills CLI (https://github.com/vercel-labs/skills, invoked as
-#  `npx skills`) to manage ~/.agents/skills as a package manager rather than
-#  having this repository track the installed artifacts. Claude Code consumes
-#  the same content through its plugin system, declared in the merged settings
-#  base. Re-running is safe: the skills CLI reinstalls/updates skills in place.
+#  Installs the standalone Codex writing-prose-like-a-human skill through the
+#  Agent Skills CLI (https://github.com/vercel-labs/skills, invoked as `npx
+#  skills`). The corresponding Claude Code plugin is declared in Knapsack's
+#  merged settings base; Codex configures this separate skill through the CLI.
+#  Re-running is safe: the skills CLI reinstalls or updates this skill in place.
 #
 #  EXIT CODES:
 #    0  success
@@ -24,13 +23,13 @@ set -euo pipefail
 
 source "$(dirname "$0")/lib/common.sh"
 
-# --- Shared Agent Skills ---
+# --- Explicitly Managed Codex Skill ---
 #
-# Skills to install for Codex, as "repo|skill" pairs.
+# The Codex skill to install, as a "repo|skill" pair.
 
 AGENT_SKILLS=(
-    # Claude Code consumes the same repository as the writing-prose-like-a-human
-    # plugin, declared in the merged settings base; keep the two in sync.
+    # Keep this separately configured Codex skill aligned with Claude Code's
+    # corresponding plugin declaration in the merged settings base.
     "kylehughes/writing-prose-like-a-human-for-agents|writing-prose-like-a-human"
 )
 

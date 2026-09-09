@@ -24,9 +24,11 @@ source ~/.zshrc
 When modifying dotfiles:
 - Files in `dotfiles/link/` are symlinked to the home directory - changes here affect the live configuration
 - Files in `dotfiles/copy/` are copied during setup - changes require re-running `make set-up/dotfiles`
-- Files in `dotfiles/merge/` (e.g. Claude Code settings) are deep-merged with a machine-local overlay (`~/.claude/settings.machine.json`, auto-created as `{}` if missing) and written, not linked, to their destination. Arrays are replaced wholesale rather than merged, so the overlay must never define `permissions` or `hooks` unless it means to replace them entirely. Runtime drift that Claude Code writes into the generated file is reported as a diff and discarded on the next setup run; re-run `make set-up/dotfiles` after changing the base or the overlay. The merge step currently handles only `dotfiles/merge/claude/settings.json`; a new merge file requires extending `scripts/set-up-dotfiles.sh`. Never edit the generated `~/.claude/settings.json` directly — regeneration discards direct edits
+- Files in `dotfiles/merge/` (e.g. Claude Code settings) are deep-merged with a machine-local overlay (`~/.claude/settings.machine.json`, auto-created as `{}` if missing) and written, not linked, to their destination. Objects merge; nested arrays such as `permissions.allow` and each hooks event array replace the base value wholesale. The merge step currently handles only `dotfiles/merge/claude/settings.json`; a new merge file requires extending `scripts/set-up-dotfiles.sh`.
 - Local git configuration goes in `~/.gitconfig_local` (not tracked in repo)
 - XDG config directories (like `~/.config/ghostty/`) are symlinked from `dotfiles/link/config/`
+
+Knapsack generates Claude Code's full settings, including plugin declarations, from the tracked base and machine overlay. Capture changes made through the Claude app in the base or overlay before rerunning setup; Codex plugins are managed locally through its app or CLI.
 
 ## Repository Structure
 

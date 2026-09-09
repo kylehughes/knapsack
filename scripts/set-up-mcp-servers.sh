@@ -22,20 +22,7 @@
 set -euo pipefail
 
 source "$(dirname "$0")/lib/common.sh"
-
-# --- Shared MCP Servers ---
-#
-# Streamable HTTP MCP servers to register for every agent, as "name|url" pairs.
-# Keep these public and secret-free; anything needing a token or per-machine
-# value belongs in machine-local config, not in this tracked list.
-
-MCP_HTTP_SERVERS=(
-    # sosumi.ai renders Apple's JavaScript-only developer documentation into
-    # Markdown and exposes search/fetch/transcript tools. The Apple Documentation
-    # section of CLAUDE.md documents the URL-rewriting fallback for agents without
-    # this server.
-    "sosumi|https://sosumi.ai/mcp"
-)
+source "$(dirname "$0")/lib/agent-mcp-servers.sh"
 
 # --- Functions ---
 
