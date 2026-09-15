@@ -71,8 +71,10 @@ Knapsack/
 
 The shared agent instructions live in `dotfiles/link/claude/CLAUDE.md` and
 are re-exported to Claude Code, Codex CLI, and Gemini CLI. The runtime-native
-agent directories are reserved for specialized subagents; routine delegation
-uses each tool's built-in subsystem.
+agent directories use each tool's native subsystem. Codex execution profiles
+choose model and effort separately from project-specific subagent mandates.
+The routing validator and its activation checks belong here; consuming
+repositories retain their own task contracts and auditor instructions.
 
 ## Conventions
 

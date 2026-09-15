@@ -60,6 +60,17 @@ These are soft per-call model defaults, subject to the runtime and the user's ex
 
 Select models per invocation when supported. Respect explicit user choices and runtime constraints; if a requested model is unavailable, use the supported inherited option and disclose the substitution. Do not impose global model overrides or create a recursive tier ladder.
 
+When Codex exposes the Knapsack native profiles through `agent_type`, select a route before choosing context inheritance:
+
+- `knapsack_mechanical` — Luna, medium.
+- `knapsack_ordinary` — Terra, medium.
+- `knapsack_difficult` — inherit the parent model and effort; omit explicit model and effort.
+- `knapsack_override` — supply the user's explicit choice, or a justified exception, as explicit model and effort. Explain the reason in the task contract.
+
+For mechanical, ordinary, and override routes, explicitly select fresh context or a bounded number of prior turns using the runtime's context selector. Keep the task contract self-contained. Pass project auditor instructions as task context; their mandate is separate from the execution profile. These profiles do not change permissions or verification ownership.
+
+Knapsack's optional `PreToolUse` validator rejects missing routes and conflicting settings on supported spawn calls. It cannot decide whether a task was classified correctly or force delegation. If native profiles or hooks are unavailable, continue using the per-call model defaults above and report that routing is unenforced; do not bypass a hook rejection. Installation and activation checks live in Knapsack's README under Codex Routing.
+
 See the [Claude Code subagents documentation](https://code.claude.com/docs/en/sub-agents) and [Codex subagents documentation](https://learn.chatgpt.com/docs/agent-configuration/subagents) for runtime-specific behavior.
 
 ## Writing

@@ -3,7 +3,7 @@ migrate/mise:
 	@bash "./scripts/migrate-to-mise.sh"
 
 ## Run all setup tasks.
-set-up/all: set-up/homebrew set-up/dependencies set-up/dotfiles set-up/idb set-up/mcp-servers set-up/agent-skills
+set-up/all: set-up/homebrew set-up/dependencies set-up/dotfiles set-up/idb set-up/mcp-servers set-up/agent-skills set-up/codex-routing
 	@echo ""
 	@echo "✓ All setup tasks complete!"
 
@@ -34,6 +34,10 @@ set-up/local-functions:
 ## Register shared MCP servers with Claude Code and Codex.
 set-up/mcp-servers:
 	@bash "./scripts/set-up-mcp-servers.sh"
+
+## Register native Codex routing profiles without enabling or trusting hooks.
+set-up/codex-routing: set-up/dotfiles
+	@python3 "./scripts/set-up-codex-routing.py"
 
 ## Tune macOS for heavy parallel development (opt-in; requires sudo).
 set-up/performance:

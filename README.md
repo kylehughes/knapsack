@@ -50,7 +50,7 @@ machine overlay first; setup regenerates the file from those sources.
 | `claude/statusline.sh` | Symlink | Claude Code status line script. |
 | `claude/agents/` | Symlink | Reserved for specialized Claude Code subagents. |
 | `gemini/` | Symlink | Re-export the Claude configuration to Gemini CLI. |
-| `codex/` | Symlink | Re-exports the Claude instructions to Codex CLI; `codex/agents/` is reserved for specialized native Codex subagents. |
+| `codex/` | Symlink | Re-exports shared instructions to Codex CLI and installs native execution profiles and the optional routing hook. |
 | `config/ghostty/*` | Symlink | Ghostty terminal configuration and theme. |
 | `config/mise/*` | Symlink | mise tool version pins (node, ruby). |
 | `config/tmux/*` | Symlink | tmux helper scripts (adaptive multi-row window list). |
@@ -153,8 +153,8 @@ The instructions in `dotfiles/link/claude/CLAUDE.md` are the source of truth
 for all three CLI agents on this machine. Codex CLI (`~/.codex`) and Gemini
 CLI (`~/.gemini`) receive the same instructions through symlinks, so
 `CLAUDE.md` is maintained once. Subagent execution follows each runtime's
-native mechanism; the `claude/agents/` and `codex/agents/` directories are
-reserved for specialized definitions when a task needs one. Claude Code's full
+native mechanism. Codex's execution profiles choose model and effort while
+project instructions supply each worker's task or auditor's mandate. Claude Code's full
 settings, including plugin declarations and marketplaces, are generated from
 the tracked base and machine overlay. Changes made through the Claude app are
 discarded when setup regenerates the file unless they are captured in one of
@@ -167,10 +167,8 @@ declared in the settings base.
 
 Delegation guidance lives in the shared instructions. It favors each
 runtime's built-in exploration and worker agents for bounded independent
-work, with model selection treated as a per-invocation soft default. The
-policy covers when to delegate, task contracts, context inheritance, and
-Claude Code and Codex model preferences without requiring a fixed worker
-inventory. See the [Claude Code subagents documentation](https://code.claude.com/docs/en/sub-agents)
+work. The policy covers when to delegate, task contracts, context inheritance,
+and Claude Code and Codex model preferences. See the [Claude Code subagents documentation](https://code.claude.com/docs/en/sub-agents)
 and [Codex subagents documentation](https://learn.chatgpt.com/docs/agent-configuration/subagents)
 for runtime-specific behavior.
 
@@ -191,7 +189,81 @@ agent symlinks, valid JSON and the expected complete generated Claude settings
 expected URL and transport. It skips optional agent CLIs that are not installed.
 It does not require a Codex plugin inventory or perform network health checks.
 
-`make test/agents` runs the fixture-based tests for that verification tooling.
+`make test/agents` runs the fixture-based tests for configuration and routing.
+
+### Codex Routing
+
+The runtime smoke test below is the release gate. Passing unit tests and an
+enabled, trusted hook are insufficient evidence that a spawn is intercepted.
+
+Codex profiles make the model choice explicit at each spawn:
+
+| Native route | Model and effort | Use |
+| --- | --- | --- |
+| `knapsack_mechanical` | Luna, medium | Narrow mechanical work |
+| `knapsack_ordinary` | Terra, medium | Ordinary implementation and exploration |
+| `knapsack_difficult` | Inherit parent | Difficult investigation, implementation, or review |
+| `knapsack_override` | Explicit call arguments | User choice or a justified exception |
+
+The `PreToolUse` hook validates the declared route and rejects conflicting
+model settings. Mechanical, ordinary, and override calls must explicitly select
+fresh or bounded context. The hook does not classify prompts, call a model,
+log task contents, rewrite arguments, or grant tool permission. Project auditor
+instructions remain in their repositories and are passed in the task contract.
+
+The matcher covers canonical `spawn_agent` / `Agent` and the default V2 hook
+identity, `collaborationspawn_agent`. Codex 0.154.0 flattens the namespace and
+tool name without a separator; matching only `spawn_agent` misses that path.
+See the [runtime normalization](https://github.com/openai/codex/blob/rust-v0.154.0/codex-rs/core/src/tools/registry.rs#L799-L808)
+and [reported matcher bug](https://github.com/openai/codex/issues/36519).
+Custom V2 tool namespaces are unsupported and the checker reports them;
+the hook deliberately avoids matching arbitrary tools by suffix.
+
+Installation and activation are separate:
+
+1. `make set-up/dotfiles` installs the profiles, hook definition, and script under
+   `~/.codex`. It does not change `config.toml` or hook trust.
+2. `make set-up/codex-routing` registers the four profiles in the source
+   `~/.codex/config.toml` through Codex's configuration API. Explicit file
+   references also support apps that mirror this configuration without copying
+   the `agents` directory. The command updates only Knapsack's four named roles;
+   it does not enable or trust hooks.
+   This step is included in `make set-up/all` and skips machines without Codex.
+   File references are generated from that machine's home directory.
+3. Check the runtime you actually use with `make check/codex-routing`. An app
+   may use a different `CODEX_HOME`; shared instructions appearing in a session
+   do not prove that its profiles and hooks were imported. Start a fresh session
+   after registration so an app can refresh its mirrored configuration. If the
+   references still do not reach the runtime, report that integration as unsupported;
+   do not patch its generated home.
+4. From a terminal using the shared `~/.codex` configuration, launch
+   `codex --enable hooks`. In `/hooks`, select **PreToolUse** and review the hook
+   running `python3 "$HOME/.codex/hooks/validate-agent-route.py"`; press **t** to
+   trust that hook. New or changed definitions are skipped until trusted.
+   Review existing trusted hooks too, since enabling hooks activates them.
+   After review, `codex features enable hooks` persists the feature setting;
+   `--enable hooks` alone applies only to that launch. Do not use a trust-bypass flag.
+5. Start a fresh session and verify actual tool events: an unrouted spawn must
+   be denied before a child starts; a mechanical child must record Luna at medium
+   effort; a difficult child must retain the parent's model and effort. A child's
+   assertion about its model is insufficient evidence. Repeat after runtime or
+   routing changes.
+
+Orca users can refresh its copied hook configuration with the supported
+`orca agent hooks prepare-codex` command from Orca's environment after approving
+the shared hook. Knapsack setup does not depend on Orca or invoke this command.
+
+The live checks passed on Codex CLI 0.154.0 and Orca 1.4.199 using its private
+runtime home: unrouted V2 spawns were denied, and recorded child turns confirmed
+Luna/medium, Terra/medium, inherited Astra/high, and an explicit Luna/high override.
+Other runtime versions and wrappers still need the same acceptance checks.
+
+The status command is read-only and makes no model calls. It checks installation,
+effective configuration, and hook trust; passing it establishes eligibility,
+not proof that a particular spawn path invokes the hook. Disabled, untrusted,
+missing, and unsupported configurations are **unenforced**. Codex documents that
+some tool paths bypass hooks, so this is a workflow guard, not a security boundary.
+See [Codex hooks](https://learn.chatgpt.com/docs/hooks).
 
 ## Development
 

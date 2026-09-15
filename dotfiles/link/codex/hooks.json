@@ -1,3 +1,17 @@
 {
-  "hooks": {}
+  "description": "Require a declared native route before spawning a Codex subagent.",
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "^(spawn_agent|Agent|collaborationspawn_agent)$",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 \"$HOME/.codex/hooks/validate-agent-route.py\"",
+            "timeout": 3
+          }
+        ]
+      }
+    ]
+  }
 }
