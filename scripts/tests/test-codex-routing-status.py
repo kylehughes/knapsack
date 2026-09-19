@@ -102,10 +102,7 @@ class CodexRoutingStatusTests(unittest.TestCase):
         active_home = Path("/tmp/codex-home")
         config = {"config": {
             "features": {"hooks": False},
-            "agents": {
-                "enabled": False,
-                "default_subagent_model": "gpt-5.6-terra",
-            },
+            "agents": {"enabled": False},
         }}
         hooks = {"data": [{"hooks": [{
             "eventName": "preToolUse",
@@ -118,7 +115,6 @@ class CodexRoutingStatusTests(unittest.TestCase):
         }]}]}
         issues = STATUS.runtime_issues(config, hooks, active_home)
         self.assertIn("features.hooks is disabled", issues)
-        self.assertIn("default_subagent_model overrides difficult-route inheritance", issues)
         self.assertIn("agents are disabled", issues)
         self.assertIn("PreToolUse routing hook is disabled", issues)
         self.assertIn("PreToolUse routing hook is untrusted or unknown", issues)

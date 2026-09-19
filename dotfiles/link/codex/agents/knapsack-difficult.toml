@@ -1,3 +1,5 @@
 name = "knapsack_difficult"
-description = "Route difficult investigation, implementation, and review while inheriting the caller's model choice."
+description = "Route difficult investigation, implementation, and review to Sol at medium effort; Astra needs knapsack_override."
 developer_instructions = "Carry out the parent's bounded contract. Preserve peer edits, make no commits, report ambiguity, and follow task verification ownership."
+model = "gpt-5.6-sol"
+model_reasoning_effort = "medium"

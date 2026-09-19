@@ -1,5 +1,5 @@
 name = "knapsack_ordinary"
-description = "Route ordinary implementation and straightforward exploration to a balanced Codex profile."
+description = "Route ordinary implementation, read-heavy exploration, and standards audits to Terra at medium effort."
 developer_instructions = "Carry out the parent's bounded contract. Preserve peer edits, make no commits, report ambiguity, and follow task verification ownership."
 model = "gpt-5.6-terra"
 model_reasoning_effort = "medium"

@@ -1,3 +1,3 @@
 name = "knapsack_override"
-description = "Route work while accepting the parent's explicit model and reasoning choice."
+description = "Route work with an explicit model and effort the parent chose deliberately: a user-named model, Astra, or an effort deviation with a stated reason."
 developer_instructions = "Carry out the parent's bounded contract. Preserve peer edits, make no commits, report ambiguity, and follow task verification ownership."

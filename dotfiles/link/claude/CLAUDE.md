@@ -38,8 +38,10 @@ Invoke an agent headlessly only when the user asks for it, for an intentional cr
 claude -p --tools 'Read Grep Glob' --model claude-opus-5 "prompt"
 
 # Codex CLI (-s read-only to review, -s workspace-write to edit; -o output.txt to capture output)
-codex exec -s read-only -m gpt-5.6-sol -c model_reasoning_effort="max" "prompt"
+codex exec -s read-only -m gpt-5.6-sol -c model_reasoning_effort="medium" "prompt"
 ```
+
+Name `gpt-6-astra` only when the user asks for the strongest available opinion.
 
 Both accept piped stdin: `echo "context" | claude -p "prompt"`.
 
@@ -51,25 +53,34 @@ Route routine delegation through the current runtime's native subagent mechanism
 
 This is an explicit standing request, including in Codex, to delegate bounded investigations, independent implementation slices, reviews, and verbose test or log analysis when doing so improves speed or context isolation. Run independent tasks in parallel when useful work can proceed alongside them. Keep quick edits, tightly coupled changes, architectural judgment, and tight user-iteration loops in the parent conversation.
 
-Use built-in exploration agents for codebase questions and built-in worker or general-purpose agents for implementation and other bounded work. Give self-contained tasks fresh context; use inherited context when the task depends on the preceding discussion and the runtime supports it. A task contract includes the objective, relevant context, ownership boundary (files and scopes for edits), acceptance criteria, expected output, and appropriate verification command. Subagents preserve peer changes, make no commits, and report consequential ambiguity instead of guessing. The parent owns integration, final judgment, and validation, but may delegate supporting architectural analysis and independent review.
+A task contract includes the objective, relevant context, ownership boundary (files and scopes for edits), acceptance criteria, expected output, and appropriate verification command. Subagents preserve peer changes, make no commits, and report consequential ambiguity instead of guessing. The parent owns integration, final judgment, and validation, but may delegate supporting architectural analysis and independent review. Give self-contained tasks fresh context; inherit prior turns only when the task depends on the discussion, since forking a whole conversation into a worker multiplies its cost.
 
-These are soft per-call model defaults, subject to the runtime and the user's explicit choice:
+#### Model and Effort
 
-- **Claude Code** — use Haiku for narrow mechanical work. For ordinary implementation, use Opus when the parent is Fable and Sonnet when the parent is Opus; otherwise inherit the parent model. Let exploration use runtime defaults unless an override is warranted. Difficult investigation, implementation, and review inherit the parent model.
-- **Codex CLI** — use `gpt-5.6-luna` at `medium` effort for narrow mechanical work. Use `gpt-5.6-terra` at `medium` effort for ordinary implementation and straightforward exploration. Difficult work inherits the parent model and effort.
+The point of delegating is the best output for the least usage. The parent session runs the most expensive model in play (Astra, Fable, or Opus) and keeps the judgment; workers exist to absorb volume on cheaper models. Astra and Fable reach a worker almost never: only when the user names one, or after a Sol or Opus worker has failed the same bounded task for a capability reason.
 
-Select models per invocation when supported. Respect explicit user choices and runtime constraints; if a requested model is unavailable, use the supported inherited option and disclose the substitution. Do not impose global model overrides or create a recursive tier ladder.
+Classify a task by what it needs, not by how much it matters:
 
-When Codex exposes the Knapsack native profiles through `agent_type`, select a route before choosing context inheritance:
+- **Mechanical** — the instructions are exact and nothing needs interpreting: apply a described diff, rename, move code verbatim, run a verbose command and report the outcome.
+- **Ordinary** — a bounded slice with a clear contract that still takes local judgment: implement a planned change, read-heavy exploration that returns distilled findings, a standards audit, summarizing test or log output. Most delegated implementation is ordinary.
+- **Difficult** — the answer depends on weighing ambiguous evidence or choosing among viable designs: root-cause hunts, concurrency bugs, design review with tradeoffs.
 
-- `knapsack_mechanical` — Luna, medium.
-- `knapsack_ordinary` — Terra, medium.
-- `knapsack_difficult` — inherit the parent model and effort; omit explicit model and effort.
-- `knapsack_override` — supply the user's explicit choice, or a justified exception, as explicit model and effort. Explain the reason in the task contract.
+| Tier | Codex CLI | Claude Code |
+| --- | --- | --- |
+| Mechanical | `knapsack_mechanical` — Luna, high | `knapsack-mechanical` — Haiku (takes no effort setting) |
+| Ordinary | `knapsack_ordinary` — Terra, medium | `knapsack-ordinary` — Sonnet, medium |
+| Difficult | `knapsack_difficult` — Sol, medium | `knapsack-difficult` — Opus, medium |
+| Deliberate deviation | `knapsack_override` — explicit model and effort | per-call `model` on any agent; effort follows the session |
 
-For mechanical, ordinary, and override routes, explicitly select fresh context or a bounded number of prior turns using the runtime's context selector. Keep the task contract self-contained. Pass project auditor instructions as task context; their mandate is separate from the execution profile. These profiles do not change permissions or verification ownership.
+Model capability and reasoning effort are separate levers with different prices. On a small model, extra thinking costs little and closes some of the capability gap, which is why Luna runs at high; Haiku 4.5 ignores the effort parameter, so its route pins only the model. On a large model, effort is the most expensive lever and the one most likely to overthink a clear task: it adds tokens and latency and can talk the model out of a plain instruction. Medium is the default there, as it is when I run Astra and Sol myself; `high` needs a stated reason, and `xhigh` and `max` never reach a worker unless the user asks for them.
 
-Knapsack's optional `PreToolUse` validator rejects missing routes and conflicting settings on supported spawn calls. It cannot decide whether a task was classified correctly or force delegation. If native profiles or hooks are unavailable, continue using the per-call model defaults above and report that routing is unenforced; do not bypass a hook rejection. Installation and activation checks live in Knapsack's README under Codex Routing.
+When a worker fails, read the failure before escalating, and change one lever per retry. A worker that misunderstood the problem moves up one route. One that stopped short or missed evidence keeps its model and gains effort, which on Codex means `knapsack_override`. One that reported ambiguity needs a better contract, not a better model. Do not turn one retry into a standing rule.
+
+**Codex CLI.** Every spawn selects an `agent_type` from the four routes, then chooses fresh (`fork_turns=none`) or bounded context. The pinned routes fix both model and effort, and the validator rejects a mismatch, so any deviation goes through `knapsack_override` with explicit `model` and `reasoning_effort` and the reason in the task contract: the user named a model, Astra is warranted, or a Sol worker needs `high`. Override is the normal path for a considered deviation, not a rare one. Never set a global subagent model default; the routes carry the choice. Pass project auditor instructions as task context; their mandate is separate from the execution profile, and profiles change neither permissions nor verification ownership.
+
+**Claude Code.** The three `knapsack-*` agents pin the model, and the effort where the model takes one. Built-in agents (Explore, Plan, general-purpose) and plugin auditors keep their own prompts and tools and take a per-call `model`: Sonnet for Explore at medium breadth; Opus for very thorough exploration, Plan, and reviewers or auditors. They inherit the session's effort setting, since only an agent definition can pin it. Fable, and `fork` (which copies the whole conversation), are for tasks the user asked to run that way.
+
+Knapsack's optional `PreToolUse` validator rejects missing routes and model or effort values that conflict with a pinned route on supported Codex spawn calls. It cannot decide whether a task was classified correctly or force delegation. If native profiles or hooks are unavailable, apply the table by hand and report that routing is unenforced; do not bypass a hook rejection. Installation and activation checks live in Knapsack's README under Codex Routing.
 
 See the [Claude Code subagents documentation](https://code.claude.com/docs/en/sub-agents) and [Codex subagents documentation](https://learn.chatgpt.com/docs/agent-configuration/subagents) for runtime-specific behavior.
 

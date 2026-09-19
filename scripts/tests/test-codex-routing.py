@@ -102,7 +102,7 @@ class CodexRoutingTests(unittest.TestCase):
                         "agent_type": "knapsack_mechanical",
                         "fork_context": False,
                         "model": "gpt-5.6-terra",
-                        "reasoning_effort": "medium",
+                        "reasoning_effort": "high",
                     },
                     tool_name=tool_name,
                 )
@@ -111,7 +111,7 @@ class CodexRoutingTests(unittest.TestCase):
                         "agent_type": "knapsack_mechanical",
                         "fork_context": False,
                         "model": "gpt-5.6-luna",
-                        "reasoning_effort": "medium",
+                        "reasoning_effort": "high",
                     },
                     tool_name=tool_name,
                 )
@@ -127,24 +127,26 @@ class CodexRoutingTests(unittest.TestCase):
 
     def test_valid_routes(self):
         self.assert_allowed({"agent_type": "knapsack_mechanical", "fork_turns": "none"})
-        self.assert_allowed({"agent_type": "knapsack_mechanical", "fork_context": False, "model": "gpt-5.6-luna", "reasoning_effort": "medium"})
+        self.assert_allowed({"agent_type": "knapsack_mechanical", "fork_context": False, "model": "gpt-5.6-luna", "reasoning_effort": "high"})
         self.assert_allowed({"agent_type": "knapsack_ordinary", "fork_turns": "2", "model": "gpt-5.6-terra", "reasoning_effort": "medium"})
-        self.assert_allowed({"agent_type": "knapsack_difficult"})
+        self.assert_allowed({"agent_type": "knapsack_difficult", "fork_turns": "none"})
+        self.assert_allowed({"agent_type": "knapsack_difficult", "fork_context": False, "model": "gpt-5.6-sol", "reasoning_effort": "medium"})
         self.assert_allowed({"agent_type": "knapsack_override", "model": "custom-model", "reasoning_effort": "high", "fork_context": False})
         self.assert_allowed({"agent_type": "knapsack_mechanical", "model": None, "reasoning_effort": None, "fork_context": False})
 
-    def test_mechanical_and_ordinary_require_fresh_or_partial_context(self):
-        for route in ("knapsack_mechanical", "knapsack_ordinary"):
+    def test_pinned_routes_require_fresh_or_partial_context(self):
+        for route in ("knapsack_mechanical", "knapsack_ordinary", "knapsack_difficult"):
             for fields in ({}, {"fork_turns": "all"}, {"fork_context": True}, {"fork_turns": "none", "fork_context": False}):
                 self.assert_denied({"agent_type": route, **fields})
 
-    def test_mechanical_and_ordinary_model_values_must_match(self):
+    def test_pinned_route_values_must_match(self):
         for route, model, effort in (
             ("knapsack_mechanical", "gpt-5.6-terra", "medium"),
-            ("knapsack_ordinary", "gpt-5.6-luna", "medium"),
+            ("knapsack_ordinary", "gpt-5.6-luna", "high"),
+            ("knapsack_difficult", "gpt-6-astra", "high"),
         ):
             self.assert_denied({"agent_type": route, "fork_context": False, "model": model})
-            self.assert_denied({"agent_type": route, "fork_context": False, "reasoning_effort": "high"})
+            self.assert_denied({"agent_type": route, "fork_context": False, "reasoning_effort": effort})
 
     def test_override_requires_explicit_model_and_effort(self):
         self.assert_denied({"agent_type": "knapsack_override", "model": "custom-model", "reasoning_effort": "high"})
@@ -185,27 +187,18 @@ class CodexRoutingTests(unittest.TestCase):
         )
         self.assertNotIn(marker, output["hookSpecificOutput"]["permissionDecisionReason"])
 
-    def test_difficult_rejects_explicit_model_or_effort_but_allows_null(self):
-        self.assert_denied(
-            {"agent_type": "knapsack_difficult", "fork_turns": "none", "fork_context": False}
-        )
+    def test_difficult_never_inherits_the_parent(self):
+        self.assert_denied({"agent_type": "knapsack_difficult"})
+        self.assert_denied({"agent_type": "knapsack_difficult", "fork_turns": "all"})
         self.assert_allowed(
-            {"agent_type": "knapsack_difficult", "model": None, "reasoning_effort": None}
-        )
-        self.assert_denied(
-            {"agent_type": "knapsack_difficult", "model": "gpt-5.6-terra"}
-        )
-        self.assert_denied(
-            {"agent_type": "knapsack_difficult", "reasoning_effort": "medium"}
+            {"agent_type": "knapsack_difficult", "fork_turns": "none", "model": None, "reasoning_effort": None}
         )
 
     def test_script_works_from_cwd_containing_spaces(self):
+        payload = {"agent_type": "knapsack_difficult", "fork_turns": "none"}
         with tempfile.TemporaryDirectory(prefix="codex routing cwd ") as cwd:
-            self.assert_allowed({"agent_type": "knapsack_difficult"})
-            self.assertEqual(
-                self.run_hook(self.event(tool_input={"agent_type": "knapsack_difficult"}), cwd=cwd),
-                {},
-            )
+            self.assert_allowed(payload)
+            self.assertEqual(self.run_hook(self.event(tool_input=payload), cwd=cwd), {})
 
 
 if __name__ == "__main__":

@@ -101,9 +101,6 @@ def runtime_issues(config_result, hooks_result, active_home):
         agents = {}
     if not isinstance(agents, dict):
         return issues + ["Codex returned an unknown agent configuration shape"]
-    for key in ("default_subagent_model", "default_subagent_reasoning_effort"):
-        if agents.get(key) is not None:
-            issues.append(key + " overrides difficult-route inheritance")
     if agents.get("enabled") is False:
         issues.append("agents are disabled")
 

@@ -12,10 +12,11 @@ SPAWN_TOOL_NAMES = (
     "collaborationspawn_agent",
 )
 PROFILES = {
-    "knapsack_mechanical": ("gpt-5.6-luna", "medium"),
+    "knapsack_mechanical": ("gpt-5.6-luna", "high"),
     "knapsack_ordinary": ("gpt-5.6-terra", "medium"),
+    "knapsack_difficult": ("gpt-5.6-sol", "medium"),
 }
-ROUTES = (*PROFILES, "knapsack_difficult", "knapsack_override")
+ROUTES = (*PROFILES, "knapsack_override")
 
 
 def validate(event):
@@ -36,8 +37,8 @@ def validate(event):
     route = arguments.get("agent_type")
     if not isinstance(route, str) or route not in ROUTES:
         return (
-            "Select agent_type: knapsack_mechanical (Luna medium), "
-            "knapsack_ordinary (Terra medium), knapsack_difficult (inherit), "
+            "Select agent_type: knapsack_mechanical (Luna high), "
+            "knapsack_ordinary (Terra medium), knapsack_difficult (Sol medium), "
             "or knapsack_override (explicit model and effort). "
             "If the spawn tool has no agent_type field, this runtime is unsupported."
         )
@@ -48,13 +49,9 @@ def validate(event):
     if route in PROFILES:
         expected_model, expected_effort = PROFILES[route]
         if model not in (None, expected_model) or effort not in (None, expected_effort):
-            return "The model or effort conflicts with the selected route; use knapsack_override for an intentional exception."
-    elif route == "knapsack_difficult":
-        if model is not None or effort is not None:
-            return "knapsack_difficult inherits the parent; omit model and reasoning_effort, or select knapsack_override."
-        return None
+            return "The model or effort conflicts with the selected route; use knapsack_override for an intentional deviation."
     elif not all(isinstance(value, str) and value.strip() for value in (model, effort)):
-        return "knapsack_override requires explicit model and reasoning_effort; explain the exception in the task contract."
+        return "knapsack_override requires explicit model and reasoning_effort; state the reason in the task contract."
 
     # Runtime generations expose different context selectors. Never guess which
     # default applies, or silently carry a full conversation into a cheaper task.

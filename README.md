@@ -48,7 +48,7 @@ machine overlay first; setup regenerates the file from those sources.
 | `merge/claude/settings.json` | Merge | Tracked base for shared Claude Code settings, including plugin declarations, deep-merged into a generated `~/.claude/settings.json`. |
 | `~/.claude/settings.machine.json` | Merge overlay | Untracked machine-specific Claude Code settings, including plugin declarations. Objects merge; nested arrays such as `permissions.allow` and each hooks event array replace the base value wholesale. |
 | `claude/statusline.sh` | Symlink | Claude Code status line script. |
-| `claude/agents/` | Symlink | Reserved for specialized Claude Code subagents. |
+| `claude/agents/` | Symlink | Claude Code route agents (`knapsack-mechanical`, `knapsack-ordinary`, `knapsack-difficult`) that pin a worker model, and effort where the model takes one. |
 | `gemini/` | Symlink | Re-export the Claude configuration to Gemini CLI. |
 | `codex/` | Symlink | Re-exports shared instructions to Codex CLI and installs native execution profiles and the optional routing hook. |
 | `config/ghostty/*` | Symlink | Ghostty terminal configuration and theme. |
@@ -165,10 +165,14 @@ those sources. Codex manages plugins locally through its app or CLI.
 `scripts/set-up-agent-skills.sh`; its corresponding Claude Code plugin is
 declared in the settings base.
 
-Delegation guidance lives in the shared instructions. It favors each
-runtime's built-in exploration and worker agents for bounded independent
-work. The policy covers when to delegate, task contracts, context inheritance,
-and Claude Code and Codex model preferences. See the [Claude Code subagents documentation](https://code.claude.com/docs/en/sub-agents)
+Delegation guidance lives in the shared instructions. Its aim is the best
+output for the least usage: the parent session keeps the strongest model and
+the judgment, and workers run one or more tiers down. The policy covers when to
+delegate, task contracts, context inheritance, how to classify a task into a
+tier, and when effort rather than model is the right lever. Both runtimes carry
+matching route profiles: Codex through the `knapsack_*` execution profiles
+below, Claude Code through the `knapsack-*` agents in `claude/agents/`, which
+are the only way to pin a Claude subagent's effort. See the [Claude Code subagents documentation](https://code.claude.com/docs/en/sub-agents)
 and [Codex subagents documentation](https://learn.chatgpt.com/docs/agent-configuration/subagents)
 for runtime-specific behavior.
 
@@ -196,17 +200,19 @@ It does not require a Codex plugin inventory or perform network health checks.
 The runtime smoke test below is the release gate. Passing unit tests and an
 enabled, trusted hook are insufficient evidence that a spawn is intercepted.
 
-Codex profiles make the model choice explicit at each spawn:
+Codex profiles make the model and effort choice explicit at each spawn. No
+route inherits the parent, so the session's own model (Astra) reaches a
+subagent only through an override the parent chose deliberately:
 
 | Native route | Model and effort | Use |
 | --- | --- | --- |
-| `knapsack_mechanical` | Luna, medium | Narrow mechanical work |
-| `knapsack_ordinary` | Terra, medium | Ordinary implementation and exploration |
-| `knapsack_difficult` | Inherit parent | Difficult investigation, implementation, or review |
-| `knapsack_override` | Explicit call arguments | User choice or a justified exception |
+| `knapsack_mechanical` | Luna, high | Exact instructions, no interpretation; extra thinking is cheap on a small model |
+| `knapsack_ordinary` | Terra, medium | Bounded implementation, read-heavy exploration, audits |
+| `knapsack_difficult` | Sol, medium | Work that weighs ambiguous evidence or competing designs |
+| `knapsack_override` | Explicit call arguments | A user-named model, Astra, or an effort deviation with a stated reason |
 
-The `PreToolUse` hook validates the declared route and rejects conflicting
-model settings. Mechanical, ordinary, and override calls must explicitly select
+The `PreToolUse` hook validates the declared route and rejects model or effort
+values that conflict with a pinned route. Every call must explicitly select
 fresh or bounded context. The hook does not classify prompts, call a model,
 log task contents, rewrite arguments, or grant tool permission. Project auditor
 instructions remain in their repositories and are passed in the task contract.
@@ -244,19 +250,22 @@ Installation and activation are separate:
    After review, `codex features enable hooks` persists the feature setting;
    `--enable hooks` alone applies only to that launch. Do not use a trust-bypass flag.
 5. Start a fresh session and verify actual tool events: an unrouted spawn must
-   be denied before a child starts; a mechanical child must record Luna at medium
-   effort; a difficult child must retain the parent's model and effort. A child's
-   assertion about its model is insufficient evidence. Repeat after runtime or
-   routing changes.
+   be denied before a child starts; a mechanical child must record Luna at high
+   effort; a difficult child must record Sol at medium, not the parent's model.
+   A child's assertion about its model is insufficient evidence. Repeat after
+   runtime or routing changes.
 
 Orca users can refresh its copied hook configuration with the supported
 `orca agent hooks prepare-codex` command from Orca's environment after approving
 the shared hook. Knapsack setup does not depend on Orca or invoke this command.
 
-The live checks passed on Codex CLI 0.154.0 and Orca 1.4.199 using its private
-runtime home: unrouted V2 spawns were denied, and recorded child turns confirmed
-Luna/medium, Terra/medium, inherited Astra/high, and an explicit Luna/high override.
-Other runtime versions and wrappers still need the same acceptance checks.
+The live checks last passed on 2026-09-18 with Codex CLI 0.154.0 from a fresh
+`codex exec` session: the unrouted V2 spawn was denied before a child started,
+and recorded child turns confirmed Luna/high, Terra/medium, Sol/medium, and an
+explicit Astra/medium override. The same day a headless Claude Code session
+recorded `knapsack-ordinary` on Sonnet at medium and `knapsack-mechanical` on
+Haiku with no effort field, which is why that agent pins only the model. Orca
+and other wrappers still need the same acceptance checks after this change.
 
 The status command is read-only and makes no model calls. It checks installation,
 effective configuration, and hook trust; passing it establishes eligibility,
