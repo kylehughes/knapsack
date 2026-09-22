@@ -3,6 +3,7 @@
 
 import json
 import re
+import runpy
 import subprocess
 import tempfile
 import unittest
@@ -11,6 +12,7 @@ from pathlib import Path
 
 SCRIPT = Path(__file__).resolve().parents[2] / "dotfiles/link/codex/hooks/validate-agent-route.py"
 HOOKS_CONFIG = Path(__file__).resolve().parents[2] / "dotfiles/link/codex/hooks.json"
+AGENTS_DIRECTORY = Path(__file__).resolve().parents[2] / "dotfiles/link/codex/agents"
 MAX_INPUT_BYTES = 1_048_576
 KNOWN_TOOL_IDENTITIES = (
     "spawn_agent",
@@ -93,6 +95,26 @@ class CodexRoutingTests(unittest.TestCase):
             with self.subTest(tool_name=tool_name):
                 self.assertIsNone(re.fullmatch(matcher, tool_name))
 
+    def test_agent_profiles_and_validator_assignments_agree(self):
+        profiles = {}
+        for profile_path in AGENTS_DIRECTORY.glob("knapsack-*.toml"):
+            # These profiles use quoted scalar assignments; avoid requiring Python 3.11's tomllib.
+            profile = dict(re.findall(r'^([a-z_]+) = "([^"\n]*)"$', profile_path.read_text(), re.MULTILINE))
+            name = profile["name"]
+            if name != "knapsack_override":
+                profiles[name] = (profile["model"], profile["model_reasoning_effort"])
+
+        validator_profiles = runpy.run_path(str(SCRIPT))["PROFILES"]
+        self.assertEqual(profiles, validator_profiles)
+        self.assertEqual(
+            profiles,
+            {
+                "knapsack_mechanical": ("gpt-6-luna", "high"),
+                "knapsack_ordinary": ("gpt-6-sol", "medium"),
+                "knapsack_difficult": ("gpt-6-sol", "medium"),
+            },
+        )
+
     def test_known_tool_identities_enforce_routing(self):
         for tool_name in KNOWN_TOOL_IDENTITIES:
             with self.subTest(tool_name=tool_name):
@@ -110,7 +132,7 @@ class CodexRoutingTests(unittest.TestCase):
                     {
                         "agent_type": "knapsack_mechanical",
                         "fork_context": False,
-                        "model": "gpt-5.6-luna",
+                        "model": "gpt-6-luna",
                         "reasoning_effort": "high",
                     },
                     tool_name=tool_name,
@@ -127,10 +149,10 @@ class CodexRoutingTests(unittest.TestCase):
 
     def test_valid_routes(self):
         self.assert_allowed({"agent_type": "knapsack_mechanical", "fork_turns": "none"})
-        self.assert_allowed({"agent_type": "knapsack_mechanical", "fork_context": False, "model": "gpt-5.6-luna", "reasoning_effort": "high"})
-        self.assert_allowed({"agent_type": "knapsack_ordinary", "fork_turns": "2", "model": "gpt-5.6-terra", "reasoning_effort": "medium"})
+        self.assert_allowed({"agent_type": "knapsack_mechanical", "fork_context": False, "model": "gpt-6-luna", "reasoning_effort": "high"})
+        self.assert_allowed({"agent_type": "knapsack_ordinary", "fork_turns": "2", "model": "gpt-6-sol", "reasoning_effort": "medium"})
         self.assert_allowed({"agent_type": "knapsack_difficult", "fork_turns": "none"})
-        self.assert_allowed({"agent_type": "knapsack_difficult", "fork_context": False, "model": "gpt-5.6-sol", "reasoning_effort": "medium"})
+        self.assert_allowed({"agent_type": "knapsack_difficult", "fork_context": False, "model": "gpt-6-sol", "reasoning_effort": "medium"})
         self.assert_allowed({"agent_type": "knapsack_override", "model": "custom-model", "reasoning_effort": "high", "fork_context": False})
         self.assert_allowed({"agent_type": "knapsack_mechanical", "model": None, "reasoning_effort": None, "fork_context": False})
 
@@ -139,13 +161,24 @@ class CodexRoutingTests(unittest.TestCase):
             for fields in ({}, {"fork_turns": "all"}, {"fork_context": True}, {"fork_turns": "none", "fork_context": False}):
                 self.assert_denied({"agent_type": route, **fields})
 
-    def test_pinned_route_values_must_match(self):
-        for route, model, effort in (
-            ("knapsack_mechanical", "gpt-5.6-terra", "medium"),
-            ("knapsack_ordinary", "gpt-5.6-luna", "high"),
-            ("knapsack_difficult", "gpt-6-astra", "high"),
+    def test_previous_pinned_models_are_rejected(self):
+        for route, model in (
+            ("knapsack_mechanical", "gpt-5.6-luna"),
+            ("knapsack_ordinary", "gpt-5.6-terra"),
+            ("knapsack_difficult", "gpt-5.6-sol"),
         ):
             self.assert_denied({"agent_type": route, "fork_context": False, "model": model})
+
+    def test_pinned_routes_reject_astra(self):
+        for route in ("knapsack_mechanical", "knapsack_ordinary", "knapsack_difficult"):
+            self.assert_denied({"agent_type": route, "fork_context": False, "model": "gpt-6-astra"})
+
+    def test_pinned_route_efforts_must_match(self):
+        for route, effort in (
+            ("knapsack_mechanical", "medium"),
+            ("knapsack_ordinary", "high"),
+            ("knapsack_difficult", "high"),
+        ):
             self.assert_denied({"agent_type": route, "fork_context": False, "reasoning_effort": effort})
 
     def test_override_requires_explicit_model_and_effort(self):

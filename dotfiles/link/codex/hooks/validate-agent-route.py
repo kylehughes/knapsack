@@ -12,9 +12,9 @@ SPAWN_TOOL_NAMES = (
     "collaborationspawn_agent",
 )
 PROFILES = {
-    "knapsack_mechanical": ("gpt-5.6-luna", "high"),
-    "knapsack_ordinary": ("gpt-5.6-terra", "medium"),
-    "knapsack_difficult": ("gpt-5.6-sol", "medium"),
+    "knapsack_mechanical": ("gpt-6-luna", "high"),
+    "knapsack_ordinary": ("gpt-6-sol", "medium"),
+    "knapsack_difficult": ("gpt-6-sol", "medium"),
 }
 ROUTES = (*PROFILES, "knapsack_override")
 
@@ -37,8 +37,8 @@ def validate(event):
     route = arguments.get("agent_type")
     if not isinstance(route, str) or route not in ROUTES:
         return (
-            "Select agent_type: knapsack_mechanical (Luna high), "
-            "knapsack_ordinary (Terra medium), knapsack_difficult (Sol medium), "
+            "Select agent_type: knapsack_mechanical (gpt-6-luna high), "
+            "knapsack_ordinary (gpt-6-sol medium), knapsack_difficult (gpt-6-sol medium), "
             "or knapsack_override (explicit model and effort). "
             "If the spawn tool has no agent_type field, this runtime is unsupported."
         )

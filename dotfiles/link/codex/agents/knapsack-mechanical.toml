@@ -1,5 +1,5 @@
 name = "knapsack_mechanical"
-description = "Route bounded mechanical work to Luna at high effort; extra thinking is cheap on a small model and offsets its lower capability."
+description = "Route bounded mechanical work to GPT-6 Luna at high effort; extra thinking is cheap on a small model and offsets its lower capability."
 developer_instructions = "Carry out the parent's bounded contract. Preserve peer edits, make no commits, report ambiguity, and follow task verification ownership."
-model = "gpt-5.6-luna"
+model = "gpt-6-luna"
 model_reasoning_effort = "high"

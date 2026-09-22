@@ -1,8 +1,8 @@
 ---
 name: knapsack-difficult
-description: Difficult worker on Opus at medium effort for work whose answer depends on weighing ambiguous evidence or choosing among several viable designs - root-cause investigation, concurrency and data-race bugs, design review with tradeoffs, independent review of a substantial change. Use it because the task needs judgment, not because it matters; most implementation belongs on knapsack-ordinary. Fable is never a default; name it per call only when the user asked for it or this worker already failed the task for a capability reason.
+description: Difficult worker on Opus 5.5 at medium effort for work whose answer depends on weighing ambiguous evidence or choosing among several viable designs - root-cause investigation, concurrency and data-race bugs, design review with tradeoffs, independent review of a substantial change. Use it because the task needs judgment, not because it matters; most implementation belongs on knapsack-ordinary. Fable is never a default; name it per call only when the user asked for it or this worker already failed the task for a demonstrated capability reason. Already running on Fable is no reason to spawn another.
 tools: Read, Edit, Write, Glob, Grep, Bash
-model: opus
+model: claude-opus-5-5
 effort: medium
 permissionMode: acceptEdits
 maxTurns: 75
