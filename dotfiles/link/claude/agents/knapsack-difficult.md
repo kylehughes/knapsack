@@ -5,7 +5,7 @@ tools: Read, Edit, Write, Glob, Grep, Bash
 model: claude-opus-5-5
 effort: medium
 permissionMode: acceptEdits
-maxTurns: 200
+maxTurns: 600
 color: purple
 ---
 

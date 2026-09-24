@@ -5,7 +5,7 @@ tools: Read, Edit, Write, Glob, Grep, Bash
 model: sonnet
 effort: medium
 permissionMode: acceptEdits
-maxTurns: 150
+maxTurns: 600
 color: cyan
 ---
 

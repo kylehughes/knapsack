@@ -4,7 +4,7 @@ description: Mechanical worker on Haiku for tasks whose instructions are exact a
 tools: Read, Edit, Write, Glob, Grep, Bash
 model: haiku
 permissionMode: acceptEdits
-maxTurns: 25
+maxTurns: 600
 color: yellow
 ---
 
