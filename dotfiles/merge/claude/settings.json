@@ -140,19 +140,6 @@
     "defaultMode": "acceptEdits"
   },
   "model": "opus[1m]",
-  "hooks": {
-    "Notification": [
-      {
-        "matcher": "idle_prompt",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "terminal-notifier -title 'Claude Code' -message 'Waiting for input' -sound default"
-          }
-        ]
-      }
-    ]
-  },
   "statusLine": {
     "type": "command",
     "command": "~/.claude/statusline.sh"
