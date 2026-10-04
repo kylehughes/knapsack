@@ -61,8 +61,6 @@ Knapsack/
 │   └── merge/            # Files deep-merged with machine-local overlays (Claude settings)
 ├── scripts/              # Setup scripts (set-up-*.sh, migrate-to-mise.sh)
 │   └── lib/common.sh     # Shared logging and Homebrew helpers
-├── services/             # launchd services with install/uninstall scripts
-│   └── scan-ocr/         # OCRs scanned PDFs into iCloud Drive
 └── makefiles/            # Makefile includes
     └── set-up.mk
 ```

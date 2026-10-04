@@ -135,17 +135,12 @@ brew bundle cleanup    # Remove unlisted packages
 installed. The idb companion is managed by Homebrew, and the Python client is
 managed as a `uv` tool so the `idb` executable is available from `~/.local/bin`.
 
-## Services
+## Machine Configuration
 
-Long-running launchd services live in `services/`, each with its own install
-and uninstall scripts. Services are per-machine opt-ins: the repository
-propagates them between computers, but they are not part of `make set-up/all`
-and their dependencies are not in the Brewfile. Install a service (and the
-dependencies its installer asks for) only on the machine that should run it.
-
-| Service | Description |
-| --- | --- |
-| `scan-ocr` | Watches `/Users/Shared/Scans` and OCRs incoming PDFs into iCloud Drive. Requires `ocrmypdf` on that machine. Install with `services/scan-ocr/install.sh`. |
+Knapsack contains configuration shared across machines. Host-specific services,
+dependencies, and recovery instructions belong in separate private repositories.
+The Mac mini's scan OCR service is managed there and is not installed by
+`make set-up/all`.
 
 ## AI Agents
 
