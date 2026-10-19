@@ -1,8 +1,9 @@
 ---
 name: knapsack-mechanical
-description: Mechanical worker on Haiku for tasks whose instructions are exact and need no interpretation - applying a described diff, renames, moving code verbatim, running a verbose command and reporting the outcome. Give it the files, the precise change, and a verification command. Not for tasks that require reading around to decide what to do; those go to knapsack-ordinary.
+description: Mechanical worker on Haiku 5.5 at high effort for tasks whose instructions are exact and need no interpretation - applying a described diff, renames, moving code verbatim, running a verbose command and reporting the outcome. Give it the files, the precise change, and a verification command. Not for tasks that require reading around to decide what to do; those go to knapsack-ordinary.
 tools: Read, Edit, Write, Glob, Grep, Bash
-model: haiku
+model: claude-haiku-5-5
+effort: high
 permissionMode: acceptEdits
 maxTurns: 600
 color: yellow

@@ -48,7 +48,7 @@ machine overlay first; setup regenerates the file from those sources.
 | `merge/claude/settings.json` | Merge | Tracked base for shared Claude Code settings, including plugin declarations, deep-merged into a generated `~/.claude/settings.json`. |
 | `~/.claude/settings.machine.json` | Merge overlay | Untracked machine-specific Claude Code settings, including plugin declarations. Objects merge; nested arrays such as `permissions.allow` and each hooks event array replace the base value wholesale. |
 | `claude/statusline.sh` | Symlink | Claude Code status line script. |
-| `claude/agents/` | Symlink | Claude Code route agents (`knapsack-mechanical`, `knapsack-ordinary`, `knapsack-difficult`) that pin a worker model, and effort where the model takes one. |
+| `claude/agents/` | Symlink | Claude Code route agents (`knapsack-mechanical`, `knapsack-ordinary`, `knapsack-difficult`) that pin a worker model and effort. |
 | `gemini/` | Symlink | Re-export the Claude configuration to Gemini CLI. |
 | `codex/` | Symlink | Re-exports shared instructions to Codex CLI and installs native execution profiles and the optional routing hook. |
 | `config/ghostty/*` | Symlink | Ghostty terminal configuration and theme. |
@@ -174,9 +174,12 @@ are the only way to pin a Claude subagent's effort. See the [Claude Code subagen
 and [Codex subagents documentation](https://learn.chatgpt.com/docs/agent-configuration/subagents)
 for runtime-specific behavior.
 
-Claude workers use Haiku for mechanical work, Sonnet at medium effort for
-ordinary work, and Opus 5.5 (`claude-opus-5-5`) at medium for difficult work.
-Opus 5.5 requires [Claude Code 2.1.280 or later](https://code.claude.com/docs/en/model-config).
+Claude workers use Haiku 5.5 (`claude-haiku-5-5`) at high effort for mechanical
+work, the `sonnet` alias at medium for ordinary work, and Opus 5.5
+(`claude-opus-5-5`) at medium for difficult work. Haiku is pinned because older
+versions do not support effort. On the Anthropic API, `sonnet` resolves to
+Sonnet 5.5. Use [Claude Code 2.1.293 or later](https://code.claude.com/docs/en/model-config)
+for all three routes.
 Report unavailable model support rather than silently choosing an older version.
 
 Shared MCP servers are registered separately by `make set-up/mcp-servers`.
@@ -210,12 +213,13 @@ subagent only through an override the parent chose deliberately:
 | Native route | Model and effort | Use |
 | --- | --- | --- |
 | `knapsack_mechanical` | GPT-6 Luna, high | Exact instructions, no interpretation; extra thinking is cheap on a small model |
-| `knapsack_ordinary` | GPT-6 Sol, medium | Bounded implementation, read-heavy exploration, audits |
-| `knapsack_difficult` | GPT-6 Sol, medium | Work that weighs ambiguous evidence or competing designs |
+| `knapsack_ordinary` | GPT-6.1 Sol, medium | Bounded implementation, read-heavy exploration, audits |
+| `knapsack_difficult` | GPT-6.1 Sol, medium | Work that weighs ambiguous evidence or competing designs |
 | `knapsack_override` | Explicit call arguments | A user-named model, Astra, or an effort deviation with a stated reason |
 
 Ordinary and difficult routes share a model and effort, but retain distinct task
-contracts. Moving between them does not increase model capability.
+contracts. Moving between them does not increase model capability. GPT-6.1 Sol
+replaces GPT-6 Sol in these routes; see the [current model guidance](https://developers.openai.com/api/docs/guides/latest-model).
 
 The `PreToolUse` hook validates the declared route and rejects model or effort
 values that conflict with a pinned route. Every call must explicitly select
@@ -257,7 +261,7 @@ Installation and activation are separate:
    `--enable hooks` alone applies only to that launch. Do not use a trust-bypass flag.
 5. Start a fresh session and verify actual tool events: an unrouted spawn must
    be denied before a child starts; a mechanical child must record GPT-6 Luna at
-   high effort; ordinary and difficult children must each record GPT-6 Sol at
+   high effort; ordinary and difficult children must each record GPT-6.1 Sol at
    medium effort.
    A child's assertion about its model is insufficient evidence. Repeat after
    runtime or routing changes.
@@ -271,13 +275,17 @@ The previous live checks passed on 2026-09-18 with Codex CLI 0.154.0 from a fres
 and recorded child turns confirmed Luna/high, Terra/medium, Sol/medium, and an
 explicit Astra/medium override. The same day a headless Claude Code session
 recorded `knapsack-ordinary` on Sonnet at medium and `knapsack-mechanical` on
-Haiku with no effort field, which is why that agent pins only the model. Orca
+Haiku with no effort field; Haiku 4.5 did not support effort. Orca
 and other wrappers still need the same acceptance checks after this change.
 
 On 2026-09-22, a fresh Codex CLI 0.155.1 session rejected the unrouted spawn;
 child turn records confirmed GPT-6 Luna/high for mechanical work and GPT-6
 Sol/medium for both ordinary and difficult work. A Claude Code 2.1.280 child
 transcript confirmed `knapsack-difficult` ran on `claude-opus-5-5`.
+
+On 2026-10-19, a fresh Codex CLI 0.163.0 session rejected the unrouted spawn;
+child turn records confirmed GPT-6 Luna/high for mechanical work and GPT-6.1
+Sol/medium for both ordinary and difficult work.
 
 The status command is read-only and makes no model calls. It checks installation,
 effective configuration, and hook trust; passing it establishes eligibility,

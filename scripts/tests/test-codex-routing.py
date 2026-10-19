@@ -110,8 +110,8 @@ class CodexRoutingTests(unittest.TestCase):
             profiles,
             {
                 "knapsack_mechanical": ("gpt-6-luna", "high"),
-                "knapsack_ordinary": ("gpt-6-sol", "medium"),
-                "knapsack_difficult": ("gpt-6-sol", "medium"),
+                "knapsack_ordinary": ("gpt-6.1-sol", "medium"),
+                "knapsack_difficult": ("gpt-6.1-sol", "medium"),
             },
         )
 
@@ -150,9 +150,9 @@ class CodexRoutingTests(unittest.TestCase):
     def test_valid_routes(self):
         self.assert_allowed({"agent_type": "knapsack_mechanical", "fork_turns": "none"})
         self.assert_allowed({"agent_type": "knapsack_mechanical", "fork_context": False, "model": "gpt-6-luna", "reasoning_effort": "high"})
-        self.assert_allowed({"agent_type": "knapsack_ordinary", "fork_turns": "2", "model": "gpt-6-sol", "reasoning_effort": "medium"})
+        self.assert_allowed({"agent_type": "knapsack_ordinary", "fork_turns": "2", "model": "gpt-6.1-sol", "reasoning_effort": "medium"})
         self.assert_allowed({"agent_type": "knapsack_difficult", "fork_turns": "none"})
-        self.assert_allowed({"agent_type": "knapsack_difficult", "fork_context": False, "model": "gpt-6-sol", "reasoning_effort": "medium"})
+        self.assert_allowed({"agent_type": "knapsack_difficult", "fork_context": False, "model": "gpt-6.1-sol", "reasoning_effort": "medium"})
         self.assert_allowed({"agent_type": "knapsack_override", "model": "custom-model", "reasoning_effort": "high", "fork_context": False})
         self.assert_allowed({"agent_type": "knapsack_mechanical", "model": None, "reasoning_effort": None, "fork_context": False})
 
@@ -165,7 +165,9 @@ class CodexRoutingTests(unittest.TestCase):
         for route, model in (
             ("knapsack_mechanical", "gpt-5.6-luna"),
             ("knapsack_ordinary", "gpt-5.6-terra"),
+            ("knapsack_ordinary", "gpt-6-sol"),
             ("knapsack_difficult", "gpt-5.6-sol"),
+            ("knapsack_difficult", "gpt-6-sol"),
         ):
             self.assert_denied({"agent_type": route, "fork_context": False, "model": model})
 
