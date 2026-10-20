@@ -16,6 +16,8 @@ set -euo pipefail
 
 source "$(dirname "$0")/lib/common.sh"
 
+python3 -B "$(dirname "$0")/manage-dotfiles.py" prepare-functions
+
 # --- Constants ---
 
 LOCAL_FUNCTIONS_DIR="$HOME/.config/zsh/functions-local"

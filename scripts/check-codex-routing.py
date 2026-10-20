@@ -38,6 +38,29 @@ def repository_root():
     return Path(__file__).resolve().parents[1]
 
 
+def isolated_file(path, root):
+    """Require a regular copy, with no ancestor linking it into the repository."""
+    if path.is_symlink() or not path.is_file():
+        return False
+    root = root.resolve()
+    resolved = path.resolve()
+    if resolved == root or root in resolved.parents:
+        return False
+    for ancestor in path.parents:
+        if ancestor.is_symlink():
+            target = ancestor.resolve()
+            if target == root or root in target.parents:
+                return False
+    return True
+
+
+def copy_matches(installed, expected, root):
+    """Compare the managed bytes and executable bits without requiring identity."""
+    return (isolated_file(installed, root)
+            and installed.read_bytes() == expected.read_bytes()
+            and installed.stat().st_mode & 0o111 == expected.stat().st_mode & 0o111)
+
+
 def file_issues(active_home, root, config_result=None):
     """Return routing-file differences without changing any installed files."""
     issues = []
@@ -55,26 +78,26 @@ def file_issues(active_home, root, config_result=None):
         try:
             if not installed.is_file():
                 issues.append("missing agent profile " + profile)
-            elif installed.read_bytes() != expected.read_bytes():
-                issues.append("agent profile differs " + profile)
-        except OSError:
+            elif not copy_matches(installed, expected, root):
+                issues.append("agent profile is not an isolated matching copy " + profile)
+        except (OSError, RuntimeError):
             issues.append("could not read agent profile " + profile)
 
     installed_hooks = active_home / "hooks.json"
     try:
-        if not installed_hooks.is_file():
-            issues.append("missing hooks.json")
-    except OSError:
+        if not isolated_file(installed_hooks, root):
+            issues.append("hooks.json is missing or is not an isolated copy")
+    except (OSError, RuntimeError):
         issues.append("could not read hooks.json")
 
     expected_script = source / "hooks" / "validate-agent-route.py"
     live_script = Path.home() / ".codex/hooks/validate-agent-route.py"
     try:
-        script_matches = live_script.exists() and live_script.resolve() == expected_script.resolve()
-    except OSError:
+        script_matches = copy_matches(live_script, expected_script, root)
+    except (OSError, RuntimeError):
         script_matches = False
     if not script_matches:
-        issues.append("$HOME/.codex hook script does not resolve to Knapsack")
+        issues.append("$HOME/.codex hook script is not an isolated matching copy")
     return issues
 
 

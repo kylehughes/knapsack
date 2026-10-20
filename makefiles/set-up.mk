@@ -3,7 +3,7 @@ migrate/mise:
 	@bash "./scripts/migrate-to-mise.sh"
 
 ## Run all setup tasks.
-set-up/all: set-up/homebrew set-up/dependencies set-up/dotfiles set-up/idb set-up/mcp-servers set-up/agent-skills set-up/codex-routing
+set-up/all: set-up/homebrew set-up/dependencies set-up/dotfiles set-up/idb set-up/mcp-servers set-up/agent-skills set-up/codex-routing set-up/repository-hook
 	@echo ""
 	@echo "✓ All setup tasks complete!"
 
@@ -15,9 +15,13 @@ set-up/agent-skills:
 set-up/dependencies:
 	@bash "./scripts/set-up-dependencies.sh"
 
-## Set up the dotfiles on the system.
+## Install independent dotfile copies, preserving local changes.
 set-up/dotfiles:
 	@bash "./scripts/set-up-dotfiles.sh"
+
+## Install the repository's staged-source guard without replacing custom hooks.
+set-up/repository-hook:
+	@python3 -B "./scripts/set-up-repository-hook.py"
 
 ## Install Homebrew package manager.
 set-up/homebrew:
@@ -37,7 +41,7 @@ set-up/mcp-servers:
 
 ## Register native Codex routing profiles without enabling or trusting hooks.
 set-up/codex-routing: set-up/dotfiles
-	@python3 "./scripts/set-up-codex-routing.py"
+	@python3 -B "./scripts/set-up-codex-routing.py"
 
 ## Tune macOS for heavy parallel development (opt-in; requires sudo).
 set-up/performance:
