@@ -5,6 +5,7 @@ import importlib.util
 import contextlib
 import io
 import os
+import shutil
 import subprocess
 import tempfile
 import time
@@ -90,6 +91,16 @@ class CodexRoutingSetupTests(unittest.TestCase):
                 "knapsack-difficult.toml",
                 "knapsack-override.toml",
             })
+
+    def test_native_profile_preflight_accepts_installed_copies_and_local_profiles(self):
+        source = Path(__file__).resolve().parents[2] / "dotfiles/link/codex/agents"
+        with tempfile.TemporaryDirectory() as temporary:
+            home = Path(temporary) / ".codex"
+            shutil.copytree(source, home / "agents")
+            (home / "agents/local.toml").write_text("local profile")
+            self.assertEqual(SETUP.native_profile_issues(home), [])
+            for _, profile, _ in SETUP.ROLES:
+                self.assertFalse((home / "agents" / profile).is_symlink())
 
     def test_registers_through_initialize_and_one_batch_write(self):
         protocol = FakeProtocol()

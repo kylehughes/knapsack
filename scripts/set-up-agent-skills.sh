@@ -42,13 +42,8 @@ if ! command -v npx &> /dev/null; then
     exit 2
 fi
 
-# The repository symlinked ~/.agents/skills to a tracked directory until August
-# 2026; a machine that just pulled still has that (now dangling) link, and the
-# skills CLI needs a real directory to manage.
-if [[ -L "$HOME/.agents/skills" ]]; then
-    rm "$HOME/.agents/skills"
-    log_skip "Removed stale ~/.agents/skills symlink from the old tracked-directory setup"
-fi
+# Preserve legacy skill directories before allowing the CLI to write local state.
+python3 -B "$(dirname "$0")/manage-dotfiles.py" prepare-skills
 
 for entry in "${AGENT_SKILLS[@]}"; do
     repo="${entry%%|*}"

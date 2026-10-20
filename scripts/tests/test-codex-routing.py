@@ -11,7 +11,7 @@ from pathlib import Path
 
 
 SCRIPT = Path(__file__).resolve().parents[2] / "dotfiles/link/codex/hooks/validate-agent-route.py"
-HOOKS_CONFIG = Path(__file__).resolve().parents[2] / "dotfiles/link/codex/hooks.json"
+HOOKS_CONFIG = Path(__file__).resolve().parents[2] / "dotfiles/merge/codex/hooks.json"
 AGENTS_DIRECTORY = Path(__file__).resolve().parents[2] / "dotfiles/link/codex/agents"
 MAX_INPUT_BYTES = 1_048_576
 KNOWN_TOOL_IDENTITIES = (
@@ -31,7 +31,7 @@ class CodexRoutingTests(unittest.TestCase):
         if raw is None:
             raw = json.dumps(payload, separators=(",", ":"))
         result = subprocess.run(
-            ["python3", str(SCRIPT)],
+            ["python3", "-B", str(SCRIPT)],
             input=raw.encode(),
             stdout=subprocess.PIPE,
             stderr=subprocess.PIPE,
@@ -86,7 +86,11 @@ class CodexRoutingTests(unittest.TestCase):
 
     def test_hook_matcher_matches_only_known_tool_identities(self):
         config = json.loads(HOOKS_CONFIG.read_text())
-        matcher = config["hooks"]["PreToolUse"][0]["matcher"]
+        entries = [entry for entry in config["hooks"]["PreToolUse"]
+                   if any(hook.get("command") == 'python3 "$HOME/.codex/hooks/validate-agent-route.py"'
+                          for hook in entry.get("hooks", []))]
+        self.assertEqual(len(entries), 1)
+        matcher = entries[0]["matcher"]
 
         for tool_name in KNOWN_TOOL_IDENTITIES:
             with self.subTest(tool_name=tool_name):

@@ -38,7 +38,8 @@ check_agents() {
 
     if command -v claude > /dev/null 2>&1; then
         log_step "Checking Claude Code"
-        check_agent_link "$user_dir/.claude/CLAUDE.md" "$repo_root/dotfiles/link/claude/CLAUDE.md" "Claude instructions" || failed=1
+        check_agent_copy "$user_dir/.claude/CLAUDE.md" "$repo_root/dotfiles/link/claude/CLAUDE.md" "Claude instructions" || failed=1
+        check_agent_copy "$user_dir/.claude/statusline.sh" "$repo_root/dotfiles/link/claude/statusline.sh" "Claude statusline" || failed=1
         check_agent_directory "$user_dir/.claude/agents" "$repo_root/dotfiles/link/claude/agents" "Claude agents" || failed=1
 
         overlay="$user_dir/.claude/settings.machine.json"
@@ -48,6 +49,7 @@ check_agents() {
         elif ! check_claude_plugin_structure "$overlay" "Claude settings overlay"; then
             failed=1
         fi
+        check_agent_isolated "$current" "Generated Claude settings" || failed=1
         if ! check_json_object "$current" "Generated Claude settings"; then
             failed=1
         elif ! check_claude_plugin_structure "$current" "Generated Claude settings"; then
@@ -75,7 +77,7 @@ check_agents() {
 
     if command -v codex > /dev/null 2>&1; then
         log_step "Checking Codex"
-        check_agent_link "$user_dir/.codex/AGENTS.md" "$repo_root/dotfiles/link/codex/AGENTS.md" "Codex instructions" || failed=1
+        check_agent_copy "$user_dir/.codex/AGENTS.md" "$repo_root/dotfiles/link/codex/AGENTS.md" "Codex instructions" || failed=1
         check_agent_directory "$user_dir/.codex/agents" "$repo_root/dotfiles/link/codex/agents" "Codex agents" || failed=1
         for entry in "${MCP_HTTP_SERVERS[@]}"; do
             name="${entry%%|*}"; url="${entry#*|}"
@@ -87,7 +89,7 @@ check_agents() {
 
     if command -v gemini > /dev/null 2>&1; then
         log_step "Checking Gemini"
-        check_agent_link "$user_dir/.gemini/GEMINI.md" "$repo_root/dotfiles/link/gemini/GEMINI.md" "Gemini instructions" || failed=1
+        check_agent_copy "$user_dir/.gemini/GEMINI.md" "$repo_root/dotfiles/link/gemini/GEMINI.md" "Gemini instructions" || failed=1
     else
         log_skip "Gemini not installed; skipping Gemini checks"
     fi
@@ -107,14 +109,48 @@ check_json_object() {
     if jq -e -s 'length == 1 and (.[0] | type == "object")' "$file" > /dev/null 2>&1; then log_success "$label is a JSON object"; else log_error "$label must be a valid JSON object"; return 1; fi
 }
 
-check_agent_link() {
-    local actual="$1" expected="$2" label="$3"
-    if [[ -L "$actual" && "$actual" -ef "$expected" ]]; then log_success "$label link is correct"; else log_error "$label link is missing or points outside this repository; run make set-up/dotfiles"; return 1; fi
+check_agent_isolated() {
+    local actual="$1" label="$2" ancestor="$1"
+    # Check managed path components while permitting platform aliases above HOME.
+    while [[ "$ancestor" != / && "$ancestor" != . ]]; do
+        if [[ -L "$ancestor" ]]; then
+            log_error "$label must be an isolated copy in real directories; run make set-up/dotfiles"
+            return 1
+        fi
+        [[ "$ancestor" != "${user_dir:-/}" ]] || break
+        ancestor="$(dirname "$ancestor")"
+    done
+}
+
+check_agent_copy() {
+    local actual="$1" expected="$2" label="$3" actual_mode expected_mode
+    check_agent_isolated "$actual" "$label" || return 1
+    if [[ ! -f "$actual" ]] || ! cmp -s "$actual" "$expected"; then
+        log_error "$label copy is missing or differs; run make set-up/dotfiles"
+        return 1
+    fi
+    actual_mode="$(stat -f %Lp "$actual" 2>/dev/null)" || actual_mode="$(stat -c %a "$actual")"
+    expected_mode="$(stat -f %Lp "$expected" 2>/dev/null)" || expected_mode="$(stat -c %a "$expected")"
+    if (( (8#$actual_mode & 0111) != (8#$expected_mode & 0111) )); then
+        log_error "$label executable bits differ; run make set-up/dotfiles"
+        return 1
+    fi
+    log_success "$label copy is correct"
 }
 
 check_agent_directory() {
-    local actual="$1" expected="$2" label="$3"
-    if [[ -L "$actual" && "$actual" -ef "$expected" ]]; then log_success "$label directory link is correct"; else log_error "$label directory link is missing or points outside this repository; run make set-up/dotfiles"; return 1; fi
+    local actual="$1" expected="$2" label="$3" entry failed=0
+    check_agent_isolated "$actual" "$label" || return 1
+    if [[ ! -d "$actual" ]]; then
+        log_error "$label directory is missing; run make set-up/dotfiles"
+        return 1
+    fi
+    # The repository owns its profiles; other local profiles remain independent.
+    for entry in "$expected"/*; do
+        [[ -f "$entry" ]] || continue
+        check_agent_copy "$actual/$(basename "$entry")" "$entry" "$label $(basename "$entry")" || failed=1
+    done
+    [[ "$failed" -eq 0 ]]
 }
 
 check_claude_plugin_structure() {

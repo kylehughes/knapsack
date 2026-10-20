@@ -6,7 +6,7 @@ Note: This repository also installs a global Claude configuration at `~/.claude/
 
 ## Repository Overview
 
-This is a personal dotfiles repository ("Knapsack") for macOS development environments. It manages configuration files for various development tools through a combination of symlinks, copies, and merges.
+This is a personal dotfiles repository ("Knapsack") for macOS development environments. It installs independent local copies of shared configuration and reconciles explicitly owned settings while preserving each Mac's runtime state.
 
 ## Key Commands
 
@@ -22,11 +22,11 @@ source ~/.zshrc
 ### Working with Configurations
 
 When modifying dotfiles:
-- Files in `dotfiles/link/` are symlinked to the home directory - changes here affect the live configuration
-- Files in `dotfiles/copy/` are copied during setup - changes require re-running `make set-up/dotfiles`
-- Files in `dotfiles/merge/` (e.g. Claude Code settings) are deep-merged with a machine-local overlay (`~/.claude/settings.machine.json`, auto-created as `{}` if missing) and written, not linked, to their destination. Objects merge; nested arrays such as `permissions.allow` and each hooks event array replace the base value wholesale. The merge step currently handles only `dotfiles/merge/claude/settings.json`; a new merge file requires extending `scripts/set-up-dotfiles.sh`.
+- Git-tracked files in `dotfiles/link/` are installed as independent copies. The directory keeps its historical name during Stage 1; edits require `make set-up/dotfiles`.
+- Files in `dotfiles/copy/` seed local settings only when absent; existing seeds are never overwritten.
+- Files in `dotfiles/merge/` (e.g. Claude Code settings) are deep-merged with a machine-local overlay (`~/.claude/settings.machine.json`, auto-created as `{}` if missing) and written, not linked, to their destination. Objects merge; nested arrays such as `permissions.allow` and each hooks event array replace the base value wholesale. Codex hooks use a separate owned-handler reconciler from `dotfiles/merge/codex/hooks.json`; unrelated local hooks are preserved.
 - Local git configuration goes in `~/.gitconfig_local` (not tracked in repo)
-- XDG config directories (like `~/.config/ghostty/`) are symlinked from `dotfiles/link/config/`
+- XDG config directories are real local directories; setup copies only explicitly tracked shared files into them.
 
 Knapsack generates Claude Code's full settings, including plugin declarations, from the tracked base and machine overlay. Capture changes made through the Claude app in the base or overlay before rerunning setup; Codex plugins are managed locally through its app or CLI.
 
@@ -41,8 +41,8 @@ Knapsack/
 ├── Brewfile              # Homebrew dependencies
 ├── Makefile              # Main makefile
 ├── dotfiles/             # Configuration files
-│   ├── copy/             # Files to copy (gitconfig_local)
-│   ├── link/             # Files to symlink
+│   ├── copy/             # Local seeds (gitconfig_local)
+│   ├── link/             # Shared copy sources (legacy Stage 1 name)
 │   │   ├── config/       # XDG config directory
 │   │   │   ├── ghostty/  # Ghostty terminal config and Gengar theme
 │   │   │   ├── mise/     # mise tool version pins (node, ruby)
@@ -72,9 +72,20 @@ are re-exported to Claude Code, Codex CLI, and Gemini CLI. The runtime-native
 agent directories use each tool's native subsystem, and both carry matching
 route profiles (`dotfiles/link/codex/agents/*.toml`, `dotfiles/link/claude/agents/*.md`)
 that pin a worker tier's model and effort separately from project-specific
-subagent mandates. The tier definitions and effort policy live in the shared
+subagent mandates. Installed instruction and profile files are copies, not links.
+The tier definitions and effort policy live in the shared
 instructions; the routing validator and its activation checks belong here.
 Consuming repositories retain their own task contracts and auditor instructions.
+
+## Dotfile Isolation and Rollout
+
+- `make plan/dotfiles` is read-only; `make set-up/dotfiles` installs safe updates; `make check/dotfiles` verifies content and isolation.
+- The installer owns tracked shared files, not whole directories. Local edits conflict rather than being overwritten. Runtime skills, projects, accounts, trust, caches, and backups never become shared source.
+- Migration preserves contents before detaching recognized legacy links. Unknown links and missing targets require explicit resolution; never delete them to make setup pass.
+- The machine-local installation ledger and recovery data live under `~/.local/state/knapsack/`.
+- Stage 1 retains legacy sources and exact grandfathered artifacts. Do not delete or rename them until both Macs have passed the checks in `docs/dotfile-migration.md`.
+- `make check/repository` runs source policy and fixture tests. The pre-commit hook checks staged content; CI runs full checks. Preserve custom Git hooks.
+- Pull requests to `master` require passing `Repository checks`. Keep runtime checks and hook trust local to each Mac.
 
 ## Conventions
 
