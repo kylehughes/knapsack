@@ -68,10 +68,11 @@ Run the routing check from the runtime environment you use. Orca may select a
 different Codex home. Review `/hooks` and trust changed definitions locally;
 setup neither enables hooks nor copies trust decisions.
 
-If Orca's CLI works, its supported `orca agent hooks prepare-codex` command can
-refresh the copied hook configuration from Orca's environment. If its launcher
-fails, repair that integration before recording Orca verification. Do not patch
-an app-generated Codex home or substitute an unverified executable.
+Launch a fresh Codex session through Orca and verify that runtime separately.
+The CLI's `agent hooks prepare-codex` command is documented for WSL panes; do not
+use it for this macOS migration. If Orca's launcher fails, repair that integration
+before recording Orca verification. Do not patch an app-generated Codex home or
+substitute an unverified executable.
 
 Confirm each Mac still has its own projects and that normal app use creates no
 new tracked or untracked runtime files in Knapsack. Existing ignored migration
