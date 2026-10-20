@@ -29,8 +29,9 @@ make_repo() {
         "$repo/dotfiles/merge/claude" "$repo/scripts/lib"
     printf 'managed profile\n' > "$repo/dotfiles/link/codex/agents/knapsack-test.toml"
     printf 'claude instructions\n' > "$repo/dotfiles/link/claude/CLAUDE.md"
-    printf 'codex instructions\n' > "$repo/dotfiles/link/codex/AGENTS.md"
-    printf 'gemini instructions\n' > "$repo/dotfiles/link/gemini/GEMINI.md"
+    chmod 644 "$repo/dotfiles/link/claude/CLAUDE.md"
+    ln -s ../claude/CLAUDE.md "$repo/dotfiles/link/codex/AGENTS.md"
+    ln -s ../claude/CLAUDE.md "$repo/dotfiles/link/gemini/GEMINI.md"
     printf '#!/usr/bin/env zsh\ntrue\n' > "$repo/dotfiles/link/config/zsh/functions/claude-fable"
     printf '#!/bin/bash\ntrue\n' > "$repo/dotfiles/link/claude/statusline.sh"
     printf '{"setting":"base","enabledPlugins":{"shared":true},"extraKnownMarketplaces":{"shared":{}}}\n' > "$repo/dotfiles/merge/claude/settings.json"
@@ -43,9 +44,9 @@ make_user_dir() {
     cp -p "$repo/dotfiles/link/claude/CLAUDE.md" "$user_dir/.claude/CLAUDE.md"
     cp -p "$repo/dotfiles/link/claude/statusline.sh" "$user_dir/.claude/statusline.sh"
     cp -Rp "$repo/dotfiles/link/claude/agents" "$user_dir/.claude/agents"
-    cp -p "$repo/dotfiles/link/codex/AGENTS.md" "$user_dir/.codex/AGENTS.md"
+    cp -Lp "$repo/dotfiles/link/codex/AGENTS.md" "$user_dir/.codex/AGENTS.md"
     cp -Rp "$repo/dotfiles/link/codex/agents" "$user_dir/.codex/agents"
-    cp -p "$repo/dotfiles/link/gemini/GEMINI.md" "$user_dir/.gemini/GEMINI.md"
+    cp -Lp "$repo/dotfiles/link/gemini/GEMINI.md" "$user_dir/.gemini/GEMINI.md"
     printf '{"machine":"value","enabledPlugins":{"shared":false},"extraKnownMarketplaces":{"local":{}}}\n' > "$user_dir/.claude/settings.machine.json"
     printf '{"setting":"base","machine":"value","enabledPlugins":{"shared":false},"extraKnownMarketplaces":{"shared":{},"local":{}}}\n' > "$user_dir/.claude/settings.json"
     printf '{"mcpServers":{"sosumi":{"type":"http","url":"https://sosumi.ai/mcp","enabled":true}}}\n' > "$user_dir/.claude.json"
@@ -82,8 +83,13 @@ run_check() {
 make_repo
 make_user_dir
 make_bin
+# Canonical instruction aliases install as regular files with the target mode.
+[[ ! -L "$FIXTURE_ROOT/user-dir/.codex/AGENTS.md" ]] || fail "Codex fixture copy is a symlink"
+[[ ! -L "$FIXTURE_ROOT/user-dir/.gemini/GEMINI.md" ]] || fail "Gemini fixture copy is a symlink"
 before="$(snapshot)"
 expect_status 0 run_check
+expect_output "Codex instructions copy is correct"
+expect_output "Gemini instructions copy is correct"
 [[ "$before" = "$(snapshot)" ]] || fail "healthy check changed fixture files"
 
 # The tracked base uses the same plugin-field shape rules.
@@ -137,13 +143,20 @@ ln -s "$FIXTURE_ROOT/repo/dotfiles/link/codex/AGENTS.md" "$FIXTURE_ROOT/user-dir
 expect_status 1 run_check
 expect_output "Codex instructions must be an isolated copy"
 rm "$FIXTURE_ROOT/user-dir/.codex/AGENTS.md"
-cp -p "$FIXTURE_ROOT/repo/dotfiles/link/codex/AGENTS.md" "$FIXTURE_ROOT/user-dir/.codex/AGENTS.md"
+cp -Lp "$FIXTURE_ROOT/repo/dotfiles/link/codex/AGENTS.md" "$FIXTURE_ROOT/user-dir/.codex/AGENTS.md"
 
 # Copies retain executable bits and only managed profile names are checked.
 chmod +x "$FIXTURE_ROOT/user-dir/.codex/AGENTS.md"
 expect_status 1 run_check
 expect_output "Codex instructions executable bits differ"
 chmod -x "$FIXTURE_ROOT/user-dir/.codex/AGENTS.md"
+# Executable source files must retain their executable bits in the installed copy.
+chmod +x "$FIXTURE_ROOT/repo/dotfiles/link/claude/statusline.sh"
+expect_status 1 run_check
+expect_output "Claude statusline executable bits differ"
+chmod +x "$FIXTURE_ROOT/user-dir/.claude/statusline.sh"
+expect_status 0 run_check
+chmod -x "$FIXTURE_ROOT/repo/dotfiles/link/claude/statusline.sh" "$FIXTURE_ROOT/user-dir/.claude/statusline.sh"
 printf 'local profile\n' > "$FIXTURE_ROOT/user-dir/.codex/agents/local.toml"
 expect_status 0 run_check
 mv "$FIXTURE_ROOT/user-dir/.codex/agents" "$FIXTURE_ROOT/user-dir/.codex/agents-saved"

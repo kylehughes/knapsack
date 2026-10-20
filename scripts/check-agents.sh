@@ -129,8 +129,9 @@ check_agent_copy() {
         log_error "$label copy is missing or differs; run make set-up/dotfiles"
         return 1
     fi
-    actual_mode="$(stat -f %Lp "$actual" 2>/dev/null)" || actual_mode="$(stat -c %a "$actual")"
-    expected_mode="$(stat -f %Lp "$expected" 2>/dev/null)" || expected_mode="$(stat -c %a "$expected")"
+    # Repository aliases are materialized from their targets; compare target modes.
+    actual_mode="$(stat -L -f %Lp "$actual" 2>/dev/null)" || actual_mode="$(stat -L -c %a "$actual")"
+    expected_mode="$(stat -L -f %Lp "$expected" 2>/dev/null)" || expected_mode="$(stat -L -c %a "$expected")"
     if (( (8#$actual_mode & 0111) != (8#$expected_mode & 0111) )); then
         log_error "$label executable bits differ; run make set-up/dotfiles"
         return 1
