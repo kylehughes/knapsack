@@ -284,9 +284,10 @@ Installation and activation are separate:
    A child's assertion about its model is insufficient evidence. Repeat after
    runtime or routing changes.
 
-Orca users can refresh its copied hook configuration with the supported
-`orca agent hooks prepare-codex` command from Orca's environment after approving
-the shared hook. Knapsack setup does not depend on Orca or invoke this command.
+For Orca, launch a fresh Codex session through the app and repeat the acceptance
+checks in that runtime. Orca manages its own copied configuration; do not patch
+its generated home. The CLI's `agent hooks prepare-codex` command is documented
+for WSL panes and is not part of this macOS setup.
 
 The previous live checks passed on 2026-09-18 with Codex CLI 0.154.0 from a fresh
 `codex exec` session: the unrouted V2 spawn was denied before a child started,
