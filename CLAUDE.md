@@ -22,8 +22,8 @@ source ~/.zshrc
 ### Working with Configurations
 
 When modifying dotfiles:
-- Git-tracked files in `dotfiles/link/` are installed as independent copies. The directory keeps its historical name during Stage 1; edits require `make set-up/dotfiles`.
-- Files in `dotfiles/copy/` seed local settings only when absent; existing seeds are never overwritten.
+- Git-tracked files in `dotfiles/shared/` are installed as independent copies. Edits require `make set-up/dotfiles`.
+- Files in `dotfiles/seed/` seed local settings only when absent; existing seeds are never overwritten.
 - Files in `dotfiles/merge/` (e.g. Claude Code settings) are deep-merged with a machine-local overlay (`~/.claude/settings.machine.json`, auto-created as `{}` if missing) and written, not linked, to their destination. Objects merge; nested arrays such as `permissions.allow` and each hooks event array replace the base value wholesale. Codex hooks use a separate owned-handler reconciler from `dotfiles/merge/codex/hooks.json`; unrelated local hooks are preserved.
 - Local git configuration goes in `~/.gitconfig_local` (not tracked in repo)
 - XDG config directories are real local directories; setup copies only explicitly tracked shared files into them.
@@ -41,8 +41,8 @@ Knapsack/
 ├── Brewfile              # Homebrew dependencies
 ├── Makefile              # Main makefile
 ├── dotfiles/             # Configuration files
-│   ├── copy/             # Local seeds (gitconfig_local)
-│   ├── link/             # Shared copy sources (legacy Stage 1 name)
+│   ├── seed/             # Local seeds (gitconfig_local)
+│   ├── shared/           # Shared copy sources
 │   │   ├── config/       # XDG config directory
 │   │   │   ├── ghostty/  # Ghostty terminal config and Gengar theme
 │   │   │   ├── mise/     # mise tool version pins (node, ruby)
@@ -67,10 +67,10 @@ Knapsack/
 
 ## Agent Configuration
 
-The shared agent instructions live in `dotfiles/link/claude/CLAUDE.md` and
+The shared agent instructions live in `dotfiles/shared/claude/CLAUDE.md` and
 are re-exported to Claude Code, Codex CLI, and Gemini CLI. The runtime-native
 agent directories use each tool's native subsystem, and both carry matching
-route profiles (`dotfiles/link/codex/agents/*.toml`, `dotfiles/link/claude/agents/*.md`)
+route profiles (`dotfiles/shared/codex/agents/*.toml`, `dotfiles/shared/claude/agents/*.md`)
 that pin a worker tier's model and effort separately from project-specific
 subagent mandates. Installed instruction and profile files are copies, not links.
 The tier definitions and effort policy live in the shared
@@ -83,7 +83,7 @@ Consuming repositories retain their own task contracts and auditor instructions.
 - The installer owns tracked shared files, not whole directories. Local edits conflict rather than being overwritten. Runtime skills, projects, accounts, trust, caches, and backups never become shared source.
 - Migration preserves contents before detaching recognized legacy links. Unknown links and missing targets require explicit resolution; never delete them to make setup pass.
 - The machine-local installation ledger and recovery data live under `~/.local/state/knapsack/`.
-- Stage 1 retains legacy sources and exact grandfathered artifacts. Do not delete or rename them until both Macs have passed the checks in `docs/dotfile-migration.md`.
+- Stage 2 removes the old runtime artifacts and renames the source directories to `shared/` and `seed/`. Keep local backups and Stage 1 evidence; installations that still use legacy links must first migrate at the pinned revision in `docs/dotfile-migration.md`.
 - `make check/repository` runs source policy and fixture tests. The pre-commit hook checks staged content; CI runs full checks. Preserve custom Git hooks.
 - Pull requests to `master` require passing `Repository checks`. Keep runtime checks and hook trust local to each Mac.
 
@@ -183,7 +183,7 @@ The repository uses a custom "Gengar" theme (purple-based) across all terminal a
 
 ## Shell Functions
 
-The repository implements custom zsh functions using XDG Base Directory specification with autoloading for performance. Functions are stored in `dotfiles/link/config/zsh/functions/` and autoloaded via `$fpath`.
+The repository implements custom zsh functions using XDG Base Directory specification with autoloading for performance. Functions are stored in `dotfiles/shared/config/zsh/functions/` and autoloaded via `$fpath`.
 
 ### Design Decisions
 
@@ -221,7 +221,7 @@ The repository implements custom zsh functions using XDG Base Directory specific
 
 ### Adding New Functions
 
-1. Create executable file in `dotfiles/link/config/zsh/functions/`:
+1. Create executable file in `dotfiles/shared/config/zsh/functions/`:
    ```bash
    #!/usr/bin/env zsh
    # tool-action - Brief description.
@@ -230,7 +230,7 @@ The repository implements custom zsh functions using XDG Base Directory specific
    # Implementation with comments explaining why.
    ```
 
-2. Make executable: `chmod +x dotfiles/link/config/zsh/functions/tool-action`
+2. Make executable: `chmod +x dotfiles/shared/config/zsh/functions/tool-action`
 
 3. Functions are automatically available after `make set-up/dotfiles` and shell restart
 

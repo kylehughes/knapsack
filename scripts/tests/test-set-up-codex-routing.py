@@ -93,7 +93,7 @@ class CodexRoutingSetupTests(unittest.TestCase):
             })
 
     def test_native_profile_preflight_accepts_installed_copies_and_local_profiles(self):
-        source = Path(__file__).resolve().parents[2] / "dotfiles/link/codex/agents"
+        source = Path(__file__).resolve().parents[2] / "dotfiles/shared/codex/agents"
         with tempfile.TemporaryDirectory() as temporary:
             home = Path(temporary) / ".codex"
             shutil.copytree(source, home / "agents")

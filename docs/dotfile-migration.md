@@ -7,13 +7,23 @@ delete files still used through the other Mac's links.
 
 ## Stage 1: Run Separately on Each Mac
 
+This is the recovery path for an installation that still depends on legacy
+links. The current release has removed the old runtime sources and renamed
+`dotfiles/link/` to `dotfiles/shared/` and `dotfiles/copy/` to `dotfiles/seed/`.
+Do not pull it into a checkout that still supplies live configuration links.
+First use the published Stage 1 revision
+`df3759e7df92f947bfe92aa20c7cf1c70554292c` in that checkout. Preserve any existing
+work before switching revisions. If cleanup has already removed a live link
+target, recover from this Mac's verified backups before proceeding.
+
 Close Claude, Codex, Orca, and other apps that write the affected configuration.
 Use a separate Terminal window for the migration. Do not copy configuration,
 backups, receipts, or app state from the other Mac.
 
 ```sh
 cd ~/Knapsack
-git pull --ff-only
+git fetch origin
+git switch --detach df3759e7df92f947bfe92aa20c7cf1c70554292c
 make plan/dotfiles
 make set-up/dotfiles
 make check/dotfiles
@@ -96,7 +106,7 @@ local journal, and restore the verified content backup to a real local
 destination. Preserve both versions when their contents differ. Do not restore
 a live link into a source path scheduled for deletion.
 
-## Stage 2 Gate
+## Stage 2: Repository Cleanup
 
 Record these attestations in the cleanup pull request, without attaching local
 reports, paths, project names, or backup contents:
@@ -110,17 +120,36 @@ A receipt from one Mac cannot establish the other Mac's state. A receipt from a
 dirty development checkout is not a substitute for checking the published
 Stage 1 revision.
 
-Only after both attestations:
+The cleanup release removes the tracked synced skill cache, hook backup, and
+Python bytecode, along with the exact-byte Stage 1 exceptions. Artifact ignore
+and rejection rules remain. Shared sources move from `dotfiles/link/` to
+`dotfiles/shared/`; seeds move from `dotfiles/copy/` to `dotfiles/seed/`. The
+installation ledger continues to identify ownership by destination.
 
-1. Remove the tracked synced skill cache, hook backup, and Python bytecode from
-   Git. Preserve any remaining local source copies before cleaning them up.
-2. Remove `scripts/runtime-artifacts-stage-one.json` and its transitional
-   exception handling. Keep the artifact ignore and rejection rules.
-3. Rename `dotfiles/link/` to `dotfiles/shared/` and `dotfiles/copy/` to
-   `dotfiles/seed/`, updating setup, checks, fixtures, and documentation together.
-   Destination-based ownership must survive the source rename.
-4. Run repository checks and the two-clone migration fixture, then publish the
-   cleanup through a pull request with passing required checks.
+Publish cleanup only after both attestations, repository checks, and the
+two-clone migration fixture pass. Preserve any remaining local source copies
+before removing artifacts from a checkout.
 
 Preserve Git history. Do not restore the removed runtime files from history
 into a new Mac's app configuration.
+
+## Update After Stage 1
+
+After Stage 1 and runtime verification have passed on both Macs, return to the
+normal branch and apply the cleanup release separately on each Mac:
+
+```sh
+git switch master
+git pull --ff-only
+make plan/dotfiles
+make set-up/dotfiles
+make check/dotfiles
+make check/agents
+make check/codex-routing
+```
+
+Setup writes a current `stage-two.json` receipt without replacing the historical
+`stage-one.json`. Keep both receipts, the installation ledger, and all migration
+backups local. Local app projects, hooks, downloaded skills, and credentials
+remain outside Git. The source rename does not change hook definitions or trust;
+repeat the README's runtime smoke test after runtime or routing changes.

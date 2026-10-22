@@ -52,25 +52,37 @@ class RepositoryTests(unittest.TestCase):
         self.assertEqual(self.script("check-repository.py", "--staged").returncode, 0)
 
     def test_forbidden_new_paths(self):
-        for name in ("a.pyc", "a.pyo", "a.bak", "x/__pycache__/x", "dotfiles/link/claude/skills/synced/bucket/file", "dotfiles/link/config/zsh/functions-local/private", "dotfiles/link/codex/auth.json", "dotfiles/link/claude/projects/private/state"):
+        names = ["a.pyc", "a.pyo", "a.bak", "x/__pycache__/x"]
+        for source in ("dotfiles/shared", "dotfiles/link"):
+            names.extend(f"{source}/{relative}" for relative in (
+                "claude/skills/synced/bucket/file",
+                "config/zsh/functions-local/private",
+                "codex/auth.json",
+                "claude/projects/private/state",
+                "gemini/trustedFolders.json",
+            ))
+        for name in names:
             with self.subTest(name=name):
                 self.write(name, "{}")
                 self.git("add", name)
-                self.assertNotEqual(self.script("check-repository.py", "--staged").returncode, 0)
+                for args in ((), ("--staged",)):
+                    result = self.script("check-repository.py", *args)
+                    self.assertNotEqual(result.returncode, 0)
+                    self.assertIn(f"{name}: runtime artifact must stay local", result.stderr)
                 self.git("rm", "--cached", name)
 
-    def test_exact_baseline_only(self):
-        name = "scripts/__pycache__/old.pyc"
-        self.write(name, "old")
-        blob = self.git("hash-object", str(self.root / name)).decode().strip()
-        self.write("scripts/runtime-artifacts-stage-one.json", json.dumps({name: blob}))
-        self.git("add", ".")
-        self.assertEqual(self.script("check-repository.py", "--staged").returncode, 0)
-        self.write(name, "changed")
-        self.assertNotEqual(self.script().returncode, 0)
-        self.assertEqual(self.script("check-repository.py", "--staged").returncode, 0)
-        self.git("add", name)
-        self.assertNotEqual(self.script("check-repository.py", "--staged").returncode, 0)
+    def test_former_baseline_bytes_are_rejected(self):
+        for name in ("scripts/__pycache__/old.pyc", "dotfiles/shared/claude/projects/old/state", "dotfiles/link/claude/projects/old/state"):
+            with self.subTest(name=name):
+                self.write(name, "old")
+                blob = self.git("hash-object", str(self.root / name)).decode().strip()
+                self.write("scripts/runtime-artifacts-stage-one.json", json.dumps({name: blob}))
+                self.git("add", name, "scripts/runtime-artifacts-stage-one.json")
+                for args in ((), ("--staged",)):
+                    result = self.script("check-repository.py", *args)
+                    self.assertNotEqual(result.returncode, 0)
+                    self.assertIn(f"{name}: runtime artifact must stay local", result.stderr)
+                self.git("rm", "--cached", name)
 
     def test_index_snapshot_preserves_executable_modes(self):
         executable = self.write("tool", "#!/bin/sh\nexit 0\n")
@@ -109,10 +121,10 @@ class RepositoryTests(unittest.TestCase):
         self.assertFalse(list(self.root.rglob("__pycache__")))
 
     def test_aliases_and_cycles(self):
-        self.write("dotfiles/link/claude/CLAUDE.md", "Instructions")
-        self.write("dotfiles/link/claude/agents/a.md", "Agent")
+        self.write("dotfiles/shared/claude/CLAUDE.md", "Instructions")
+        self.write("dotfiles/shared/claude/agents/a.md", "Agent")
         for name, target in (("codex/AGENTS.md", "../claude/CLAUDE.md"), ("gemini/GEMINI.md", "../claude/CLAUDE.md"), ("gemini/agents", "../claude/agents")):
-            path = self.root / "dotfiles/link" / name
+            path = self.root / "dotfiles/shared" / name
             path.parent.mkdir(parents=True, exist_ok=True)
             path.symlink_to(target)
         self.git("add", ".")
@@ -158,7 +170,7 @@ class RepositoryTests(unittest.TestCase):
         self.assertEqual(hook.stat().st_mode, mode)
 
     def test_legacy_hook_allows_source_but_rejects_staged_orca_runtime(self):
-        name = "dotfiles/link/codex/hooks.json"
+        name = "dotfiles/shared/codex/hooks.json"
         old = {"hooks": {"PreToolUse": [{"hooks": [{"type": "command", "command": 'python3 "$HOME/.codex/hooks/validate-agent-route.py"'}]}]}}
         self.write(name, json.dumps(old))
         self.git("add", name)

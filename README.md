@@ -49,10 +49,10 @@ repository; machine-specific settings belong in a supported local override.
 Back up an unwanted local edit before removing that destination and rerunning
 setup. There is no automatic import of local settings into Git.
 
-**Existing installations need a one-time migration.** Close apps that write the
-affected configuration, then follow the [two-Mac migration guide](docs/dotfile-migration.md).
-The cleanup release must wait until both Macs have migrated; do not remove the
-legacy sources first.
+**Installations that still use symlinks need Stage 1 before this release.**
+Follow the [migration guide](docs/dotfile-migration.md) at its pinned Stage 1
+revision before pulling the cleanup release. Already-migrated machines can use
+the update commands above.
 
 ## Configuration Ownership
 
@@ -64,11 +64,11 @@ legacy sources first.
 | Owned hook entry | Reconcile only Knapsack's routing handler, preserving all other local entries. | Codex hooks alongside Orca's integration. |
 | Runtime or machine state | Remains outside the checkout and outside installation ownership. | Orca projects, credentials, trust, downloaded skills, caches, and local functions. |
 
-The shared source still lives under `dotfiles/link/` during Stage 1, despite the
-historical directory name. `dotfiles/copy/` contains local seeds;
-`dotfiles/merge/` contains composition inputs. The old paths remain until both
-Macs have passed migration. Source aliases let Codex and Gemini reuse the Claude
-instructions; their installed files are independent copies.
+`dotfiles/shared/` contains shared copy sources, `dotfiles/seed/` contains local
+seeds, and `dotfiles/merge/` contains composition inputs. Source aliases let
+Codex and Gemini reuse the Claude instructions; their installed files are
+independent copies. Ownership is recorded by installed destination, so renaming
+a source directory does not re-adopt or retire installed files.
 
 Claude settings use `dotfiles/merge/claude/settings.json` and the untracked
 `~/.claude/settings.machine.json`. Objects merge recursively; arrays, including
@@ -160,7 +160,7 @@ The Mac mini's scan OCR service is managed there and is not installed by
 
 ## AI Agents
 
-The instructions in `dotfiles/link/claude/CLAUDE.md` are the source of truth
+The instructions in `dotfiles/shared/claude/CLAUDE.md` are the source of truth
 for all three CLI agents on this machine. Codex CLI (`~/.codex`) and Gemini
 CLI (`~/.gemini`) receive copies of the same instructions, so
 `CLAUDE.md` is maintained once. Subagent execution follows each runtime's
@@ -328,11 +328,10 @@ pull request with the `Repository checks` job passing against the current base;
 no external approving reviewer is required. Administrator bypass, force pushes,
 and branch deletion are disabled when the protection is installed.
 
-Stage 1 temporarily permits the exact already-tracked runtime artifacts listed
-in `scripts/runtime-artifacts-stage-one.json`. Changing an allowed artifact or
-adding another still fails. This exception is removed in Stage 2; do not expand
-it to silence a failed check. New shared dotfiles must be explicitly added to
-Git before setup will install them. Unsupported source symlinks are rejected.
+Repository checks reject runtime artifacts, including downloaded skill caches,
+hook backups, and Python bytecode. The Stage 1 exceptions have been removed.
+New shared dotfiles must be explicitly added to Git before setup will install
+them. Unsupported source symlinks are rejected.
 
 ### Documentation Standards
 

@@ -26,8 +26,8 @@ check_agents() {
     done
     [[ "$missing_tools" -eq 0 ]] || return 2
 
-    check_file_syntax "$repo_root/dotfiles/link/config/zsh/functions/claude-fable" zsh || failed=1
-    check_file_syntax "$repo_root/dotfiles/link/claude/statusline.sh" bash || failed=1
+    check_file_syntax "$repo_root/dotfiles/shared/config/zsh/functions/claude-fable" zsh || failed=1
+    check_file_syntax "$repo_root/dotfiles/shared/claude/statusline.sh" bash || failed=1
 
     base="$repo_root/dotfiles/merge/claude/settings.json"
     if ! check_json_object "$base" "Claude settings base"; then
@@ -38,9 +38,9 @@ check_agents() {
 
     if command -v claude > /dev/null 2>&1; then
         log_step "Checking Claude Code"
-        check_agent_copy "$user_dir/.claude/CLAUDE.md" "$repo_root/dotfiles/link/claude/CLAUDE.md" "Claude instructions" || failed=1
-        check_agent_copy "$user_dir/.claude/statusline.sh" "$repo_root/dotfiles/link/claude/statusline.sh" "Claude statusline" || failed=1
-        check_agent_directory "$user_dir/.claude/agents" "$repo_root/dotfiles/link/claude/agents" "Claude agents" || failed=1
+        check_agent_copy "$user_dir/.claude/CLAUDE.md" "$repo_root/dotfiles/shared/claude/CLAUDE.md" "Claude instructions" || failed=1
+        check_agent_copy "$user_dir/.claude/statusline.sh" "$repo_root/dotfiles/shared/claude/statusline.sh" "Claude statusline" || failed=1
+        check_agent_directory "$user_dir/.claude/agents" "$repo_root/dotfiles/shared/claude/agents" "Claude agents" || failed=1
 
         overlay="$user_dir/.claude/settings.machine.json"
         current="$user_dir/.claude/settings.json"
@@ -77,8 +77,8 @@ check_agents() {
 
     if command -v codex > /dev/null 2>&1; then
         log_step "Checking Codex"
-        check_agent_copy "$user_dir/.codex/AGENTS.md" "$repo_root/dotfiles/link/codex/AGENTS.md" "Codex instructions" || failed=1
-        check_agent_directory "$user_dir/.codex/agents" "$repo_root/dotfiles/link/codex/agents" "Codex agents" || failed=1
+        check_agent_copy "$user_dir/.codex/AGENTS.md" "$repo_root/dotfiles/shared/codex/AGENTS.md" "Codex instructions" || failed=1
+        check_agent_directory "$user_dir/.codex/agents" "$repo_root/dotfiles/shared/codex/agents" "Codex agents" || failed=1
         for entry in "${MCP_HTTP_SERVERS[@]}"; do
             name="${entry%%|*}"; url="${entry#*|}"
             check_codex_mcp "$name" "$url" || failed=1
@@ -89,7 +89,7 @@ check_agents() {
 
     if command -v gemini > /dev/null 2>&1; then
         log_step "Checking Gemini"
-        check_agent_copy "$user_dir/.gemini/GEMINI.md" "$repo_root/dotfiles/link/gemini/GEMINI.md" "Gemini instructions" || failed=1
+        check_agent_copy "$user_dir/.gemini/GEMINI.md" "$repo_root/dotfiles/shared/gemini/GEMINI.md" "Gemini instructions" || failed=1
     else
         log_skip "Gemini not installed; skipping Gemini checks"
     fi

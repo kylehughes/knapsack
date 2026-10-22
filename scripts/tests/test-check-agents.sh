@@ -24,16 +24,16 @@ snapshot() { find "$FIXTURE_ROOT/repo" "$FIXTURE_ROOT/user-dir" "$FIXTURE_ROOT/t
 
 make_repo() {
     local repo="$FIXTURE_ROOT/repo"
-    mkdir -p "$repo/dotfiles/link/claude/agents" "$repo/dotfiles/link/codex/agents" \
-        "$repo/dotfiles/link/gemini" "$repo/dotfiles/link/config/zsh/functions" \
+    mkdir -p "$repo/dotfiles/shared/claude/agents" "$repo/dotfiles/shared/codex/agents" \
+        "$repo/dotfiles/shared/gemini" "$repo/dotfiles/shared/config/zsh/functions" \
         "$repo/dotfiles/merge/claude" "$repo/scripts/lib"
-    printf 'managed profile\n' > "$repo/dotfiles/link/codex/agents/knapsack-test.toml"
-    printf 'claude instructions\n' > "$repo/dotfiles/link/claude/CLAUDE.md"
-    chmod 644 "$repo/dotfiles/link/claude/CLAUDE.md"
-    ln -s ../claude/CLAUDE.md "$repo/dotfiles/link/codex/AGENTS.md"
-    ln -s ../claude/CLAUDE.md "$repo/dotfiles/link/gemini/GEMINI.md"
-    printf '#!/usr/bin/env zsh\ntrue\n' > "$repo/dotfiles/link/config/zsh/functions/claude-fable"
-    printf '#!/bin/bash\ntrue\n' > "$repo/dotfiles/link/claude/statusline.sh"
+    printf 'managed profile\n' > "$repo/dotfiles/shared/codex/agents/knapsack-test.toml"
+    printf 'claude instructions\n' > "$repo/dotfiles/shared/claude/CLAUDE.md"
+    chmod 644 "$repo/dotfiles/shared/claude/CLAUDE.md"
+    ln -s ../claude/CLAUDE.md "$repo/dotfiles/shared/codex/AGENTS.md"
+    ln -s ../claude/CLAUDE.md "$repo/dotfiles/shared/gemini/GEMINI.md"
+    printf '#!/usr/bin/env zsh\ntrue\n' > "$repo/dotfiles/shared/config/zsh/functions/claude-fable"
+    printf '#!/bin/bash\ntrue\n' > "$repo/dotfiles/shared/claude/statusline.sh"
     printf '{"setting":"base","enabledPlugins":{"shared":true},"extraKnownMarketplaces":{"shared":{}}}\n' > "$repo/dotfiles/merge/claude/settings.json"
     ln -s "$PROJECT_ROOT/scripts/lib/claude-settings.sh" "$repo/scripts/lib/claude-settings.sh"
 }
@@ -41,12 +41,12 @@ make_repo() {
 make_user_dir() {
     local repo="$FIXTURE_ROOT/repo" user_dir="$FIXTURE_ROOT/user-dir"
     mkdir -p "$user_dir/.claude" "$user_dir/.codex" "$user_dir/.gemini" "$FIXTURE_ROOT/temp"
-    cp -p "$repo/dotfiles/link/claude/CLAUDE.md" "$user_dir/.claude/CLAUDE.md"
-    cp -p "$repo/dotfiles/link/claude/statusline.sh" "$user_dir/.claude/statusline.sh"
-    cp -Rp "$repo/dotfiles/link/claude/agents" "$user_dir/.claude/agents"
-    cp -Lp "$repo/dotfiles/link/codex/AGENTS.md" "$user_dir/.codex/AGENTS.md"
-    cp -Rp "$repo/dotfiles/link/codex/agents" "$user_dir/.codex/agents"
-    cp -Lp "$repo/dotfiles/link/gemini/GEMINI.md" "$user_dir/.gemini/GEMINI.md"
+    cp -p "$repo/dotfiles/shared/claude/CLAUDE.md" "$user_dir/.claude/CLAUDE.md"
+    cp -p "$repo/dotfiles/shared/claude/statusline.sh" "$user_dir/.claude/statusline.sh"
+    cp -Rp "$repo/dotfiles/shared/claude/agents" "$user_dir/.claude/agents"
+    cp -Lp "$repo/dotfiles/shared/codex/AGENTS.md" "$user_dir/.codex/AGENTS.md"
+    cp -Rp "$repo/dotfiles/shared/codex/agents" "$user_dir/.codex/agents"
+    cp -Lp "$repo/dotfiles/shared/gemini/GEMINI.md" "$user_dir/.gemini/GEMINI.md"
     printf '{"machine":"value","enabledPlugins":{"shared":false},"extraKnownMarketplaces":{"local":{}}}\n' > "$user_dir/.claude/settings.machine.json"
     printf '{"setting":"base","machine":"value","enabledPlugins":{"shared":false},"extraKnownMarketplaces":{"shared":{},"local":{}}}\n' > "$user_dir/.claude/settings.json"
     printf '{"mcpServers":{"sosumi":{"type":"http","url":"https://sosumi.ai/mcp","enabled":true}}}\n' > "$user_dir/.claude.json"
@@ -139,11 +139,11 @@ printf 'not a link\n' > "$FIXTURE_ROOT/user-dir/.codex/AGENTS.md"
 expect_status 1 run_check
 expect_output "Codex instructions copy is missing or differs"
 rm "$FIXTURE_ROOT/user-dir/.codex/AGENTS.md"
-ln -s "$FIXTURE_ROOT/repo/dotfiles/link/codex/AGENTS.md" "$FIXTURE_ROOT/user-dir/.codex/AGENTS.md"
+ln -s "$FIXTURE_ROOT/repo/dotfiles/shared/codex/AGENTS.md" "$FIXTURE_ROOT/user-dir/.codex/AGENTS.md"
 expect_status 1 run_check
 expect_output "Codex instructions must be an isolated copy"
 rm "$FIXTURE_ROOT/user-dir/.codex/AGENTS.md"
-cp -Lp "$FIXTURE_ROOT/repo/dotfiles/link/codex/AGENTS.md" "$FIXTURE_ROOT/user-dir/.codex/AGENTS.md"
+cp -Lp "$FIXTURE_ROOT/repo/dotfiles/shared/codex/AGENTS.md" "$FIXTURE_ROOT/user-dir/.codex/AGENTS.md"
 
 # Copies retain executable bits and only managed profile names are checked.
 chmod +x "$FIXTURE_ROOT/user-dir/.codex/AGENTS.md"
@@ -151,16 +151,16 @@ expect_status 1 run_check
 expect_output "Codex instructions executable bits differ"
 chmod -x "$FIXTURE_ROOT/user-dir/.codex/AGENTS.md"
 # Executable source files must retain their executable bits in the installed copy.
-chmod +x "$FIXTURE_ROOT/repo/dotfiles/link/claude/statusline.sh"
+chmod +x "$FIXTURE_ROOT/repo/dotfiles/shared/claude/statusline.sh"
 expect_status 1 run_check
 expect_output "Claude statusline executable bits differ"
 chmod +x "$FIXTURE_ROOT/user-dir/.claude/statusline.sh"
 expect_status 0 run_check
-chmod -x "$FIXTURE_ROOT/repo/dotfiles/link/claude/statusline.sh" "$FIXTURE_ROOT/user-dir/.claude/statusline.sh"
+chmod -x "$FIXTURE_ROOT/repo/dotfiles/shared/claude/statusline.sh" "$FIXTURE_ROOT/user-dir/.claude/statusline.sh"
 printf 'local profile\n' > "$FIXTURE_ROOT/user-dir/.codex/agents/local.toml"
 expect_status 0 run_check
 mv "$FIXTURE_ROOT/user-dir/.codex/agents" "$FIXTURE_ROOT/user-dir/.codex/agents-saved"
-ln -s "$FIXTURE_ROOT/repo/dotfiles/link/codex/agents" "$FIXTURE_ROOT/user-dir/.codex/agents"
+ln -s "$FIXTURE_ROOT/repo/dotfiles/shared/codex/agents" "$FIXTURE_ROOT/user-dir/.codex/agents"
 expect_status 1 run_check
 expect_output "Codex agents must be an isolated copy"
 rm "$FIXTURE_ROOT/user-dir/.codex/agents"
@@ -168,7 +168,7 @@ mv "$FIXTURE_ROOT/user-dir/.codex/agents-saved" "$FIXTURE_ROOT/user-dir/.codex/a
 printf 'altered profile\n' > "$FIXTURE_ROOT/user-dir/.codex/agents/knapsack-test.toml"
 expect_status 1 run_check
 expect_output "Codex agents knapsack-test.toml copy is missing or differs"
-cp -p "$FIXTURE_ROOT/repo/dotfiles/link/codex/agents/knapsack-test.toml" "$FIXTURE_ROOT/user-dir/.codex/agents/knapsack-test.toml"
+cp -p "$FIXTURE_ROOT/repo/dotfiles/shared/codex/agents/knapsack-test.toml" "$FIXTURE_ROOT/user-dir/.codex/agents/knapsack-test.toml"
 
 printf '{"sentinel":"DO_NOT_PRINT_SECRET"' > "$FIXTURE_ROOT/user-dir/.claude/settings.json"
 expect_status 1 run_check

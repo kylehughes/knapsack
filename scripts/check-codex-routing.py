@@ -64,7 +64,7 @@ def copy_matches(installed, expected, root):
 def file_issues(active_home, root, config_result=None):
     """Return routing-file differences without changing any installed files."""
     issues = []
-    source = root / "dotfiles/link/codex"
+    source = root / "dotfiles/shared/codex"
     config = (config_result or {}).get("config") or {}
     agents = config.get("agents") if isinstance(config, dict) else None
     for profile in PROFILES:
