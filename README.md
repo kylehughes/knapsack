@@ -112,6 +112,26 @@ Custom zsh functions for common workflows, autoloaded from `~/.config/zsh/functi
 | `ffmpeg-reduce-size` | Re-encode a video to reduce its file size. | `ffmpeg-reduce-size <video-file>` |
 | `xcode-reclaim-space` | Clear DerivedData, prune stale simulators, and delete local Time Machine snapshots. | `xcode-reclaim-space` |
 
+#### Apple Development Functions
+
+| Function | Description | Usage |
+| --- | --- | --- |
+| `tailscale-serve-ipa` | Serve a signed iOS build for installation from Safari over Tailscale. | `tailscale-serve-ipa <app.ipa \| app.xcarchive>` or `tailscale-serve-ipa --scheme <scheme> [--workspace <path> \| --project <path>]` |
+
+Connect the Mac and iPhone to Tailscale and enable
+[HTTPS certificates](https://tailscale.com/docs/how-to/set-up-https-certificates)
+for the tailnet. Run the command, open the printed URL in Safari on the iPhone,
+and tap **Install**. Keep the command running until installation finishes;
+Ctrl-C stops serving and removes temporary files. The URL stays the same for
+that Mac and port, including when the iPhone uses cellular.
+
+The IPA must already be signed for the iPhone. Archive and scheme inputs use
+Xcode's development export method (`debugging`) and require Xcode 15.3 or later.
+With `--scheme`, use `--configuration Release` to change the build configuration.
+Use `--port 9443` to choose another HTTPS port (default: 8443). An occupied port fails
+without replacing the existing service. The command requires Python 3.9 or later;
+the zsh function and its Python companion are installed together by dotfile setup.
+
 #### Claude Code Functions
 
 | Function | Description | Usage |
@@ -317,9 +337,10 @@ See [Codex hooks](https://learn.chatgpt.com/docs/hooks).
 
 `make check/repository` checks source policy and runs isolated fixture tests.
 `make test/dotfiles` runs migration, composition, and repository-guard tests;
-`make test/agents` runs the agent configuration tests. None needs your accounts
-or launches an agent. Runtime checks remain separate: `make check/dotfiles`,
-`make check/agents`, and `make check/codex-routing` inspect this Mac.
+`make test/agents` runs the agent configuration tests; `make test/shell-functions`
+checks the IPA helper with disposable IPAs and mocked Tailscale and Xcode commands.
+None needs your accounts or launches an agent. Runtime checks remain separate:
+`make check/dotfiles`, `make check/agents`, and `make check/codex-routing` inspect this Mac.
 
 `make set-up/repository-hook` installs a pre-commit check for the staged snapshot.
 It preserves custom hooks and reports how to chain the check if one already
