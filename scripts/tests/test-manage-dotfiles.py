@@ -37,21 +37,21 @@ class InstallerTests(unittest.TestCase):
         self.state = self.home / ".local/state/knapsack"
         self.git("init", "-q")
         self.git("config", "core.fsmonitor", "false")
-        self.write("dotfiles/link/zshrc", "tracked shell\n")
-        self.write("dotfiles/link/config/zsh/functions/tool-run", "#!/bin/zsh\n", 0o755)
-        self.write("dotfiles/link/claude/CLAUDE.md", "shared instructions\n")
-        self.write("dotfiles/link/claude/agents/ordinary.md", "worker\n")
-        self.write("dotfiles/link/codex/agents/ordinary.toml", 'model = "worker"\n')
-        self.write("dotfiles/link/claude/skills/local/SKILL.md", "runtime tracked historically\n")
-        self.write("dotfiles/link/codex/hooks.json", '{"local":"old runtime artifact"}\n')
-        self.write("dotfiles/link/codex/hooks.json.bak", "retained backup\n")
-        self.write("dotfiles/copy/gitconfig_local", "seed\n")
+        self.write("dotfiles/shared/zshrc", "tracked shell\n")
+        self.write("dotfiles/shared/config/zsh/functions/tool-run", "#!/bin/zsh\n", 0o755)
+        self.write("dotfiles/shared/claude/CLAUDE.md", "shared instructions\n")
+        self.write("dotfiles/shared/claude/agents/ordinary.md", "worker\n")
+        self.write("dotfiles/shared/codex/agents/ordinary.toml", 'model = "worker"\n')
+        self.write("dotfiles/shared/claude/skills/local/SKILL.md", "runtime tracked historically\n")
+        self.write("dotfiles/shared/codex/hooks.json", '{"local":"old runtime artifact"}\n')
+        self.write("dotfiles/shared/codex/hooks.json.bak", "retained backup\n")
+        self.write("dotfiles/seed/gitconfig_local", "seed\n")
         self.write("dotfiles/merge/claude/settings.json", '{"model":"worker","enabledPlugins":{}}\n')
         self.write("dotfiles/merge/codex/hooks.json", json.dumps({"hooks": {"PreToolUse": [OWNED]}}))
         for relative, target in (
-            ("dotfiles/link/codex/AGENTS.md", "../claude/CLAUDE.md"),
-            ("dotfiles/link/gemini/GEMINI.md", "../claude/CLAUDE.md"),
-            ("dotfiles/link/gemini/agents", "../claude/agents"),
+            ("dotfiles/shared/codex/AGENTS.md", "../claude/CLAUDE.md"),
+            ("dotfiles/shared/gemini/GEMINI.md", "../claude/CLAUDE.md"),
+            ("dotfiles/shared/gemini/agents", "../claude/agents"),
         ):
             path = self.root / relative
             path.parent.mkdir(parents=True, exist_ok=True)
@@ -105,7 +105,7 @@ class InstallerTests(unittest.TestCase):
         self.assertEqual(stat.S_IMODE((self.state / "ledger.json").stat().st_mode), 0o600)
         self.assertEqual(self.run_command("apply"), "")
         self.run_command("check")
-        self.write("dotfiles/link/zshrc", "new source\n")
+        self.write("dotfiles/shared/zshrc", "new source\n")
         self.assertEqual((self.home / ".zshrc").read_text(), "tracked shell\n")
 
     def test_plan_and_check_never_create_state_or_bytecode(self):
@@ -117,25 +117,28 @@ class InstallerTests(unittest.TestCase):
         self.assertFalse(list(self.root.rglob("__pycache__")))
 
     def test_update_retire_and_preserve_content_and_execute_mode_conflicts(self):
+        historical_receipt = self.write(".local/state/knapsack/stage-one.json", '{"stage":1}\n', home=True)
         self.run_command("apply")
-        self.write("dotfiles/link/zshrc", "updated shell\n")
-        self.git("rm", "-q", "dotfiles/link/codex/agents/ordinary.toml")
+        self.assertTrue((self.state / "stage-two.json").is_file())
+        self.write("dotfiles/shared/zshrc", "updated shell\n")
+        self.git("rm", "-q", "dotfiles/shared/codex/agents/ordinary.toml")
         self.write(".config/zsh/functions/tool-run", "#!/bin/zsh\n", 0o644, home=True)
         text = self.run_command("apply", 1)
         self.assertIn("execute mode", text)
         self.assertEqual((self.home / ".zshrc").read_text(), "updated shell\n")
         self.assertFalse((self.home / ".codex/agents/ordinary.toml").exists())
         self.write(".zshrc", "local shell\n", home=True)
-        self.write("dotfiles/link/zshrc", "third shell\n")
+        self.write("dotfiles/shared/zshrc", "third shell\n")
         self.run_command("apply", 1)
         self.assertEqual((self.home / ".zshrc").read_text(), "local shell\n")
-        self.assertFalse((self.state / "stage-one.json").exists())
+        self.assertFalse((self.state / "stage-two.json").exists())
+        self.assertEqual(historical_receipt.read_bytes(), b'{"stage":1}\n')
 
     def test_retired_local_file_and_seed_are_preserved(self):
         self.run_command("apply")
         self.write(".zshrc", "local shell\n", home=True)
         self.write(".gitconfig_local", "local seed\n", home=True)
-        self.git("rm", "-q", "dotfiles/link/zshrc")
+        self.git("rm", "-q", "dotfiles/shared/zshrc")
         self.run_command("apply", 1)
         self.assertEqual((self.home / ".zshrc").read_text(), "local shell\n")
         self.assertEqual((self.home / ".gitconfig_local").read_text(), "local seed\n")
@@ -174,24 +177,24 @@ class InstallerTests(unittest.TestCase):
                 self.assertEqual(path.read_text(), contents)
 
     def test_legacy_whole_tree_preserves_local_hidden_files_and_materializes_aliases(self):
-        self.write("dotfiles/link/claude/.local-hidden", "keep hidden\n")
-        self.write("dotfiles/link/claude/skills/untracked/SKILL.md", "local skill\n")
-        self.write("dotfiles/link/config/zsh/functions-local/private-tool", "local function\n")
+        self.write("dotfiles/shared/claude/.local-hidden", "keep hidden\n")
+        self.write("dotfiles/shared/claude/skills/untracked/SKILL.md", "local skill\n")
+        self.write("dotfiles/shared/config/zsh/functions-local/private-tool", "local function\n")
         external = self.base / "external"
         external.mkdir()
-        (self.root / "dotfiles/link/claude/external").symlink_to(external)
+        (self.root / "dotfiles/shared/claude/external").symlink_to(external)
         for name in ("claude", "codex", "gemini"):
-            (self.home / ("." + name)).symlink_to(self.root / "dotfiles/link" / name)
+            (self.home / ("." + name)).symlink_to(self.root / "dotfiles/shared" / name)
         (self.home / ".config").mkdir()
-        (self.home / ".config/zsh").symlink_to(self.root / "dotfiles/link/config/zsh")
+        (self.home / ".config/zsh").symlink_to(self.root / "dotfiles/shared/config/zsh")
         # The original mutable hook contents must be valid to reconcile, and
         # must survive in source and migration backup after local migration.
         original_hooks = json.dumps({"hooks": {"Stop": [{"hooks": [{"type": "command", "command": "local"}]}]}})
-        self.write("dotfiles/link/codex/hooks.json", original_hooks)
-        before = self.tree(self.root / "dotfiles/link")
+        self.write("dotfiles/shared/codex/hooks.json", original_hooks)
+        before = self.tree(self.root / "dotfiles/shared")
         self.run_command("plan")
         self.run_command("apply")
-        self.assertEqual(self.tree(self.root / "dotfiles/link"), before)
+        self.assertEqual(self.tree(self.root / "dotfiles/shared"), before)
         self.assertFalse((self.home / ".claude").is_symlink())
         self.assertEqual((self.home / ".claude/.local-hidden").read_text(), "keep hidden\n")
         self.assertEqual((self.home / ".claude/skills/untracked/SKILL.md").read_text(), "local skill\n")
@@ -203,8 +206,8 @@ class InstallerTests(unittest.TestCase):
         self.run_command("check")
 
     def test_unknown_internal_nested_link_refuses_detachment(self):
-        (self.root / "dotfiles/link/claude/unknown").symlink_to(self.root / "dotfiles/link/zshrc")
-        (self.home / ".claude").symlink_to(self.root / "dotfiles/link/claude")
+        (self.root / "dotfiles/shared/claude/unknown").symlink_to(self.root / "dotfiles/shared/zshrc")
+        (self.home / ".claude").symlink_to(self.root / "dotfiles/shared/claude")
         self.run_command("apply", 1)
         self.assertTrue((self.home / ".claude").is_symlink())
         self.assertFalse(self.state.exists())
@@ -213,10 +216,10 @@ class InstallerTests(unittest.TestCase):
         external = self.base / "external"
         external.mkdir()
         (external / "private-file").write_text("external contents stay external\n")
-        link = self.root / "dotfiles/link/claude/external"
+        link = self.root / "dotfiles/shared/claude/external"
         link.symlink_to("../../../../external")
         self.assertEqual(link.resolve(strict=True), external)
-        (self.home / ".claude").symlink_to(self.root / "dotfiles/link/claude")
+        (self.home / ".claude").symlink_to(self.root / "dotfiles/shared/claude")
         self.run_command("apply")
         migrated = self.home / ".claude/external"
         self.assertTrue(migrated.is_symlink())
@@ -235,7 +238,7 @@ class InstallerTests(unittest.TestCase):
         second.mkdir()
         current = self.base / "current"
         current.symlink_to(first)
-        source = self.root / "dotfiles/link/claude"
+        source = self.root / "dotfiles/shared/claude"
         (source / "absolute-external").symlink_to(current)
         (source / "relative-external").symlink_to("../../../../current")
         (self.home / ".claude").symlink_to(source)
@@ -256,8 +259,8 @@ class InstallerTests(unittest.TestCase):
     def test_dangling_external_path_through_checkout_link_is_refused(self):
         outside_alias = self.base / "checkout-alias"
         outside_alias.symlink_to(self.root)
-        (self.root / "dotfiles/link/claude/dangling").symlink_to(outside_alias / "missing")
-        (self.home / ".claude").symlink_to(self.root / "dotfiles/link/claude")
+        (self.root / "dotfiles/shared/claude/dangling").symlink_to(outside_alias / "missing")
+        (self.home / ".claude").symlink_to(self.root / "dotfiles/shared/claude")
         self.run_command("apply", 1)
         self.assertTrue((self.home / ".claude").is_symlink())
         self.assertFalse(self.state.exists())
@@ -280,21 +283,21 @@ class InstallerTests(unittest.TestCase):
         self.run_command("apply", 1)
 
     def test_prepare_only_migrates_requested_scope_and_no_receipt(self):
-        (self.home / ".claude").symlink_to(self.root / "dotfiles/link/claude")
+        (self.home / ".claude").symlink_to(self.root / "dotfiles/shared/claude")
         (self.home / ".config").mkdir()
-        (self.home / ".config/zsh").symlink_to(self.root / "dotfiles/link/config/zsh")
+        (self.home / ".config/zsh").symlink_to(self.root / "dotfiles/shared/config/zsh")
         self.run_command("prepare-skills")
         self.assertFalse((self.home / ".claude").is_symlink())
         self.assertTrue((self.home / ".config/zsh").is_symlink())
         self.assertFalse((self.home / ".zshrc").exists())
         self.assertFalse((self.state / "ledger.json").exists())
-        self.assertFalse((self.state / "stage-one.json").exists())
+        self.assertFalse((self.state / "stage-two.json").exists())
         self.run_command("prepare-functions")
         self.assertFalse((self.home / ".config/zsh").is_symlink())
 
     def test_untracked_templates_are_not_deployed_and_dirty_bytes_are(self):
-        self.write("dotfiles/link/untracked", "never install\n")
-        self.write("dotfiles/link/zshrc", "deliberate dirty edit\n")
+        self.write("dotfiles/shared/untracked", "never install\n")
+        self.write("dotfiles/shared/zshrc", "deliberate dirty edit\n")
         self.run_command("apply")
         self.assertEqual((self.home / ".zshrc").read_text(), "deliberate dirty edit\n")
         self.assertFalse((self.home / ".untracked").exists())
@@ -302,7 +305,7 @@ class InstallerTests(unittest.TestCase):
     def test_receipt_invalidates_with_dirty_template_and_implementation(self):
         self.run_command("apply")
         self.run_command("check")
-        self.write("dotfiles/link/zshrc", "dirty\n")
+        self.write("dotfiles/shared/zshrc", "dirty\n")
         self.assertIn("receipt", self.run_command("check", 1))
         self.run_command("apply")
         self.write("scripts/manage-dotfiles.py", "changed implementation\n")
@@ -310,18 +313,18 @@ class InstallerTests(unittest.TestCase):
 
     def test_runtime_source_edits_do_not_invalidate_receipt(self):
         self.run_command("apply")
-        self.write("dotfiles/link/codex/hooks.json", "runtime change\n")
-        self.write("dotfiles/link/codex/hooks.json.bak", "backup change\n")
-        self.write("dotfiles/link/claude/skills/local/SKILL.md", "runtime skill change\n")
+        self.write("dotfiles/shared/codex/hooks.json", "runtime change\n")
+        self.write("dotfiles/shared/codex/hooks.json.bak", "backup change\n")
+        self.write("dotfiles/shared/claude/skills/local/SKILL.md", "runtime skill change\n")
         self.run_command("check")
 
     def test_remaining_unmanaged_hook_backlink_blocks_completion(self):
         self.run_command("apply")
         path = self.home / ".codex/hooks/unmanaged.py"
         path.parent.mkdir(exist_ok=True)
-        path.symlink_to(self.root / "dotfiles/link/zshrc")
+        path.symlink_to(self.root / "dotfiles/shared/zshrc")
         self.assertIn("symlink", self.run_command("apply", 1))
-        self.assertFalse((self.state / "stage-one.json").exists())
+        self.assertFalse((self.state / "stage-two.json").exists())
 
     def test_unrecorded_canonical_codex_hook_ownership_fails_check(self):
         self.run_command("apply")
@@ -363,7 +366,7 @@ class InstallerTests(unittest.TestCase):
 
     def interrupted_journal(self, state):
         destination = self.home / ".claude"
-        destination.symlink_to(self.root / "dotfiles/link/claude")
+        destination.symlink_to(self.root / "dotfiles/shared/claude")
         installer = self.installer()
         self.state.mkdir(parents=True)
         backup = self.state / "backups/fixture"
@@ -401,7 +404,7 @@ class InstallerTests(unittest.TestCase):
 
     def test_writer_change_during_snapshot_prevents_detachment(self):
         destination = self.home / ".claude"
-        destination.symlink_to(self.root / "dotfiles/link/claude")
+        destination.symlink_to(self.root / "dotfiles/shared/claude")
         installer = self.installer()
         original = installer.snapshot_digest
 

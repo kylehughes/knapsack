@@ -3,7 +3,6 @@
 
 import argparse
 import ast
-import hashlib
 import json
 import os
 from pathlib import Path
@@ -11,11 +10,10 @@ import subprocess
 import sys
 import tempfile
 
-BASELINE = "scripts/runtime-artifacts-stage-one.json"
 ALIASES = {
-    "dotfiles/link/codex/AGENTS.md": "../claude/CLAUDE.md",
-    "dotfiles/link/gemini/GEMINI.md": "../claude/CLAUDE.md",
-    "dotfiles/link/gemini/agents": "../claude/agents",
+    "dotfiles/shared/codex/AGENTS.md": "../claude/CLAUDE.md",
+    "dotfiles/shared/gemini/GEMINI.md": "../claude/CLAUDE.md",
+    "dotfiles/shared/gemini/agents": "../claude/agents",
 }
 AGENT_RUNTIME = {
     "auth.json", "credentials.json", ".credentials.json", "sessions", "sessions.json",
@@ -35,14 +33,16 @@ def forbidden(path):
     name = parts[-1]
     if "__pycache__" in parts or name.endswith((".pyc", ".pyo", ".bak", ".orig", ".rej", "~")):
         return True
-    if path.startswith("dotfiles/link/config/zsh/functions-local/"):
-        return True
-    for agent in ("claude", "codex", "gemini"):
-        prefix = f"dotfiles/link/{agent}/"
-        if path.startswith(prefix):
-            relative = path[len(prefix):].split("/")
-            if relative[0] in AGENT_RUNTIME or relative[:2] == ["skills", "synced"]:
-                return True
+    # Retired source paths must not provide a way to reintroduce local state.
+    for source in ("dotfiles/shared", "dotfiles/link"):
+        if path.startswith(f"{source}/config/zsh/functions-local/"):
+            return True
+        for agent in ("claude", "codex", "gemini"):
+            prefix = f"{source}/{agent}/"
+            if path.startswith(prefix):
+                relative = path[len(prefix):].split("/")
+                if relative[0] in AGENT_RUNTIME or relative[:2] == ["skills", "synced"]:
+                    return True
     return False
 
 
@@ -57,11 +57,6 @@ def entries(root):
             raise ValueError("Resolve index conflicts before checking repository source")
         result[os.fsdecode(path)] = (mode, blob)
     return result
-
-
-def blob_hash(content, expected):
-    algorithm = "sha256" if len(expected) == 64 else "sha1"
-    return hashlib.new(algorithm, b"blob " + str(len(content)).encode() + b"\0" + content).hexdigest()
 
 
 def snapshot_index(root, destination, tracked):
@@ -112,28 +107,19 @@ def has_symlink_parent(path, root):
 
 def check(root, tracked):
     errors = []
-    baseline_path = root / BASELINE
-    if baseline_path.is_symlink() or has_symlink_parent(baseline_path, root):
-        raise ValueError(f"{BASELINE}: baseline must be an ordinary source file")
-    baseline = json.loads(baseline_path.read_text()) if baseline_path.exists() else {}
-    if not isinstance(baseline, dict) or any(not isinstance(k, str) or not isinstance(v, str) for k, v in baseline.items()):
-        raise ValueError(f"{BASELINE} must map exact paths to Git blob hashes")
     for name, (mode, _) in tracked.items():
         path = root / name
         if has_symlink_parent(path, root):
             errors.append(f"{name}: source traverses an unexpected directory symlink")
             continue
         if forbidden(name):
-            if mode not in ("100644", "100755") or not path.is_file() or path.is_symlink():
-                errors.append(f"{name}: runtime artifact is not an unchanged Stage 1 baseline file")
-            elif name not in baseline or blob_hash(path.read_bytes(), baseline[name]) != baseline[name]:
-                errors.append(f"{name}: runtime artifact must stay local (Stage 1 permits only exact baseline bytes)")
+            errors.append(f"{name}: runtime artifact must stay local")
             continue
         if not path.exists() and not path.is_symlink():
             errors.append(f"{name}: tracked source is missing")
             continue
         if path.is_symlink():
-            if name.startswith("dotfiles/link/") and name not in ALIASES:
+            if name.startswith("dotfiles/shared/") and name not in ALIASES:
                 errors.append(f"{name}: unexpected source alias")
                 continue
             target = os.readlink(path)
@@ -147,7 +133,7 @@ def check(root, tracked):
                 errors.append(f"{name}: source symlink is broken, cyclic, or outside the repository")
                 continue
             if resolved.is_dir():
-                if name != "dotfiles/link/gemini/agents" or not any(p.startswith(relative + "/") for p in tracked):
+                if name != "dotfiles/shared/gemini/agents" or not any(p.startswith(relative + "/") for p in tracked):
                     errors.append(f"{name}: unexpected directory alias")
             elif relative not in tracked:
                 errors.append(f"{name}: source alias target is not tracked")
@@ -163,7 +149,7 @@ def check(root, tracked):
                 ast.parse(path.read_bytes(), filename=name)
             elif path.suffix == ".json":
                 value = json.loads(path.read_bytes())
-                if name == "dotfiles/link/codex/hooks.json" and has_orca_command(value):
+                if name in ("dotfiles/shared/codex/hooks.json", "dotfiles/link/codex/hooks.json") and has_orca_command(value):
                     errors.append(f"{name}: Orca runtime hook commands must stay in local configuration")
             else:
                 with path.open("rb") as source:

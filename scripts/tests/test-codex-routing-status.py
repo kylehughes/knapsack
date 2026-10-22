@@ -21,7 +21,7 @@ SPEC.loader.exec_module(STATUS)
 class CodexRoutingStatusTests(unittest.TestCase):
     def install_copies(self, home, active_home):
         root = Path(__file__).resolve().parents[2]
-        source = root / "dotfiles/link/codex"
+        source = root / "dotfiles/shared/codex"
         active_home.mkdir(parents=True, exist_ok=True)
         shutil.copytree(source / "agents", active_home / "agents")
         (active_home / "hooks.json").write_text('{"hooks":{},"description":"app-managed"}')
@@ -44,7 +44,7 @@ class CodexRoutingStatusTests(unittest.TestCase):
             config = {"config": {"agents": agents}}
             with mock.patch.object(Path, "home", return_value=home):
                 self.assertEqual(STATUS.file_issues(active_home, root, config), [])
-                agents["knapsack_mechanical"]["config_file"] = str(root / "dotfiles/link/codex/agents/knapsack-mechanical.toml")
+                agents["knapsack_mechanical"]["config_file"] = str(root / "dotfiles/shared/codex/agents/knapsack-mechanical.toml")
                 self.assertIn("agent profile is not an isolated matching copy knapsack-mechanical.toml", STATUS.file_issues(active_home, root, config))
                 agents["knapsack_mechanical"]["config_file"] = str(home / "missing.toml")
                 self.assertIn("missing agent profile knapsack-mechanical.toml", STATUS.file_issues(active_home, root, config))
@@ -71,7 +71,7 @@ class CodexRoutingStatusTests(unittest.TestCase):
                 home = Path(temporary)
                 active_home = home / ".codex"
                 root = self.install_copies(home, active_home)
-                source = root / "dotfiles/link/codex"
+                source = root / "dotfiles/shared/codex"
                 profile = active_home / "agents" / STATUS.PROFILES[0]
                 script = active_home / "hooks/validate-agent-route.py"
                 if mutation == "bytes":

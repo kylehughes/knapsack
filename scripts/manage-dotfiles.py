@@ -3,7 +3,7 @@
 
 Plan and check are read-only. Apply snapshots recognized legacy links before
 detaching them. Backups and a recovery journal live in the private state directory;
-source artifacts remain in place until both Macs have completed migration.
+migration backups remain local after source cleanup.
 """
 
 import argparse
@@ -90,13 +90,13 @@ class Installer:
         self.state = absolute(state_dir or self.home / ".local/state/knapsack")
         if within(self.state, self.root) or within(self.home, self.root):
             raise InstallError("home and state must be outside the checkout")
-        self.link = self.root / "dotfiles/link"
+        self.shared = self.root / "dotfiles/shared"
         self.aliases = {
-            self.link / "codex/AGENTS.md": "../claude/CLAUDE.md",
-            self.link / "gemini/GEMINI.md": "../claude/CLAUDE.md",
-            self.link / "gemini/agents": "../claude/agents",
+            self.shared / "codex/AGENTS.md": "../claude/CLAUDE.md",
+            self.shared / "gemini/GEMINI.md": "../claude/CLAUDE.md",
+            self.shared / "gemini/agents": "../claude/agents",
         }
-        self.tracked = self.git("ls-files", "-z", "--", "dotfiles/link", "dotfiles/copy").split(b"\0")
+        self.tracked = self.git("ls-files", "-z", "--", "dotfiles/shared", "dotfiles/seed").split(b"\0")
         self.tracked = [Path(os.fsdecode(item)) for item in self.tracked if item]
         self.legacy = self.legacy_mappings()
         self.conflicts = []
@@ -115,21 +115,21 @@ class Installer:
 
     def legacy_mappings(self):
         mappings = {}
-        relatives = [path.relative_to("dotfiles/link") for path in self.tracked
-                     if path.is_relative_to("dotfiles/link")]
+        relatives = [path.relative_to("dotfiles/shared") for path in self.tracked
+                     if path.is_relative_to("dotfiles/shared")]
         for relative in relatives:
             parts = relative.parts
-            mappings[self.home / ("." + parts[0])] = self.link / parts[0]
+            mappings[self.home / ("." + parts[0])] = self.shared / parts[0]
             if len(parts) > 1:
-                mappings[self.home / ("." + parts[0]) / parts[1]] = self.link / parts[0] / parts[1]
-            mappings[self.destination(relative)] = self.link / relative
+                mappings[self.home / ("." + parts[0]) / parts[1]] = self.shared / parts[0] / parts[1]
+            mappings[self.destination(relative)] = self.shared / relative
         # Runtime-owned skills were historically deployed even though excluded
         # from the new manifest. Do not infer arbitrary mappings from link text.
-        mappings[self.home / ".claude/skills"] = self.link / "claude/skills"
+        mappings[self.home / ".claude/skills"] = self.shared / "claude/skills"
         mappings[self.home / ".agents/skills"] = (
-            self.link / "agents/skills", self.link / "claude/skills",
+            self.shared / "agents/skills", self.shared / "claude/skills",
         )
-        mappings[self.home / ".claude/settings.json"] = self.link / "claude/settings.json"
+        mappings[self.home / ".claude/settings.json"] = self.shared / "claude/settings.json"
         return mappings
 
     def destination(self, relative):
@@ -146,7 +146,7 @@ class Installer:
     def source_path(self, path):
         """Resolve only the three declared repository aliases."""
         for component in reversed((path, *path.parents)):
-            if not within(component, self.link):
+            if not within(component, self.shared):
                 continue
             if component.is_symlink():
                 if component not in self.aliases or os.readlink(component) != self.aliases[component]:
@@ -162,25 +162,25 @@ class Installer:
         for tracked in self.tracked:
             if "__pycache__" in tracked.parts or tracked.suffix in (".pyc", ".pyo"):
                 continue
-            if tracked.is_relative_to("dotfiles/copy"):
-                relative = tracked.relative_to("dotfiles/copy")
+            if tracked.is_relative_to("dotfiles/seed"):
+                relative = tracked.relative_to("dotfiles/seed")
                 source = self.root / tracked
                 if source.is_symlink() or not source.is_file():
                     raise InstallError(f"seed source must be a regular file: {tracked}")
                 seeds[self.destination(relative)] = (source.read_bytes(), stat.S_IMODE(source.stat().st_mode))
                 continue
-            relative = tracked.relative_to("dotfiles/link")
+            relative = tracked.relative_to("dotfiles/shared")
             if relative.is_relative_to("claude/skills") or relative.as_posix() in {
                 "codex/hooks.json", "codex/hooks.json.bak", "claude/settings.json",
             }:
                 continue
             if relative.as_posix() == "gemini/agents":
-                alias = self.link / relative
+                alias = self.shared / relative
                 if not alias.is_symlink() or os.readlink(alias) != self.aliases[alias]:
                     raise InstallError("gemini/agents must be the declared source alias")
                 for agent in self.tracked:
-                    if agent.is_relative_to("dotfiles/link/claude/agents"):
-                        leaf = agent.relative_to("dotfiles/link/claude/agents")
+                    if agent.is_relative_to("dotfiles/shared/claude/agents"):
+                        leaf = agent.relative_to("dotfiles/shared/claude/agents")
                         source = self.source_path(self.root / agent)
                         managed[self.home / ".gemini/agents" / leaf] = (
                             source.read_bytes(), stat.S_IMODE(source.stat().st_mode),
@@ -373,9 +373,9 @@ class Installer:
         ))
         sources = {
             path for path in sources
-            if not path.is_relative_to("dotfiles/link/claude/skills") and path.as_posix() not in {
-                "dotfiles/link/codex/hooks.json", "dotfiles/link/codex/hooks.json.bak",
-                "dotfiles/link/claude/settings.json",
+            if not path.is_relative_to("dotfiles/shared/claude/skills") and path.as_posix() not in {
+                "dotfiles/shared/codex/hooks.json", "dotfiles/shared/codex/hooks.json.bak",
+                "dotfiles/shared/claude/settings.json",
             } and "__pycache__" not in path.parts and path.suffix not in {".pyc", ".pyo"}
         }
         for relative in sorted(sources, key=str):
@@ -633,7 +633,7 @@ class Installer:
         }
 
     def receipt(self):
-        return {"schema": 1, "stage": 1, "home": str(self.home), "root": str(self.root),
+        return {"schema": 1, "stage": 2, "home": str(self.home), "root": str(self.root),
                 "source": self.source_fingerprint()}
 
     def execute(self, command):
@@ -664,10 +664,10 @@ class Installer:
         links = self.legacy_links(paths)
         if command == "apply":
             with self.lock():
-                receipt_path = self.state / "stage-one.json"
+                receipt_path = self.state / "stage-two.json"
                 if exists(receipt_path):
                     if receipt_path.is_symlink() or not receipt_path.is_file():
-                        raise InstallError("invalid stage-one receipt")
+                        raise InstallError("invalid stage-two receipt")
                     receipt_path.unlink()
                 self.recover()
                 ledger = self.ledger()
@@ -698,10 +698,10 @@ class Installer:
                 for action, relative in self.actions:
                     if action != "unchanged":
                         self.conflicts.append(f"{relative}: pending {action}")
-                receipt_path = self.state / "stage-one.json"
+                receipt_path = self.state / "stage-two.json"
                 if (not receipt_path.is_file() or receipt_path.is_symlink()
                         or load_json(receipt_path) != self.receipt()):
-                    self.conflicts.append("stage-one receipt is absent or stale")
+                    self.conflicts.append("stage-two receipt is absent or stale")
                 for path in self.scan_backlinks(self.isolation_roots(managed)):
                     self.conflict(path, "symlink enters checkout")
         for action, relative in self.actions:

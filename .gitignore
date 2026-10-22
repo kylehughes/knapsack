@@ -9,9 +9,9 @@
 ################################################################################
 
 *.un~
-dotfiles/link/vim/backup/
-dotfiles/link/vim/swap/
-dotfiles/link/vim/undo/
+dotfiles/shared/vim/backup/
+dotfiles/shared/vim/swap/
+dotfiles/shared/vim/undo/
 
 ################################################################################
 # claude
@@ -19,15 +19,14 @@ dotfiles/link/vim/undo/
 
 .claude/settings.local.json
 
-# A machine whose ~/.claude/settings.json symlink still points at the old
-# tracked path can recreate a stray file there before it re-runs setup.
-dotfiles/link/claude/settings.json
+# Generated settings belong in the local home, never in shared source.
+dotfiles/shared/claude/settings.json
 
 ################################################################################
 # zsh
 ################################################################################
 
-dotfiles/link/config/zsh/functions-local/
+dotfiles/shared/config/zsh/functions-local/
 
 ################################################################################
 # Local Runtime State
@@ -39,6 +38,37 @@ __pycache__/
 *.orig
 *.rej
 *~
+dotfiles/shared/claude/skills/synced/
+dotfiles/shared/codex/skills/synced/
+dotfiles/shared/gemini/skills/synced/
+dotfiles/shared/claude/auth.json
+dotfiles/shared/claude/.credentials.json
+dotfiles/shared/claude/projects/
+dotfiles/shared/claude/session-env/
+dotfiles/shared/claude/sessions/
+dotfiles/shared/claude/debug/
+dotfiles/shared/claude/todos/
+dotfiles/shared/claude/shell-snapshots/
+dotfiles/shared/claude/telemetry/
+dotfiles/shared/claude/stats-cache.json
+dotfiles/shared/claude/history.jsonl
+dotfiles/shared/claude/settings.local.json
+dotfiles/shared/claude/settings.machine.json
+dotfiles/shared/codex/auth.json
+dotfiles/shared/codex/sessions/
+dotfiles/shared/codex/history.jsonl
+dotfiles/shared/codex/logs/
+dotfiles/shared/codex/sqlite/
+dotfiles/shared/gemini/oauth_creds.json
+dotfiles/shared/gemini/google_accounts.json
+dotfiles/shared/gemini/tmp/
+
+# Preserve ignored leftovers from the historical source layout after cleanup.
+dotfiles/link/vim/backup/
+dotfiles/link/vim/swap/
+dotfiles/link/vim/undo/
+dotfiles/link/claude/settings.json
+dotfiles/link/config/zsh/functions-local/
 dotfiles/link/claude/skills/synced/
 dotfiles/link/codex/skills/synced/
 dotfiles/link/gemini/skills/synced/

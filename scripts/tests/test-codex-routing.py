@@ -10,9 +10,9 @@ import unittest
 from pathlib import Path
 
 
-SCRIPT = Path(__file__).resolve().parents[2] / "dotfiles/link/codex/hooks/validate-agent-route.py"
+SCRIPT = Path(__file__).resolve().parents[2] / "dotfiles/shared/codex/hooks/validate-agent-route.py"
 HOOKS_CONFIG = Path(__file__).resolve().parents[2] / "dotfiles/merge/codex/hooks.json"
-AGENTS_DIRECTORY = Path(__file__).resolve().parents[2] / "dotfiles/link/codex/agents"
+AGENTS_DIRECTORY = Path(__file__).resolve().parents[2] / "dotfiles/shared/codex/agents"
 MAX_INPUT_BYTES = 1_048_576
 KNOWN_TOOL_IDENTITIES = (
     "spawn_agent",
