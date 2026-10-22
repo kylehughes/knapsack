@@ -149,7 +149,7 @@ def check(root, tracked):
                 ast.parse(path.read_bytes(), filename=name)
             elif path.suffix == ".json":
                 value = json.loads(path.read_bytes())
-                if name == "dotfiles/shared/codex/hooks.json" and has_orca_command(value):
+                if name in ("dotfiles/shared/codex/hooks.json", "dotfiles/link/codex/hooks.json") and has_orca_command(value):
                     errors.append(f"{name}: Orca runtime hook commands must stay in local configuration")
             else:
                 with path.open("rb") as source:

@@ -170,29 +170,30 @@ class RepositoryTests(unittest.TestCase):
         self.assertEqual(hook.stat().st_mode, mode)
 
     def test_legacy_hook_allows_source_but_rejects_staged_orca_runtime(self):
-        name = "dotfiles/shared/codex/hooks.json"
-        old = {"hooks": {"PreToolUse": [{"hooks": [{"type": "command", "command": 'python3 "$HOME/.codex/hooks/validate-agent-route.py"'}]}]}}
-        self.write(name, json.dumps(old))
-        self.git("add", name)
-        self.assertEqual(self.script("check-repository.py", "--staged").returncode, 0)
-        generated = json.loads(json.dumps(old))
-        generated["hooks"]["SessionStart"] = [{"hooks": [{"type": "command", "command": 'test -n "$ORCA_PANE_KEY" && sh "$ORCA_AGENT_HOOK_ROOT/agent-hooks/codex-hook.sh"'}]}]
-        self.write(name, json.dumps(generated))
-        self.git("add", name)
-        # A clean worktree copy cannot hide generated commands already in the index.
-        path = self.write(name, json.dumps(old))
-        before = path.read_bytes()
-        indexed = self.git("show", ":" + name)
-        result = self.script("check-repository.py", "--staged")
-        self.assertNotEqual(result.returncode, 0)
-        self.assertIn("Orca runtime hook commands", result.stderr)
-        self.assertEqual(path.read_bytes(), before)
-        self.assertEqual(self.git("show", ":" + name), indexed)
-        self.assertEqual(self.script().returncode, 0)
-        # Documentation may describe Orca variables without becoming runtime state.
-        self.write("ORCA.md", "Use ORCA_PANE_KEY in your local hook.\n")
-        self.git("add", "ORCA.md", name)
-        self.assertEqual(self.script("check-repository.py", "--staged").returncode, 0)
+        for name in ("dotfiles/shared/codex/hooks.json", "dotfiles/link/codex/hooks.json"):
+            with self.subTest(name=name):
+                old = {"hooks": {"PreToolUse": [{"hooks": [{"type": "command", "command": 'python3 "$HOME/.codex/hooks/validate-agent-route.py"'}]}]}}
+                self.write(name, json.dumps(old))
+                self.git("add", name)
+                self.assertEqual(self.script("check-repository.py", "--staged").returncode, 0)
+                generated = json.loads(json.dumps(old))
+                generated["hooks"]["SessionStart"] = [{"hooks": [{"type": "command", "command": 'test -n "$ORCA_PANE_KEY" && sh "$ORCA_AGENT_HOOK_ROOT/agent-hooks/codex-hook.sh"'}]}]
+                self.write(name, json.dumps(generated))
+                self.git("add", name)
+                # A clean worktree copy cannot hide generated commands already in the index.
+                path = self.write(name, json.dumps(old))
+                before = path.read_bytes()
+                indexed = self.git("show", ":" + name)
+                result = self.script("check-repository.py", "--staged")
+                self.assertNotEqual(result.returncode, 0)
+                self.assertIn("Orca runtime hook commands", result.stderr)
+                self.assertEqual(path.read_bytes(), before)
+                self.assertEqual(self.git("show", ":" + name), indexed)
+                self.assertEqual(self.script().returncode, 0)
+                # Documentation may describe Orca variables without becoming runtime state.
+                self.write("ORCA.md", "Use ORCA_PANE_KEY in your local hook.\n")
+                self.git("add", "ORCA.md", name)
+                self.assertEqual(self.script("check-repository.py", "--staged").returncode, 0)
 
     def test_external_hooks_path_is_preserved(self):
         outside = Path(self.temporary.name) / "shared-hooks"

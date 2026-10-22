@@ -328,7 +328,7 @@ pull request with the `Repository checks` job passing against the current base;
 no external approving reviewer is required. Administrator bypass, force pushes,
 and branch deletion are disabled when the protection is installed.
 
-Repository checks reject runtime artifacts, including downloaded skill caches,
+Repository checks reject runtime artifacts, including synced skill caches,
 hook backups, and Python bytecode. The Stage 1 exceptions have been removed.
 New shared dotfiles must be explicitly added to Git before setup will install
 them. Unsupported source symlinks are rejected.
