@@ -40,7 +40,7 @@ for invalid in malformed empty multiple plugin_type; do
     if compose_claude_settings "$base" "$invalid_file" > /dev/null 2> "$test_directory/error.log"; then
         fail "$invalid overlay unexpectedly composed"
     fi
-    rg -q 'do-not-print' "$test_directory/error.log" && fail "diagnostic exposed a JSON value"
+    grep -q 'do-not-print' "$test_directory/error.log" && fail "diagnostic exposed a JSON value"
 done
 
 echo "Claude settings tests passed"

@@ -23,10 +23,12 @@ ROOT = Path(__file__).resolve().parents[2]
 SCRIPT = ROOT / "dotfiles/shared/config/zsh/scripts/tailscale-serve-ipa.py"
 WRAPPER = ROOT / "dotfiles/shared/config/zsh/functions/tailscale-serve-ipa"
 
-MOCK = r'''import json, os, pathlib, shutil, signal, sys, time, urllib.request
+MOCK = r'''import json, os, pathlib, shutil, signal, sys, time
 root = pathlib.Path(os.environ["FIXTURE_ROOT"])
 name = pathlib.Path(sys.argv[0]).name
 args = sys.argv[1:]
+with (root / "processes.jsonl").open("a") as stream:
+    stream.write(json.dumps([os.getpid(), os.getpgrp(), name]) + "\n")
 with (root / "commands.jsonl").open("a") as stream:
     stream.write(json.dumps([name, *args]) + "\n")
 if name == "tailscale":
@@ -35,11 +37,18 @@ if name == "tailscale":
         sys.exit(0)
     if args[0] != "serve":
         sys.exit(91)
+    import urllib.request
+    # Loopback fixture traffic must not consult the machine's network proxy settings.
+    opener = urllib.request.build_opener(urllib.request.ProxyHandler({}))
     target = args[-1]
-    for path, output in [("/manifest.plist", "manifest.plist"), ("/", "index.html"), ("/app.ipa", "served.ipa")]:
-        with urllib.request.urlopen(target + path, timeout=3) as response:
-            (root / output).write_bytes(response.read())
     (root / "target").write_text(target)
+    for path, output in [("/manifest.plist", "manifest.plist"), ("/", "index.html"), ("/app.ipa", "served.ipa")]:
+        with (root / "requests.log").open("a") as stream:
+            stream.write("fetching " + path + "\n")
+        with opener.open(target + path, timeout=3) as response:
+            (root / output).write_bytes(response.read())
+        with (root / "requests.log").open("a") as stream:
+            stream.write("received " + path + "\n")
     (root / "ready").write_text("ready")
     if os.environ.get("SERVE_MODE") == "wait":
         while True:
@@ -76,8 +85,12 @@ class ServeIPATests(unittest.TestCase):
         self.bin.mkdir()
         self.scratch = self.root / "scratch"
         self.scratch.mkdir()
+        diagnostics = self.root / "diagnostics"
+        diagnostics.mkdir()
+        (diagnostics / "sitecustomize.py").write_text(
+            "import faulthandler\nfaulthandler.dump_traceback_later(5)\n")
         self.env = dict(os.environ, PATH=str(self.bin), FIXTURE_ROOT=str(self.root),
-                        TMPDIR=str(self.scratch), PYTHONDONTWRITEBYTECODE="1")
+                        TMPDIR=str(self.scratch), PYTHONDONTWRITEBYTECODE="1", PYTHONPATH=str(diagnostics))
         (self.bin / "python3").symlink_to(sys.executable)
         for name in ("tailscale", "xcodebuild"):
             path = self.bin / name
@@ -97,11 +110,46 @@ class ServeIPATests(unittest.TestCase):
                 archive.writestr(name, contents)
 
     def run_helper(self, args=None, env=None, command=None):
-        result = subprocess.run(command or [sys.executable, "-B", str(SCRIPT),
-                                           *(args if args is not None else [str(self.ipa)])],
-                                env=dict(self.env, **(env or {})), cwd=self.root,
-                                stdout=subprocess.PIPE, stderr=subprocess.PIPE, timeout=8)
-        return result
+        argv = command or [sys.executable, "-B", str(SCRIPT),
+                           *(args if args is not None else [str(self.ipa)])]
+        process_log = self.root / "processes.jsonl"
+        previous_records = len(process_log.read_text().splitlines()) if process_log.exists() else 0
+        process = subprocess.Popen(argv, env=dict(self.env, **(env or {})), cwd=self.root,
+                                   stdout=subprocess.PIPE, stderr=subprocess.PIPE, start_new_session=True)
+        try:
+            stdout, stderr = process.communicate(timeout=8)
+        except subprocess.TimeoutExpired as error:
+            diagnostics = self.fixture_diagnostics()
+            process.send_signal(signal.SIGTERM)
+            try:
+                stdout, stderr = process.communicate(timeout=8)
+            except subprocess.TimeoutExpired:
+                # The helper gives commands their own group, so kill recorded mocks too.
+                if process_log.exists():
+                    for line in process_log.read_text().splitlines()[previous_records:]:
+                        pid, group, _ = json.loads(line)
+                        try:
+                            if os.getpgid(pid) == group:
+                                os.killpg(group, signal.SIGKILL)
+                        except ProcessLookupError:
+                            pass
+                try:
+                    os.killpg(process.pid, signal.SIGKILL)
+                except ProcessLookupError:
+                    pass
+                stdout, stderr = process.communicate(timeout=3)
+            self.fail(f"helper timed out after 8 seconds: {argv!r}\n"
+                      f"stdout: {(stdout or error.stdout or b'').decode(errors='replace')}\n"
+                      f"stderr: {(stderr or error.stderr or b'').decode(errors='replace')}\n{diagnostics}")
+        return subprocess.CompletedProcess(argv, process.returncode, stdout, stderr)
+
+    def fixture_diagnostics(self):
+        details = []
+        for name in ("commands.jsonl", "processes.jsonl", "requests.log", "target", "ready", "build-ready"):
+            path = self.root / name
+            details.append(f"{name}: {path.read_text() if path.exists() else '<absent>'}")
+        details.append(f"temporary files: {[str(path.relative_to(self.scratch)) for path in self.scratch.rglob('*')]}")
+        return "\n".join(details)
 
     def commands(self):
         path = self.root / "commands.jsonl"
@@ -242,7 +290,11 @@ class ServeIPATests(unittest.TestCase):
             deadline = time.monotonic() + 6
             while not (self.root / "build-ready").exists() and process.poll() is None and time.monotonic() < deadline:
                 time.sleep(0.02)
-            self.assertTrue((self.root / "build-ready").exists(), "archive did not start its descendant")
+            if not (self.root / "build-ready").exists():
+                process.send_signal(signal.SIGTERM)
+                stdout, stderr = process.communicate(timeout=8)
+                self.fail(f"archive did not start its descendant\n{self.fixture_diagnostics()}\n"
+                          f"stdout: {stdout.decode(errors='replace')}\nstderr: {stderr.decode(errors='replace')}")
             child_pid = int((self.root / "descendant.pid").read_text())
             process.send_signal(signal.SIGTERM)
             process.communicate(timeout=10)
@@ -289,7 +341,11 @@ class ServeIPATests(unittest.TestCase):
                     deadline = time.monotonic() + 6
                     while not (self.root / "ready").exists() and process.poll() is None and time.monotonic() < deadline:
                         time.sleep(0.02)
-                    self.assertTrue((self.root / "ready").exists(), "serve did not become ready")
+                    if not (self.root / "ready").exists():
+                        process.send_signal(signal.SIGTERM)
+                        stdout, stderr = process.communicate(timeout=8)
+                        self.fail(f"serve did not become ready\n{self.fixture_diagnostics()}\n"
+                                  f"stdout: {stdout.decode(errors='replace')}\nstderr: {stderr.decode(errors='replace')}")
                     process.send_signal(sig)
                     process.communicate(timeout=5)
                     self.assert_clean()
