@@ -88,7 +88,12 @@ class ServeIPATests(unittest.TestCase):
         diagnostics = self.root / "diagnostics"
         diagnostics.mkdir()
         (diagnostics / "sitecustomize.py").write_text(
-            "import faulthandler\nfaulthandler.dump_traceback_later(5)\n")
+            "import faulthandler, os, socket\n"
+            "faulthandler.dump_traceback_later(5)\n"
+            "if os.environ.get('FIXTURE_FAIL_REVERSE_DNS') == '1':\n"
+            "    def unavailable_reverse_dns(*args, **kwargs):\n"
+            "        raise AssertionError('unexpected reverse DNS')\n"
+            "    socket.getfqdn = unavailable_reverse_dns\n")
         self.env = dict(os.environ, PATH=str(self.bin), FIXTURE_ROOT=str(self.root),
                         TMPDIR=str(self.scratch), PYTHONDONTWRITEBYTECODE="1", PYTHONPATH=str(diagnostics))
         (self.bin / "python3").symlink_to(sys.executable)
@@ -242,6 +247,9 @@ class ServeIPATests(unittest.TestCase):
     def test_custom_https_port(self):
         self.assert_success(self.run_helper([str(self.ipa), "--port", "12345"]))
         self.assertIn("--https=12345", self.commands()[-1])
+
+    def test_loopback_serving_does_not_require_reverse_dns(self):
+        self.assert_success(self.run_helper(env={"FIXTURE_FAIL_REVERSE_DNS": "1"}))
 
     def test_ipa_does_not_require_xcodebuild_but_requires_tailscale(self):
         (self.bin / "xcodebuild").unlink()

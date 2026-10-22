@@ -17,6 +17,7 @@ import plistlib
 import re
 import shutil
 import signal
+from socketserver import TCPServer
 import subprocess
 import sys
 import tempfile
@@ -208,10 +209,18 @@ class InstallHandler(SimpleHTTPRequestHandler):
         pass
 
 
+class InstallServer(ThreadingHTTPServer):
+    def server_bind(self):
+        # The proxy uses a numeric loopback address; reverse DNS can stall startup.
+        TCPServer.server_bind(self)
+        self.server_name = "localhost"
+        self.server_port = self.server_address[1]
+
+
 def serve(site, port, base_url, label):
     handler = partial(InstallHandler, directory=str(site))
     # Bind once and keep the socket; there is no free-port selection race.
-    with ThreadingHTTPServer(("127.0.0.1", 0), handler) as server:
+    with InstallServer(("127.0.0.1", 0), handler) as server:
         thread = threading.Thread(target=server.serve_forever, daemon=True)
         thread.start()
         try:
