@@ -1,0 +1,13 @@
+#!/usr/bin/env zsh
+# tailscale-serve-ipa - Serve a signed iOS build for installation over Tailscale.
+# Usage: tailscale-serve-ipa <app.ipa | app.xcarchive> [--port <port>]
+#        tailscale-serve-ipa --scheme <scheme> [--workspace <path> | --project <path>]
+#                          [--configuration <name>] [--port <port>]
+
+if ! command -v python3 >/dev/null; then
+    print -u2 -- "Error: 'python3' not found"
+    return 2
+fi
+
+# Resolve beside this file so both autoloaded and directly invoked copies work.
+command python3 -B "${${(%):-%x}:A:h:h}/scripts/tailscale-serve-ipa.py" "$@"

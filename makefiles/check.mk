@@ -9,7 +9,7 @@ check/dotfiles:
 ## Check shared sources and run isolated fixture tests.
 check/repository:
 	@python3 -B "./scripts/check-repository.py"
-	@$(MAKE) test/dotfiles test/agents
+	@$(MAKE) test/dotfiles test/agents test/shell-functions
 
 ## Run isolated dotfile installation and source-policy tests.
 test/dotfiles:
@@ -33,3 +33,7 @@ test/agents:
 	@python3 -B "./scripts/tests/test-codex-routing.py"
 	@python3 -B "./scripts/tests/test-codex-routing-status.py"
 	@python3 -B "./scripts/tests/test-set-up-codex-routing.py"
+
+## Run shell-function tests with isolated command fixtures.
+test/shell-functions:
+	@python3 -B "./scripts/tests/test-tailscale-serve-ipa.py"

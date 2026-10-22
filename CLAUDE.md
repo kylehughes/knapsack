@@ -216,6 +216,9 @@ The repository implements custom zsh functions using XDG Base Directory specific
 - `ffmpeg-reduce-size` - Re-encode a video to reduce its file size
 - `xcode-reclaim-space` - Reclaim disk from Xcode and simulator artifacts
 
+#### Apple Development
+- `tailscale-serve-ipa` - Serve an iOS build over Tailscale for over-the-air install when Xcode can't reach the device
+
 #### Claude Code
 - `claude-fable` - Launch a single session on the current Fable model alias without changing the default model
 
