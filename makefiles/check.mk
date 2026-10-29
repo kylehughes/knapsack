@@ -26,6 +26,10 @@ check/agents:
 check/codex-routing:
 	@python3 -B "./scripts/check-codex-routing.py"
 
+## Check that Orca's live settings match the tracked base and overlay.
+check/orca:
+	@bash "./scripts/check-orca-settings.sh"
+
 ## Run agent-configuration checker tests.
 test/agents:
 	@bash "./scripts/tests/test-claude-settings.sh"
@@ -37,3 +41,7 @@ test/agents:
 ## Run shell-function tests with isolated command fixtures.
 test/shell-functions:
 	@python3 -B "./scripts/tests/test-tailscale-serve-ipa.py"
+
+## Run Orca settings fixture tests.
+test/orca:
+	@bash "./scripts/tests/test-orca-settings.sh"

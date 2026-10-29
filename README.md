@@ -19,6 +19,7 @@ Or run individual setup tasks:
 make set-up/homebrew        # Install Homebrew
 make set-up/dependencies    # Install dependencies from Brewfile
 make set-up/dotfiles        # Install or update local dotfile copies
+make set-up/orca            # Patch Orca's live settings from the tracked base and overlay
 make set-up/idb             # Install Facebook idb companion and client
 make set-up/mcp-servers     # Register shared MCP servers with Claude Code and Codex
 make set-up/agent-skills    # Install Knapsack's standalone Codex writing skill
@@ -61,6 +62,7 @@ the update commands above.
 | Shared source | Git-tracked files are copied individually; installed directories stay local. | Agent instructions and profiles, shell functions, terminal themes, Vim plugins. |
 | Local seed | Create only when absent; never update or retire automatically. | `~/.gitconfig_local`. |
 | Composed settings | Combine the shared base with the local overlay; preserve unrecorded edits as conflicts. | Claude settings and plugin declarations. |
+| Live preferences | Patch selected preferences from the base and overlay after the app quits. | Orca settings. |
 | Owned hook entry | Reconcile only Knapsack's routing handler, preserving all other local entries. | Codex hooks alongside Orca's integration. |
 | Runtime or machine state | Remains outside the checkout and outside installation ownership. | Orca projects, credentials, trust, downloaded skills, caches, and local functions. |
 
@@ -79,6 +81,28 @@ differing existing settings are preserved until reconciled.
 The installation ledger, migration journal, and content backups live in
 `~/.local/state/knapsack/`. Keep them on their originating Mac. They are not shared
 configuration and must not be committed or copied to the other Mac.
+
+### Orca Preferences
+
+Orca preferences use `dotfiles/merge/orca/settings.json` and the untracked
+`~/.orca/settings.machine.json`, created as `{}` if missing. Objects merge
+recursively; arrays, such as `terminalQuickCommands`, replace the base array.
+`make set-up/orca` patches only `.settings` in the active profile's live data
+file, preserving repos, sessions, and worktree metadata. It skips while Orca is
+running or before its first launch. Quit Orca before applying settings:
+
+```sh
+make set-up/orca
+make check/orca
+```
+
+To keep preference changes made through Orca's UI, quit Orca, run
+`make capture/orca`, and review the base diff before applying settings again.
+Capture updates only keys already present in the tracked base; add new shared
+preferences there deliberately. Keep machine-specific values in the overlay.
+Unlike the dotfile installer, Orca setup reapplies the composed preferences
+without reporting local edits as conflicts. It saves the previous live data
+file as `orca-data.json.pre-knapsack` beside that file before writing a change.
 
 ## Shell Functions
 
@@ -237,6 +261,13 @@ It does not require a Codex plugin inventory or perform network health checks.
 
 `make test/agents` runs the fixture-based tests for configuration and routing.
 
+`make check/orca` is read-only. It verifies the tracked Orca settings base
+against the public-repository denylist and that the active profile's live
+`.settings` contains the composed base and overlay, reported by key name only.
+It skips cleanly if Orca has never launched. `make test/orca` runs its
+fixture-based tests, kept separate from `make test/agents` because they never
+touch the real Orca data.
+
 ### Codex Routing
 
 The runtime smoke test below is the release gate. Passing unit tests and an
@@ -338,9 +369,10 @@ See [Codex hooks](https://learn.chatgpt.com/docs/hooks).
 `make check/repository` checks source policy and runs isolated fixture tests.
 `make test/dotfiles` runs migration, composition, and repository-guard tests;
 `make test/agents` runs the agent configuration tests; `make test/shell-functions`
-checks the IPA helper with disposable IPAs and mocked Tailscale and Xcode commands.
-None needs your accounts or launches an agent. Runtime checks remain separate:
-`make check/dotfiles`, `make check/agents`, and `make check/codex-routing` inspect this Mac.
+checks the IPA helper with disposable IPAs and mocked Tailscale and Xcode commands;
+`make test/orca` runs the Orca settings tests. None needs your accounts or launches
+an agent. Runtime checks remain separate: `make check/dotfiles`, `make check/agents`,
+`make check/codex-routing`, and `make check/orca` inspect this Mac.
 
 `make set-up/repository-hook` installs a pre-commit check for the staged snapshot.
 It preserves custom hooks and reports how to chain the check if one already
