@@ -3,7 +3,7 @@ migrate/mise:
 	@bash "./scripts/migrate-to-mise.sh"
 
 ## Run all setup tasks.
-set-up/all: set-up/homebrew set-up/dependencies set-up/dotfiles set-up/idb set-up/mcp-servers set-up/agent-skills set-up/codex-routing set-up/repository-hook
+set-up/all: set-up/homebrew set-up/dependencies set-up/dotfiles set-up/orca set-up/idb set-up/mcp-servers set-up/agent-skills set-up/codex-routing set-up/repository-hook
 	@echo ""
 	@echo "✓ All setup tasks complete!"
 
@@ -30,6 +30,10 @@ set-up/homebrew:
 ## Install Facebook idb companion and client.
 set-up/idb:
 	@bash "./scripts/set-up-idb.sh"
+
+## Patch Orca's live settings from the tracked base and machine overlay.
+set-up/orca:
+	@bash "./scripts/set-up-orca-settings.sh"
 
 ## Create local functions directory for machine-specific functions.
 set-up/local-functions:
