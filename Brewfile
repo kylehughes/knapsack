@@ -70,6 +70,7 @@ brew "pango"                # i18n text layout
 
 # === Casks ===
 
+cask "1password-cli"        # 1Password CLI
 cask "claude-code@latest"    # Anthropic Claude Code CLI
 cask "codex"                # OpenAI Codex CLI
 cask "xcodes-app"           # Xcode version manager
