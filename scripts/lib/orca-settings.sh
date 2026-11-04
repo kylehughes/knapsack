@@ -36,10 +36,12 @@ orca_active_data_file() {
 }
 
 # True if Orca is running. Orca debounces writes and flushes only on quit, so
-# apply and capture must refuse to touch the file while it's open.
+# apply and capture must refuse to touch the file while it's open. Match the
+# app's exact process name because Orca's terminal daemon outlives the app and
+# carries the app's executable path in its arguments.
 # ORCA_PROCESS_CHECK_COMMAND overrides the detection command for tests.
 orca_is_running() {
-    local check_command="${ORCA_PROCESS_CHECK_COMMAND:-pgrep -f /Orca.app/Contents/MacOS/Orca}"
+    local check_command="${ORCA_PROCESS_CHECK_COMMAND:-pgrep -x Orca}"
     $check_command > /dev/null 2>&1
 }
 
