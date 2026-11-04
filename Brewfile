@@ -34,7 +34,6 @@ brew "virtualenv"           # Python virtual environments
 
 # === AI Tools ===
 
-brew "gemini-cli"           # Google Gemini AI CLI
 brew "repomix"              # Pack repo for AI context
 
 # === Media Processing ===
@@ -72,5 +71,6 @@ brew "pango"                # i18n text layout
 
 cask "1password-cli"        # 1Password CLI
 cask "claude-code@latest"    # Anthropic Claude Code CLI
+cask "antigravity-cli"      # Google Antigravity CLI (agy; replaces Gemini CLI)
 cask "codex"                # OpenAI Codex CLI
 cask "xcodes-app"           # Xcode version manager
