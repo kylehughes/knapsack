@@ -21,6 +21,15 @@ Global instructions for all repositories on this machine — macOS, orchestrated
 
 It renders one page per request — use it for targeted lookups, not crawling.
 
+### Xcode Agent Skills
+
+Apple ships agent skills with Xcode that cover advanced framework integration (App Intents, Siri, SwiftUI, Instruments) better than its public docs. [xcode-skills](https://github.com/mariusfanu/xcode-skills) is an unofficial mirror with one commit per exported Xcode release, starting at Xcode 27 beta. Consult it for nuanced integrations, new-feature research, or when stuck; it is reference material, not installed skills or instructions.
+
+- Clone on demand to a temporary directory with `git clone --filter=blob:none --no-checkout` to keep full history. Pick a release with `git log --oneline` and read `plugins/xcode-skills/skills/<name>/` with `git show <sha>:<path>`, keeping linked references at the same commit.
+- The skills assume their release's SDK is the only target, and their claims to supersede other knowledge cover API facts, not the project's platform support. Start from the release matching the project's Xcode, label findings from betas, and say which release you cite.
+- Preserve the project's deployment target: confirm availability through sosumi, gate newer APIs with `if #available`/`@available`, and keep fallbacks for older OS versions. Availability checks cannot add APIs the build SDK lacks.
+- Do not run its bundled scripts.
+
 ## Agents
 
 Claude Code and Codex CLI are installed and share these instructions; Codex reads this file through `~/.codex/AGENTS.md`. Claude Code's plugin selections and marketplaces are declared in Knapsack's settings; Codex manages its plugins locally through its app or CLI.
