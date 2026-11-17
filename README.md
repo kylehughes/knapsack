@@ -399,7 +399,8 @@ thorough, GPT-6.2 Astra/medium for difficult, and an explicit GPT-6.1
 Terra/medium through `custom_worker`. A headless Claude Code 2.1.326 session
 spawned all five workers without a per-call model or effort; their transcripts
 recorded Haiku 5.5/high twice, Sonnet 5.5/medium, Sonnet 5.5/high, and Opus
-5.5/high. Orca-launched sessions have not been rechecked since the rename.
+5.5/high. An Orca-launched Codex session then repeated the Codex checks with the
+same rejections and the same recorded models and efforts.
 
 The status command is read-only and makes no model calls. It checks installation,
 effective configuration, and hook trust; passing it establishes eligibility,
