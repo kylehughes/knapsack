@@ -36,7 +36,7 @@ Knapsack generates Claude Code's full settings, including plugin declarations, f
 Knapsack/
 ├── README.md             # Main documentation
 ├── CLAUDE.md             # This file
-├── GEMINI.md             # Symlink → CLAUDE.md (Gemini CLI)
+├── GEMINI.md             # Symlink → CLAUDE.md (Antigravity/Gemini)
 ├── AGENTS.md             # Symlink → CLAUDE.md (Codex CLI)
 ├── Brewfile              # Homebrew dependencies
 ├── Makefile              # Main makefile
@@ -50,7 +50,7 @@ Knapsack/
 │   │   │   └── zsh/      # Custom shell functions
 │   │   ├── claude/       # Claude AI config (source of truth)
 │   │   ├── codex/        # Codex CLI config (AGENTS.md symlink → claude/, native TOML agents/)
-│   │   ├── gemini/       # Gemini CLI config (symlinks → claude/)
+│   │   ├── gemini/       # Antigravity instructions (aliases → claude/)
 │   │   ├── gitconfig     # Git configuration
 │   │   ├── gitignore_global # Global git ignore patterns
 │   │   ├── tmux.conf     # tmux configuration
@@ -68,7 +68,9 @@ Knapsack/
 ## Agent Configuration
 
 The shared agent instructions live in `dotfiles/shared/claude/CLAUDE.md` and
-are re-exported to Claude Code, Codex CLI, and Gemini CLI. The runtime-native
+are re-exported to Claude Code, Codex CLI, and Antigravity CLI (`agy`, for Gemini).
+Antigravity still reads `~/.gemini/GEMINI.md`; use `agy models` to check model
+access for the current Mac's account. The runtime-native
 agent directories use each tool's native subsystem, and both carry matching
 route profiles (`dotfiles/shared/codex/agents/*.toml`, `dotfiles/shared/claude/agents/*.md`)
 that pin a worker tier's model and effort separately from project-specific

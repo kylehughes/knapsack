@@ -66,12 +66,16 @@ EOF
 #!/bin/sh
 exit 0
 EOF
+    cat > "$bin/agy" <<'EOF'
+#!/bin/sh
+exit 1
+EOF
     cat > "$bin/codex" <<'EOF'
 #!/bin/sh
 if [ "$1" = mcp ] && [ "$2" = get ] && [ "$4" = --json ]; then cat "$CODEX_MCP_FIXTURE"; exit 0; fi
 exit 1
 EOF
-    chmod +x "$bin/claude" "$bin/codex" "$bin/gemini"
+    chmod +x "$bin/claude" "$bin/codex" "$bin/gemini" "$bin/agy"
     printf '{"enabled":true,"transport":{"type":"streamable_http","url":"https://sosumi.ai/mcp"}}\n' > "$FIXTURE_ROOT/codex.json"
 }
 
@@ -89,8 +93,33 @@ make_bin
 before="$(snapshot)"
 expect_status 0 run_check
 expect_output "Codex instructions copy is correct"
-expect_output "Gemini instructions copy is correct"
+expect_output "Antigravity instructions copy is correct"
 [[ "$before" = "$(snapshot)" ]] || fail "healthy check changed fixture files"
+
+# Antigravity uses the existing Gemini instruction copy without invoking the CLI.
+rm "$FIXTURE_ROOT/bin/gemini"
+expect_status 0 run_check
+expect_output "Antigravity instructions copy is correct"
+printf 'instruction drift\n' > "$FIXTURE_ROOT/user-dir/.gemini/GEMINI.md"
+expect_status 1 run_check
+expect_output "Antigravity instructions copy is missing or differs"
+cp -Lp "$FIXTURE_ROOT/repo/dotfiles/shared/gemini/GEMINI.md" "$FIXTURE_ROOT/user-dir/.gemini/GEMINI.md"
+
+# Other Macs may still have only the legacy Gemini CLI installed.
+make_bin
+rm "$FIXTURE_ROOT/bin/agy"
+expect_status 0 run_check
+expect_output "Gemini instructions copy is correct"
+printf 'instruction drift\n' > "$FIXTURE_ROOT/user-dir/.gemini/GEMINI.md"
+expect_status 1 run_check
+expect_output "Gemini instructions copy is missing or differs"
+
+# Without either CLI, instruction drift does not prevent an otherwise valid check.
+rm "$FIXTURE_ROOT/bin/gemini"
+expect_status 0 run_check
+expect_output "Antigravity and Gemini not installed; skipping instruction checks"
+cp -Lp "$FIXTURE_ROOT/repo/dotfiles/shared/gemini/GEMINI.md" "$FIXTURE_ROOT/user-dir/.gemini/GEMINI.md"
+make_bin
 
 # The tracked base uses the same plugin-field shape rules.
 printf '{"setting":"base","enabledPlugins":false}\n' > "$FIXTURE_ROOT/repo/dotfiles/merge/claude/settings.json"
@@ -120,7 +149,7 @@ expect_status 2 run_check
 expect_output "Required tool missing: zsh"
 make_bin
 
-rm "$FIXTURE_ROOT/bin/claude" "$FIXTURE_ROOT/bin/codex" "$FIXTURE_ROOT/bin/gemini"
+rm "$FIXTURE_ROOT/bin/claude" "$FIXTURE_ROOT/bin/codex" "$FIXTURE_ROOT/bin/gemini" "$FIXTURE_ROOT/bin/agy"
 expect_status 0 run_check
 make_bin
 

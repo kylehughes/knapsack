@@ -68,7 +68,7 @@ the update commands above.
 
 `dotfiles/shared/` contains shared copy sources, `dotfiles/seed/` contains local
 seeds, and `dotfiles/merge/` contains composition inputs. Source aliases let
-Codex and Gemini reuse the Claude instructions; their installed files are
+Codex and Antigravity reuse the Claude instructions; their installed files are
 independent copies. Ownership is recorded by installed destination, so renaming
 a source directory does not re-adopt or retire installed files.
 
@@ -205,8 +205,8 @@ The Mac mini's scan OCR service is managed there and is not installed by
 ## AI Agents
 
 The instructions in `dotfiles/shared/claude/CLAUDE.md` are the source of truth
-for all three CLI agents on this machine. Codex CLI (`~/.codex`) and Gemini
-CLI (`~/.gemini`) receive copies of the same instructions, so
+for all three CLI agents on this machine. Codex CLI (`~/.codex/AGENTS.md`) and
+Antigravity CLI (`~/.gemini/GEMINI.md`) receive copies of the same instructions, so
 `CLAUDE.md` is maintained once. Subagent execution follows each runtime's
 native mechanism. Codex's execution profiles choose model and effort while
 project instructions supply each worker's task or auditor's mandate. Claude Code's full
@@ -214,6 +214,13 @@ settings, including plugin declarations and marketplaces, are generated from
 the tracked base and machine overlay. Changes made through the Claude app are
 reported as conflicts unless they are captured in one of those sources.
 Codex manages plugins locally through its app or CLI.
+
+Run Gemini through Antigravity CLI with `agy`, or use
+`agy -p "prompt" --model gemini-4-argon-medium` for a headless turn. Check
+`agy models` for the current account's model IDs and `agy -p /usage` for quota.
+Model access can differ between Macs. Antigravity retains the
+[`~/.gemini/GEMINI.md` instruction location](https://antigravity.google/docs/cli/gcli-migration/#context-files-and-workspace-rules);
+its settings, account state, and workspace trust remain local.
 
 `make set-up/agent-skills` installs the standalone Codex
 `writing-prose-like-a-human` skill from the `repo|skill` declaration in
