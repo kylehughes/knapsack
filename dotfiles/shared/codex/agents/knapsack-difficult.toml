@@ -1,5 +1,0 @@
-name = "knapsack_difficult"
-description = "Route difficult investigation, implementation, and review to GPT-6.2 Sol at medium effort; Astra needs knapsack_override."
-developer_instructions = "Carry out the parent's bounded contract. Preserve peer edits, make no commits, report ambiguity, and follow task verification ownership."
-model = "gpt-6.2-sol"
-model_reasoning_effort = "medium"

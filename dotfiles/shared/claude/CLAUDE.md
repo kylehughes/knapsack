@@ -49,16 +49,16 @@ Invoke an agent headlessly only when the user asks for it, for an intentional cr
 
 ```bash
 # Claude Code (use --tools 'Read Grep Glob' to restrict built-in tools)
-claude -p --tools 'Read Grep Glob' --model claude-opus-5-5 "prompt"
+claude -p --tools 'Read Grep Glob' --model claude-opus-5-5 --effort high "prompt"
 
 # Codex CLI (-s read-only to review, -s workspace-write to edit; -o output.txt to capture output)
-codex exec -s read-only -m gpt-6.2-sol -c model_reasoning_effort="medium" "prompt"
+codex exec -s read-only -m gpt-6.2-astra -c model_reasoning_effort="medium" "prompt"
 
 # Antigravity CLI (Gemini; check this account's model IDs with agy models)
-agy -p "prompt" --model gemini-4-argon-medium
+agy -p "prompt" --model gemini-4-argon-high
 ```
 
-Use Opus 5.5 or GPT-6.2 Sol for an intentional cross-model second opinion. The rare Fable/Astra escalation rule below applies to headless invocations too.
+A headless run takes the model and effort its task's class gets under Model and Effort below. A cross-model second opinion is difficult work, so the examples show each harness's difficult pairing. The rule there for Fable and Astra applies to headless invocations too.
 
 Claude Code and Codex CLI accept piped stdin: `echo "context" | claude -p "prompt"`.
 
@@ -80,34 +80,47 @@ A task contract includes the objective, relevant context, ownership boundary (fi
 
 #### Model and Effort
 
-The point of delegating is the best output for the least usage. Prefer Fable 5.2 (`claude-fable-5-2`) and GPT-6.2 Astra (`gpt-6.2-astra`) as orchestrators when available; the current parent keeps orchestration and judgment. I often work directly with these models, so already running on Fable or Astra is no reason to spawn another. Workers absorb bounded work on the models below. Delegate to Fable or Astra only when I explicitly request it, or after a GPT-6.2 Sol or Opus 5.5 worker has failed the same bounded task for a demonstrated capability reason. State that reason in the task contract. This should be rare, and applies equally to native subagents and headless invocations.
+The point of delegating is the best output for the least usage. Usage is paid per finished task, not per token, and a worker's failure is paid for a second time at the parent's rates. The right route is the cheapest one whose mistakes would be caught before the parent builds on them. Prefer Fable 5.2 (`claude-fable-5-2`) and GPT-6.2 Astra (`gpt-6.2-astra`) as orchestrators when available; the current parent keeps orchestration and judgment. I often work directly with these models, so already running on one is no reason to spawn another.
 
-Classify a task by what it needs, not by how much it matters:
+Classify a task by what it needs, not by how much it matters. Two questions decide the class: how much the worker has to work out for itself, and whether a wrong or incomplete result would be caught cheaply, by a verification command or by the parent at a glance.
 
-- **Mechanical** — the instructions are exact and nothing needs interpreting: apply a described diff, rename, move code verbatim, run a verbose command and report the outcome.
-- **Ordinary** — a bounded slice with a clear contract that still takes local judgment: implement a planned change, read-heavy exploration that returns distilled findings, a standards audit, summarizing test or log output. Most delegated implementation is ordinary.
-- **Difficult** — the answer depends on weighing ambiguous evidence or choosing among viable designs: root-cause hunts, concurrency bugs, design review with tradeoffs.
+- **Mechanical** — nothing to work out; the instructions are exact: apply a described diff, rename, move code verbatim, run a command and report the outcome.
+- **Scout** — find and report facts that have a definite answer, changing nothing: where something is defined, which files use it, what a log or test run says failed, what a document states.
+- **Ordinary** — build a bounded slice to a clear contract whose verification command catches mistakes: implement a planned change, add tests to a stated specification. Most delegated implementation is ordinary.
+- **Thorough** — bounded, but the worker must work something out or a miss would pass the check: fix a reproduced bug, a change with edge cases, open-ended exploration that informs a decision, an audit against written rules, diagnosing failing tests.
+- **Difficult** — judgment with nothing to catch a wrong answer: a root-cause hunt without a reproduction, concurrency bugs, design review with tradeoffs, a defect-hunting review of a substantial change.
 
-| Tier | Codex CLI | Claude Code |
+When two classes fit, these lines separate them. Work that changes nothing is scout, not mechanical. Reporting what a file, log, or command says is scout; explaining why is thorough. A review against written rules is thorough; a hunt for defects that no rule names is difficult. A comparison is thorough when the criteria are given and difficult when choosing them is the task.
+
+| Class | Claude Code | Codex CLI |
 | --- | --- | --- |
-| Mechanical | `knapsack_mechanical` — GPT-6 Luna, high | `knapsack-mechanical` — Haiku 5.5, high |
-| Ordinary | `knapsack_ordinary` — GPT-6.2 Sol, medium | `knapsack-ordinary` — Sonnet, medium |
-| Difficult | `knapsack_difficult` — GPT-6.2 Sol, medium | `knapsack-difficult` — Opus 5.5, medium |
-| Deliberate deviation | `knapsack_override` — explicit model and effort | per-call `model` on any agent; effort follows the session |
+| Mechanical | `mechanical-worker` — `claude-haiku-5-5`, `high` | `mechanical_worker` — `gpt-6-luna`, `high` |
+| Scout | `scout-worker` — `claude-haiku-5-5`, `high` | `scout_worker` — `gpt-6-luna`, `high` |
+| Ordinary | `ordinary-worker` — `sonnet`, `medium` | `ordinary_worker` — `gpt-6.2-sol`, `medium` |
+| Thorough | `thorough-worker` — `sonnet`, `high` | `thorough_worker` — `gpt-6.2-sol`, `high` |
+| Difficult | `difficult-worker` — `claude-opus-5-5`, `high` | `difficult_worker` — `gpt-6.2-astra`, `medium` |
+| Deliberate deviation | per-call `model` and `effort` | `custom_worker` — explicit model and effort |
 
-Ordinary and difficult Codex routes both use GPT-6.2 Sol at medium effort. Keep the classifications separate because they describe different task contracts.
+Model capability and reasoning effort are separate levers, and each tier has a band of effort worth paying for:
 
-Model capability and reasoning effort are separate levers with different prices. On a small model, extra thinking costs little and closes some of the capability gap, which is why Luna and Haiku 5.5 run at high. On a large model, effort is the most expensive lever and the one most likely to overthink a clear task: it adds tokens and latency and can talk the model out of a plain instruction. Medium is our default there, as it is when I run Astra and Sol myself; `high` needs a stated reason, and `xhigh` and `max` never reach a worker unless the user asks for them.
+- **Small models** (Haiku 5.5, GPT-6 Luna) cost about a twentieth of a workhorse per token, so they run at `high`. Give them only work whose result is easy to check, and keep each task short: Haiku costs five times as much on a request whose prompt passes 100,000 tokens.
+- **Workhorse models** (Sonnet 5.5, GPT-6.2 Sol) still gain a lot from `medium` to `high`, for under twice the cost. `medium` is for work a check will catch and `high` for the rest. Above `high` the gains flatten, and the next model up is the better buy.
+- **The strongest worker** (Opus 5.5; on Codex, Astra, because OpenAI has no model between Sol and Astra) takes the work where a miss is silent. Review and root-cause work fall apart at low effort, so it never runs below `medium`.
+- `xhigh` is a retry step, never a starting point. `max` and Codex's `ultra`, which delegates on its own, never reach a worker unless I ask for them.
 
-When a worker fails, read the failure before escalating, and change one lever per retry. For a capability failure, choose a more capable worker within the escalation rules above. Moving from ordinary to difficult on Codex does not change the model or effort. One that stopped short or missed evidence keeps its model and gains effort, which on Codex means `knapsack_override`. One that reported ambiguity needs a better contract, not a better model. Do not turn one retry into a standing rule.
+When work is checkable, start on the cheaper route and escalate on failure; that costs less than starting high. For retries the classes form a ladder: mechanical or scout, then ordinary, thorough, and difficult. When a worker fails, read the failure before escalating, and change one lever per retry. One that stopped short or missed evidence keeps its model and gains one effort step, which from ordinary is the thorough route. A capability failure moves up to the next model on the ladder. One that reported ambiguity needs a better contract, not a better model. Do not turn one retry into a standing rule.
 
-**Codex CLI.** Every spawn selects an `agent_type` from the four routes, then chooses fresh (`fork_turns=none`) or bounded context. The pinned routes fix both model and effort, and the validator rejects a mismatch, so any deviation goes through `knapsack_override` with explicit `model` and `reasoning_effort` and the reason in the task contract: the user named a model, Astra is warranted, or a Sol worker needs `high`. Override is the normal path for a considered deviation, not a rare one. Never set a global subagent model default; the routes carry the choice. Pass project auditor instructions as task context; their mandate is separate from the execution profile, and profiles change neither permissions nor verification ownership.
+Fable 5.2 is never a default worker, and Astra never runs above `medium` by default. Delegate to Fable (per-call `model`: `fable`), or raise Astra's effort, only when I explicitly request it or after the difficult route has failed the same bounded task for a demonstrated capability reason, and state that reason in the task contract. On coding work, retry Opus 5.5 at `xhigh` before reaching for Fable: in Anthropic's measurements it matches Fable at `high` for about half the cost. A parent already running the difficult route's model delegates difficult work only for independence or context isolation; otherwise it keeps the work. This applies equally to native subagents and headless invocations.
 
-**Claude Code.** The three `knapsack-*` agents pin model and effort. Mechanical work pins Haiku 5.5 (`claude-haiku-5-5`) because older Haiku versions do not support effort; it requires Claude Code 2.1.293 or later. Ordinary work uses the `sonnet` alias, which follows the current Sonnet for the provider (Sonnet 5.5 on the Anthropic API with Claude Code 2.1.284 or later). Built-in agents (Explore, Plan, general-purpose) and plugin auditors keep their own prompts and tools and take a per-call `model`: Sonnet for Explore at medium breadth; Opus 5.5 (`claude-opus-5-5`) for very thorough exploration, Plan, and reviewers or auditors. They inherit the session's effort setting, since only an agent definition can pin it. Fable 5.2 uses `claude-fable-5-2`, requires Claude Code 2.1.321 or later, and follows the rare escalation rule above; `fork` (which copies the whole conversation) is for tasks the user asked to run that way. Opus 5.5 requires Claude Code 2.1.280 or later. If the runtime cannot use a requested model, report that limitation rather than silently selecting an older one.
+**Codex CLI.** Every spawn selects an `agent_type` from the six routes and starts fresh with `fork_turns=none`. Codex 0.169 runs any other value, including a turn count, as a full-history fork, so the task contract has to carry the context. The pinned routes fix both model and effort, and the validator rejects a mismatch, so any deviation goes through `custom_worker` with explicit `model` and `reasoning_effort` and the reason in the task contract: the user named a model, a retry changes one lever, or a screenshot or computer-use subtask suits GPT-6.1 Terra (`gpt-6.1-terra`). `custom_worker` is the normal path for a considered deviation, not a rare one. Never set a global subagent model default; the routes carry the choice. Pass project auditor instructions as task context; their mandate is separate from the execution profile, and profiles change neither permissions nor verification ownership.
 
-Knapsack's optional `PreToolUse` validator rejects missing routes and model or effort values that conflict with a pinned route on supported Codex spawn calls. It cannot decide whether a task was classified correctly or force delegation. If native profiles or hooks are unavailable, apply the table by hand and report that routing is unenforced; do not bypass a hook rejection. Installation and activation checks live in Knapsack's README under Codex Routing.
+**Claude Code.** The five `*-worker` agents pin model and effort. Every other agent (Explore, Plan, general-purpose, plugin reviewers and auditors) keeps its own prompt and tools but runs on the parent's model unless its definition pins one, so on a Fable session an unrouted call lands on Fable, or on Opus for Explore. Pass both `model` and `effort` on each such call, chosen by the task's class: `haiku` at `high` for lookups; `sonnet` at `medium` or `high` for ordinary or thorough work, including open-ended exploration and audits against written rules; `opus` at `high` for Plan and for reviewers that hunt defects or judge design. The per-call `model` takes an alias (`haiku`, `sonnet`, `opus`, `fable`), not a model ID, and per-call `effort` requires Claude Code 2.1.292 or later. `fork` copies the whole conversation onto the parent's model and is for tasks the user asked to run that way. Haiku 5.5, the first Haiku with effort, requires Claude Code 2.1.293 or later, and Fable 5.2 requires 2.1.321. If the runtime cannot use a requested model, report that limitation rather than silently selecting an older one.
 
-See the [Claude Code subagents documentation](https://code.claude.com/docs/en/sub-agents) and [Codex subagents documentation](https://learn.chatgpt.com/docs/agent-configuration/subagents) for runtime-specific behavior.
+**Antigravity CLI.** `agy` has no pinned routes: its subagents choose a model tier (`flash`, `pro`, or `inherit`), not a model and effort. Choose the session or headless model by class instead: `gemini-3.8-flash-high` for mechanical and scout work, `gemini-4-hydrogen-medium` for ordinary, `gemini-4-hydrogen-high` for thorough, and `gemini-4-argon-high` for difficult work and second opinions. Argon draws on its own weekly limit; when `agy -p /usage` shows it running short, use `gemini-4-hydrogen-xhigh`. Run Claude and GPT models through their own harnesses, not through `agy`.
+
+Knapsack's optional `PreToolUse` validator rejects missing routes, inherited context, and model or effort values that conflict with a pinned route on supported Codex spawn calls. It cannot decide whether a task was classified correctly or force delegation. If native profiles or hooks are unavailable, apply the table by hand and report that routing is unenforced; do not bypass a hook rejection. Installation and activation checks live in Knapsack's README under Codex Routing.
+
+The evidence behind this table, and the steps for re-evaluating it when a model ships, live in Knapsack's `docs/agent-routing.md`. See the [Claude Code subagents documentation](https://code.claude.com/docs/en/sub-agents) and [Codex subagents documentation](https://learn.chatgpt.com/docs/agent-configuration/subagents) for runtime-specific behavior.
 
 ## Writing
 

@@ -44,10 +44,10 @@ class CodexRoutingStatusTests(unittest.TestCase):
             config = {"config": {"agents": agents}}
             with mock.patch.object(Path, "home", return_value=home):
                 self.assertEqual(STATUS.file_issues(active_home, root, config), [])
-                agents["knapsack_mechanical"]["config_file"] = str(root / "dotfiles/shared/codex/agents/knapsack-mechanical.toml")
-                self.assertIn("agent profile is not an isolated matching copy knapsack-mechanical.toml", STATUS.file_issues(active_home, root, config))
-                agents["knapsack_mechanical"]["config_file"] = str(home / "missing.toml")
-                self.assertIn("missing agent profile knapsack-mechanical.toml", STATUS.file_issues(active_home, root, config))
+                agents["mechanical_worker"]["config_file"] = str(root / "dotfiles/shared/codex/agents/mechanical-worker.toml")
+                self.assertIn("agent profile is not an isolated matching copy mechanical-worker.toml", STATUS.file_issues(active_home, root, config))
+                agents["mechanical_worker"]["config_file"] = str(home / "missing.toml")
+                self.assertIn("missing agent profile mechanical-worker.toml", STATUS.file_issues(active_home, root, config))
 
     def test_active_home_prefers_codex_home_without_changing_it(self):
         self.assertEqual(

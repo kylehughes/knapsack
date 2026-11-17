@@ -51,7 +51,6 @@ class InstallerTests(unittest.TestCase):
         for relative, target in (
             ("dotfiles/shared/codex/AGENTS.md", "../claude/CLAUDE.md"),
             ("dotfiles/shared/gemini/GEMINI.md", "../claude/CLAUDE.md"),
-            ("dotfiles/shared/gemini/agents", "../claude/agents"),
         ):
             path = self.root / relative
             path.parent.mkdir(parents=True, exist_ok=True)
@@ -91,8 +90,9 @@ class InstallerTests(unittest.TestCase):
         self.run_command("apply")
         self.assertEqual((self.home / ".codex/AGENTS.md").read_text(), "shared instructions\n")
         self.assertFalse((self.home / ".codex/AGENTS.md").is_symlink())
-        self.assertFalse((self.home / ".gemini/agents").is_symlink())
-        self.assertEqual((self.home / ".gemini/agents/ordinary.md").read_text(), "worker\n")
+        self.assertEqual((self.home / ".claude/agents/ordinary.md").read_text(), "worker\n")
+        # Antigravity reads its own agent format elsewhere; Claude agents are not copied to it.
+        self.assertFalse((self.home / ".gemini/agents").exists())
         self.assertFalse((self.home / ".claude/skills").exists())
         self.assertFalse((self.home / ".codex/hooks.json.bak").exists())
         self.assertEqual((self.home / ".gitconfig_local").read_text(), "seed\n")
@@ -201,7 +201,6 @@ class InstallerTests(unittest.TestCase):
         self.assertEqual((self.home / ".config/zsh/functions-local/private-tool").read_text(), "local function\n")
         self.assertTrue((self.home / ".claude/external").is_symlink())
         self.assertFalse((self.home / ".gemini/GEMINI.md").is_symlink())
-        self.assertFalse((self.home / ".gemini/agents").is_symlink())
         self.assertGreaterEqual(len(list((self.state / "backups").iterdir())), 4)
         self.run_command("check")
 

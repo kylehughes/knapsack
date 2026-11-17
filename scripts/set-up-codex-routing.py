@@ -14,12 +14,6 @@ from pathlib import Path
 
 
 TIMEOUT_SECONDS = 9.0
-ROLES = (
-    ("knapsack_mechanical", "knapsack-mechanical.toml", "Knapsack mechanical work route."),
-    ("knapsack_ordinary", "knapsack-ordinary.toml", "Knapsack ordinary work route."),
-    ("knapsack_difficult", "knapsack-difficult.toml", "Knapsack difficult work route."),
-    ("knapsack_override", "knapsack-override.toml", "Knapsack explicit override route."),
-)
 
 
 def load_protocol_helper():
@@ -31,6 +25,15 @@ def load_protocol_helper():
     module = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(module)
     return module
+
+
+STATUS = load_protocol_helper()
+# Each tracked route profile registers one role, named for its file.
+ROLES = tuple(
+    (Path(profile).stem.replace("-", "_"), profile,
+     "Knapsack " + Path(profile).stem[:-len("-worker")] + " work route.")
+    for profile in STATUS.PROFILES
+)
 
 
 def native_profile_issues(codex_home):
@@ -57,6 +60,11 @@ def batch_write_params(codex_home):
                 "mergeStrategy": "upsert",
             }
             for role, profile, description in ROLES
+        ] + [
+            # A null value clears the key. A retired role would otherwise keep
+            # pointing at a profile the installer has removed.
+            {"keyPath": "agents." + role, "value": None, "mergeStrategy": "replace"}
+            for role in STATUS.RETIRED_ROLES
         ],
     }
 
@@ -79,7 +87,7 @@ def close_process(process, deadline):
 
 
 def register_native_routes(codex_home, protocol, deadline):
-    """Write only the four native role registrations through Codex app-server."""
+    """Write only Knapsack's native role registrations through Codex app-server."""
     # Setup owns the standard user configuration. Let Codex use its normal home
     # instead of inheriting an app's private runtime home into this child process.
     environment = os.environ.copy()
@@ -131,14 +139,14 @@ def main():
         return 1
     deadline = time.monotonic() + TIMEOUT_SECONDS
     try:
-        register_native_routes(codex_home, load_protocol_helper(), deadline)
+        register_native_routes(codex_home, STATUS, deadline)
     except FileNotFoundError:
         print("Codex routing setup: codex CLI is not installed.")
         return 2
     except (OSError, RuntimeError, TimeoutError):
         print("Codex routing setup: could not register native role routes.")
         return 1
-    print("Codex routing setup: registered four native role routes.")
+    print(f"Codex routing setup: registered {len(ROLES)} native role routes.")
     return 0
 
 

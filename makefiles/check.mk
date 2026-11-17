@@ -34,6 +34,7 @@ check/orca:
 test/agents:
 	@bash "./scripts/tests/test-claude-settings.sh"
 	@bash "./scripts/tests/test-check-agents.sh"
+	@python3 -B "./scripts/tests/test-agent-roster.py"
 	@python3 -B "./scripts/tests/test-codex-routing.py"
 	@python3 -B "./scripts/tests/test-codex-routing-status.py"
 	@python3 -B "./scripts/tests/test-set-up-codex-routing.py"

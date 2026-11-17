@@ -6,6 +6,7 @@ Usage: scripts/check-codex-routing.py
 
 import json
 import os
+import runpy
 import select
 import subprocess
 import sys
@@ -13,16 +14,26 @@ import time
 from pathlib import Path
 
 
-PROFILES = (
-    "knapsack-mechanical.toml",
-    "knapsack-ordinary.toml",
-    "knapsack-difficult.toml",
-    "knapsack-override.toml",
-)
 HOOK_COMMAND = 'python3 "$HOME/.codex/hooks/validate-agent-route.py"'
 HOOK_MATCHER = "^(spawn_agent|Agent|collaborationspawn_agent)$"
 TIMEOUT_SECONDS = 9.0
 MAX_PROTOCOL_BYTES = 1_048_576
+
+
+def repository_root():
+    """Return the repository root from this script's known location."""
+    return Path(__file__).resolve().parents[1]
+
+
+def route_profiles(root=None):
+    """Return the tracked route profile names; the files themselves are the route list."""
+    source = (repository_root() if root is None else Path(root)) / "dotfiles/shared/codex/agents"
+    return tuple(sorted(path.name for path in source.glob("*-worker.toml")))
+
+
+PROFILES = route_profiles()
+# Role names Knapsack registered before the routes were renamed. Setup clears them.
+RETIRED_ROLES = ("knapsack_mechanical", "knapsack_ordinary", "knapsack_difficult", "knapsack_override")
 
 
 def active_codex_home(environment=None, home=None):
@@ -31,11 +42,6 @@ def active_codex_home(environment=None, home=None):
     home = Path.home() if home is None else Path(home)
     configured = environment.get("CODEX_HOME")
     return Path(configured) if configured else home / ".codex"
-
-
-def repository_root():
-    """Return the repository root from this script's known location."""
-    return Path(__file__).resolve().parents[1]
 
 
 def isolated_file(path, root):
@@ -98,6 +104,15 @@ def file_issues(active_home, root, config_result=None):
         script_matches = False
     if not script_matches:
         issues.append("$HOME/.codex hook script is not an isolated matching copy")
+    else:
+        # The hook reads every *-worker.toml beside it, including local ones setup does not own.
+        try:
+            runpy.run_path(str(expected_script))["load_routes"](live_script.parent.parent / "agents")
+        except (OSError, ValueError):
+            issues.append("the routing hook cannot read a *-worker.toml profile in $HOME/.codex/agents")
+    for role in RETIRED_ROLES:
+        if isinstance(agents, dict) and role in agents:
+            issues.append("retired role registration remains: " + role)
     return issues
 
 

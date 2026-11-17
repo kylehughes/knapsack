@@ -13,7 +13,6 @@ import tempfile
 ALIASES = {
     "dotfiles/shared/codex/AGENTS.md": "../claude/CLAUDE.md",
     "dotfiles/shared/gemini/GEMINI.md": "../claude/CLAUDE.md",
-    "dotfiles/shared/gemini/agents": "../claude/agents",
 }
 AGENT_RUNTIME = {
     "auth.json", "credentials.json", ".credentials.json", "sessions", "sessions.json",
@@ -133,8 +132,7 @@ def check(root, tracked):
                 errors.append(f"{name}: source symlink is broken, cyclic, or outside the repository")
                 continue
             if resolved.is_dir():
-                if name != "dotfiles/shared/gemini/agents" or not any(p.startswith(relative + "/") for p in tracked):
-                    errors.append(f"{name}: unexpected directory alias")
+                errors.append(f"{name}: unexpected directory alias")
             elif relative not in tracked:
                 errors.append(f"{name}: source alias target is not tracked")
             continue

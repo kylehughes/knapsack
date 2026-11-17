@@ -1,9 +1,9 @@
 ---
-name: knapsack-difficult
-description: Difficult worker on Opus 5.5 at medium effort for work whose answer depends on weighing ambiguous evidence or choosing among several viable designs - root-cause investigation, concurrency and data-race bugs, design review with tradeoffs, independent review of a substantial change. Use it because the task needs judgment, not because it matters; most implementation belongs on knapsack-ordinary. Fable is never a default; name it per call only when the user asked for it or this worker already failed the task for a demonstrated capability reason. Already running on Fable is no reason to spawn another.
+name: difficult-worker
+description: Difficult worker (strongest worker model, high effort) for judgment with nothing to catch a wrong answer - a root-cause hunt without a reproduction, concurrency and data-race bugs, design review with tradeoffs, a defect-hunting review of a substantial change. Use it because the task needs judgment, not because it matters; bounded work with a usable check belongs on ordinary-worker or thorough-worker. The frontier model is never a default; name it per call only when the user asked for it or this worker already failed the task for a demonstrated capability reason. Already running on the frontier model is no reason to spawn another.
 tools: Read, Edit, Write, Glob, Grep, Bash
 model: claude-opus-5-5
-effort: medium
+effort: high
 permissionMode: acceptEdits
 maxTurns: 600
 color: purple
