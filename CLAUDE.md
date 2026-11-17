@@ -40,6 +40,7 @@ Knapsack/
 ├── AGENTS.md             # Symlink → CLAUDE.md (Codex CLI)
 ├── Brewfile              # Homebrew dependencies
 ├── Makefile              # Main makefile
+├── docs/                 # Maintainer guides (agent routing, dotfile migration)
 ├── dotfiles/             # Configuration files
 │   ├── seed/             # Local seeds (gitconfig_local)
 │   ├── shared/           # Shared copy sources
@@ -73,11 +74,18 @@ Antigravity still reads `~/.gemini/GEMINI.md`; use `agy models` to check model
 access for the current Mac's account. The runtime-native
 agent directories use each tool's native subsystem, and both carry matching
 route profiles (`dotfiles/shared/codex/agents/*.toml`, `dotfiles/shared/claude/agents/*.md`)
-that pin a worker tier's model and effort separately from project-specific
+that pin a task class's model and effort separately from project-specific
 subagent mandates. Installed instruction and profile files are copies, not links.
-The tier definitions and effort policy live in the shared
+The class definitions and effort policy live in the shared
 instructions; the routing validator and its activation checks belong here.
 Consuming repositories retain their own task contracts and auditor instructions.
+
+A model and effort are pinned only in those route profiles. The Codex validator
+and routing scripts read the profiles, and `make test/agents` fails when a
+roster table in the shared instructions, the README, or `docs/agent-routing.md`
+disagrees with them. That guide holds the evidence behind each pin and the
+steps for re-evaluating the roster when a model ships; follow it instead of
+editing a model name in place.
 
 ## Dotfile Isolation and Rollout
 
@@ -222,7 +230,7 @@ The repository implements custom zsh functions using XDG Base Directory specific
 - `tailscale-serve-ipa` - Serve an iOS build over Tailscale for over-the-air install when Xcode can't reach the device
 
 #### Claude Code
-- `claude-fable` - Launch a single session on the current Fable model alias without changing the default model
+- `claude-fable` - Launch a single session on Fable 5.2 without changing the default model
 
 ### Adding New Functions
 

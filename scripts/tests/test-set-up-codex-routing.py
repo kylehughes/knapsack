@@ -68,12 +68,28 @@ class CodexRoutingSetupTests(unittest.TestCase):
         params = SETUP.batch_write_params(home)
         self.assertEqual(params["filePath"], "/tmp/native-codex/config.toml")
         self.assertFalse(params["reloadUserConfig"])
-        self.assertEqual([edit["keyPath"] for edit in params["edits"]], [
-            "agents.knapsack_mechanical",
-            "agents.knapsack_ordinary",
-            "agents.knapsack_difficult",
-            "agents.knapsack_override",
-        ])
+        profiles = sorted((Path(__file__).resolve().parents[2] / "dotfiles/shared/codex/agents").glob("*-worker.toml"))
+        self.assertGreater(len(profiles), 1)
+        # Every tracked route profile is registered, and nothing else is.
+        retired = [edit for edit in params["edits"] if edit["value"] is None]
+        params["edits"] = [edit for edit in params["edits"] if edit["value"] is not None]
+        self.assertEqual(
+            [edit["keyPath"] for edit in params["edits"]],
+            ["agents." + profile.stem.replace("-", "_") for profile in profiles],
+        )
+        self.assertEqual(
+            [Path(edit["value"]["config_file"]).name for edit in params["edits"]],
+            [profile.name for profile in profiles],
+        )
+        descriptions = {edit["keyPath"]: edit["value"]["description"] for edit in params["edits"]}
+        self.assertEqual(descriptions["agents.mechanical_worker"], "Knapsack mechanical work route.")
+        self.assertEqual(descriptions["agents.custom_worker"], "Knapsack custom work route.")
+        # Retired role names are cleared, and never collide with a current route.
+        self.assertEqual(
+            [edit["keyPath"] for edit in retired],
+            ["agents." + role for role in SETUP.STATUS.RETIRED_ROLES],
+        )
+        self.assertFalse({edit["keyPath"] for edit in retired} & set(descriptions))
         for edit in params["edits"]:
             self.assertEqual(edit["mergeStrategy"], "upsert")
             self.assertEqual(set(edit["value"]), {"description", "config_file"})
@@ -85,12 +101,10 @@ class CodexRoutingSetupTests(unittest.TestCase):
     def test_missing_native_profiles_blocks_any_server_launch(self):
         with tempfile.TemporaryDirectory() as temporary:
             home = Path(temporary) / ".codex"
-            self.assertEqual(set(SETUP.native_profile_issues(home)), {
-                "knapsack-mechanical.toml",
-                "knapsack-ordinary.toml",
-                "knapsack-difficult.toml",
-                "knapsack-override.toml",
-            })
+            self.assertEqual(
+                set(SETUP.native_profile_issues(home)),
+                {profile for _, profile, _ in SETUP.ROLES},
+            )
 
     def test_native_profile_preflight_accepts_installed_copies_and_local_profiles(self):
         source = Path(__file__).resolve().parents[2] / "dotfiles/shared/codex/agents"

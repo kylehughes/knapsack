@@ -160,7 +160,7 @@ the zsh function and its Python companion are installed together by dotfile setu
 
 | Function | Description | Usage |
 | --- | --- | --- |
-| `claude-fable` | Launch a single Claude Code session on the current Fable model alias without changing the default model. | `claude-fable [claude arguments]` |
+| `claude-fable` | Launch a single Claude Code session on Fable 5.2 without changing the default model. | `claude-fable [claude arguments]` |
 
 Functions follow the `tool-action` naming convention for clarity and tab completion support.
 
@@ -216,7 +216,7 @@ reported as conflicts unless they are captured in one of those sources.
 Codex manages plugins locally through its app or CLI.
 
 Run Gemini through Antigravity CLI with `agy`, or use
-`agy -p "prompt" --model gemini-4-argon-medium` for a headless turn. Check
+`agy -p "prompt" --model gemini-4-argon-high` for a headless turn. Check
 `agy models` for the current account's model IDs and `agy -p /usage` for quota.
 Model access can differ between Macs. Antigravity retains the
 [`~/.gemini/GEMINI.md` instruction location](https://antigravity.google/docs/cli/gcli-migration/#context-files-and-workspace-rules);
@@ -228,26 +228,44 @@ its settings, account state, and workspace trust remain local.
 declared in the settings base.
 
 Delegation guidance lives in the shared instructions. Its aim is the best
-output for the least usage: Fable and Astra are preferred orchestrators when
-available, and the current parent keeps orchestration and judgment. Delegating
-to either is rare: an explicit user request or a demonstrated capability failure
-by Sol or Opus on the same bounded task. This applies to native and headless
-agents, including when the parent already runs on Fable or Astra. The policy
-covers when to delegate, task contracts, context inheritance, how to classify a task into a
-tier, and when effort rather than model is the right lever. Both runtimes carry
-matching route profiles: Codex through the `knapsack_*` execution profiles
-below, Claude Code through the `knapsack-*` agents in `claude/agents/`, which
-are the only way to pin a Claude subagent's effort. See the [Claude Code subagents documentation](https://code.claude.com/docs/en/sub-agents)
+output for the least usage: the parent keeps orchestration and judgment, and
+each delegated task goes to the cheapest route whose mistakes would be caught.
+A task is classified by what it needs, not by how much it matters, and both
+runtimes carry a route of the same name for each class:
+
+| Class | The work | Claude Code | Codex CLI |
+| --- | --- | --- | --- |
+| Mechanical | Exact instructions, nothing to interpret | `mechanical-worker` — `claude-haiku-5-5`, `high` | `mechanical_worker` — `gpt-6-luna`, `high` |
+| Scout | Find and report facts, changing nothing | `scout-worker` — `claude-haiku-5-5`, `high` | `scout_worker` — `gpt-6-luna`, `high` |
+| Ordinary | Build to a clear contract that a check verifies | `ordinary-worker` — `sonnet`, `medium` | `ordinary_worker` — `gpt-6.2-sol`, `medium` |
+| Thorough | Bounded work a check would not fully cover | `thorough-worker` — `sonnet`, `high` | `thorough_worker` — `gpt-6.2-sol`, `high` |
+| Difficult | Judgment with nothing to catch a wrong answer | `difficult-worker` — `claude-opus-5-5`, `high` | `difficult_worker` — `gpt-6.2-astra`, `medium` |
+
+Fable 5.2 and GPT-6.2 Astra are the preferred orchestrators. Fable is a worker
+only on an explicit request or after the difficult route has failed a task for
+a demonstrated capability reason. Astra is the difficult route on Codex, where
+no model sits between Sol and the frontier, and runs above medium effort only
+under the same rule. Antigravity has no pinned routes, because its subagents
+choose a model tier and cannot set effort; the instructions name a Gemini model
+for each class instead.
+
+In Claude Code, the `*-worker` agents in `claude/agents/` pin model and
+effort. Any other agent runs on the session's model unless its definition pins
+one, so the instructions ask for an explicit `model` and `effort` on each such
+call. Haiku is pinned by ID because older Haiku versions do not support effort,
+and `sonnet` is an alias that resolves to Sonnet 5.5 on the Anthropic API. Use
+[Claude Code 2.1.293 or later](https://code.claude.com/docs/en/model-config)
+for all five routes.
+`claude-fable` selects Fable 5.2 by its exact ID, `claude-fable-5-2`, and requires
+Claude Code 2.1.321 or later. The session flag leaves the configured default intact.
+Report unavailable model support rather than silently choosing an older version.
+
+[`docs/agent-routing.md`](docs/agent-routing.md) records the evidence behind
+each pin, the role of every model the three CLIs offer, and the steps for
+re-evaluating the roster when a model ships. See the
+[Claude Code subagents documentation](https://code.claude.com/docs/en/sub-agents)
 and [Codex subagents documentation](https://learn.chatgpt.com/docs/agent-configuration/subagents)
 for runtime-specific behavior.
-
-Claude workers use Haiku 5.5 (`claude-haiku-5-5`) at high effort for mechanical
-work, the `sonnet` alias at medium for ordinary work, and Opus 5.5
-(`claude-opus-5-5`) at medium for difficult work. Haiku is pinned because older
-versions do not support effort. On the Anthropic API, `sonnet` resolves to
-Sonnet 5.5. Use [Claude Code 2.1.293 or later](https://code.claude.com/docs/en/model-config)
-for all three routes.
-Report unavailable model support rather than silently choosing an older version.
 
 Shared MCP servers are registered separately by `make set-up/mcp-servers`.
 Because each agent keeps its MCP configuration in a large, stateful,
@@ -281,25 +299,26 @@ The runtime smoke test below is the release gate. Passing unit tests and an
 enabled, trusted hook are insufficient evidence that a spawn is intercepted.
 
 Codex profiles make the model and effort choice explicit at each spawn. No
-route inherits the parent, so the session's own model (Astra) reaches a
-subagent only through an override the parent chose deliberately:
+route inherits the parent, so the session's own model and effort reach a
+subagent only through a route that names them. The five class routes are
+listed under [AI Agents](#ai-agents). A sixth, `custom_worker`, pins
+nothing and takes an explicit `model` and `reasoning_effort`: a user-named
+model, a retry that changes one lever, or a task outside the pinned classes.
 
-| Native route | Model and effort | Use |
-| --- | --- | --- |
-| `knapsack_mechanical` | GPT-6 Luna, high | Exact instructions, no interpretation; extra thinking is cheap on a small model |
-| `knapsack_ordinary` | GPT-6.1 Sol, medium | Bounded implementation, read-heavy exploration, audits |
-| `knapsack_difficult` | GPT-6.1 Sol, medium | Work that weighs ambiguous evidence or competing designs |
-| `knapsack_override` | Explicit call arguments | A user-named model, Astra, or an effort deviation with a stated reason |
-
-Ordinary and difficult routes share a model and effort, but retain distinct task
-contracts. Moving between them does not increase model capability. GPT-6.1 Sol
-replaces GPT-6 Sol in these routes; see the [current model guidance](https://developers.openai.com/api/docs/guides/latest-model).
+Mechanical and scout share a model and effort but carry different contracts:
+one changes exactly what it is told to, and the other changes nothing. The
+difficult route runs GPT-6.2 Astra, which OpenAI's
+[current model guidance](https://learn.chatgpt.com/docs/whats-new/gpt-62-astra-sol)
+positions for complex reasoning.
 
 The `PreToolUse` hook validates the declared route and rejects model or effort
-values that conflict with a pinned route. Every call must explicitly select
-fresh or bounded context. The hook does not classify prompts, call a model,
-log task contents, rewrite arguments, or grant tool permission. Project auditor
-instructions remain in their repositories and are passed in the task contract.
+values that conflict with a pinned route. It reads each pin from the role files
+installed beside it in `~/.codex/agents`, so it names no model itself. Every
+call must start with fresh context, `fork_turns=none`: Codex 0.169 runs any
+other value, including a legacy turn count, as a full-history fork. The hook
+does not classify prompts, call a model, log task contents, rewrite arguments,
+or grant tool permission. Project auditor instructions remain in their
+repositories and are passed in the task contract.
 
 The matcher covers canonical `spawn_agent` / `Agent` and the default V2 hook
 identity, `collaborationspawn_agent`. Codex 0.154.0 flattens the namespace and
@@ -315,10 +334,11 @@ Installation and activation are separate:
    `~/.codex`, then reconciles the routing handler from
    `dotfiles/merge/codex/hooks.json` into the local hook file. Orca and other
    unrelated handlers remain local. Setup does not change `config.toml` or hook trust.
-2. `make set-up/codex-routing` registers the four profiles in the source
+2. `make set-up/codex-routing` registers every `*-worker` profile in the source
    `~/.codex/config.toml` through Codex's configuration API. Explicit file
    references also support apps that mirror this configuration without copying
-   the `agents` directory. The command updates only Knapsack's four named roles;
+   the `agents` directory. The command updates only Knapsack's own roles and
+   clears the `knapsack_*` names they had before 2026-11-17;
    it does not enable or trust hooks.
    This step is included in `make set-up/all` and skips machines without Codex.
    File references are generated from that machine's home directory.
@@ -336,9 +356,8 @@ Installation and activation are separate:
    After review, `codex features enable hooks` persists the feature setting;
    `--enable hooks` alone applies only to that launch. Do not use a trust-bypass flag.
 5. Start a fresh session and verify actual tool events: an unrouted spawn must
-   be denied before a child starts; a mechanical child must record GPT-6 Luna at
-   high effort; ordinary and difficult children must each record GPT-6.1 Sol at
-   medium effort.
+   be denied before a child starts, and each routed child must record the model
+   and effort its profile pins.
    A child's assertion about its model is insufficient evidence. Repeat after
    runtime or routing changes.
 
@@ -363,6 +382,24 @@ transcript confirmed `knapsack-difficult` ran on `claude-opus-5-5`.
 On 2026-10-19, a fresh Codex CLI 0.163.0 session rejected the unrouted spawn;
 child turn records confirmed GPT-6 Luna/high for mechanical work and GPT-6.1
 Sol/medium for both ordinary and difficult work.
+
+On 2026-11-17, fresh Codex CLI 0.169.0 and Orca-launched sessions rejected the
+unrouted spawn. Child turn records in both runtimes confirmed GPT-6 Luna/high,
+GPT-6.2 Sol/medium for ordinary and difficult work, and an explicit GPT-6.2
+Astra/medium override. The installed `claude-fable` launcher completed a turn on
+`claude-fable-5-2` with Claude Code 2.1.326.
+
+Later on 2026-11-17 the routes were renamed from `knapsack-*` to `*-worker`,
+scout and thorough routes were added, and the difficult routes moved to Opus
+5.5 at high and GPT-6.2 Astra at medium. A fresh Codex CLI 0.169.0 `codex exec`
+session then rejected an unrouted spawn, a spawn with a legacy turn count, and
+a pinned route given another model. Child turn records confirmed GPT-6 Luna/high
+for mechanical and scout, GPT-6.2 Sol/medium for ordinary, GPT-6.2 Sol/high for
+thorough, GPT-6.2 Astra/medium for difficult, and an explicit GPT-6.1
+Terra/medium through `custom_worker`. A headless Claude Code 2.1.326 session
+spawned all five workers without a per-call model or effort; their transcripts
+recorded Haiku 5.5/high twice, Sonnet 5.5/medium, Sonnet 5.5/high, and Opus
+5.5/high. Orca-launched sessions have not been rechecked since the rename.
 
 The status command is read-only and makes no model calls. It checks installation,
 effective configuration, and hook trust; passing it establishes eligibility,

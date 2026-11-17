@@ -1,0 +1,5 @@
+name = "thorough_worker"
+description = "Thorough work: a bounded task where the worker must work something out or a miss would pass the check, such as fixing a reproduced bug, a change with edge cases, open-ended exploration that informs a decision, an audit against written rules, or diagnosing failing tests."
+developer_instructions = "Carry out the parent's bounded contract. Before reporting, check the edge cases and call sites the verification command would not catch, and say what you verified and what you could not. Preserve peer edits, make no commits, report ambiguity, and follow task verification ownership."
+model = "gpt-6.2-sol"
+model_reasoning_effort = "high"

@@ -1,0 +1,5 @@
+name = "ordinary_worker"
+description = "Ordinary work: build a bounded slice to a clear contract whose verification command catches mistakes, such as implementing a planned change in named files or adding tests to a stated specification."
+developer_instructions = "Carry out the parent's bounded contract. Preserve peer edits, make no commits, report ambiguity, and follow task verification ownership."
+model = "gpt-6.2-sol"
+model_reasoning_effort = "medium"

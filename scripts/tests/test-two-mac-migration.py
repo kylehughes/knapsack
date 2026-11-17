@@ -46,7 +46,7 @@ class TwoMacMigrationTests(unittest.TestCase):
             "dotfiles/link/codex/hooks.json.bak": "historical backup\n",
         }.items():
             self.write(self.origin / relative, text)
-        for relative, target in (("codex/AGENTS.md", "../claude/CLAUDE.md"), ("gemini/GEMINI.md", "../claude/CLAUDE.md"), ("gemini/agents", "../claude/agents")):
+        for relative, target in (("codex/AGENTS.md", "../claude/CLAUDE.md"), ("gemini/GEMINI.md", "../claude/CLAUDE.md")):
             path = self.origin / "dotfiles/link" / relative
             path.parent.mkdir(parents=True, exist_ok=True)
             path.symlink_to(target)
@@ -170,8 +170,8 @@ class TwoMacMigrationTests(unittest.TestCase):
                 path = home / relative
                 self.assertFalse(path.is_symlink())
                 self.assertEqual(path.read_text(), "shared instructions v2\n")
-            self.assertFalse((home / ".gemini/agents").is_symlink())
-            self.assertEqual((home / ".gemini/agents/ordinary.md").read_text(), "shared agent\n")
+            self.assertFalse((home / ".claude/agents").is_symlink())
+            self.assertEqual((home / ".claude/agents/ordinary.md").read_text(), "shared agent\n")
             self.assert_local_state(name)
             self.assertEqual((home / ".gitconfig_local").read_text(), name + " seed override\n")
             self.assertEqual((home / ".codex/local-runtime.json").read_text(), name + " runtime\n")
@@ -189,7 +189,7 @@ class TwoMacMigrationTests(unittest.TestCase):
         for name, (_, home, _) in self.macs.items():
             self.assert_local_state(name)
             self.assertEqual((home / ".codex/AGENTS.md").read_text(), "shared instructions v2\n")
-            self.assertEqual((home / ".gemini/agents/ordinary.md").read_text(), "shared agent\n")
+            self.assertEqual((home / ".claude/agents/ordinary.md").read_text(), "shared agent\n")
             self.assertFalse((home / ".claude").is_symlink())
             self.assertFalse((home / ".codex").is_symlink())
 

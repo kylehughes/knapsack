@@ -27,7 +27,7 @@ make_repo() {
     mkdir -p "$repo/dotfiles/shared/claude/agents" "$repo/dotfiles/shared/codex/agents" \
         "$repo/dotfiles/shared/gemini" "$repo/dotfiles/shared/config/zsh/functions" \
         "$repo/dotfiles/merge/claude" "$repo/scripts/lib"
-    printf 'managed profile\n' > "$repo/dotfiles/shared/codex/agents/knapsack-test.toml"
+    printf 'managed profile\n' > "$repo/dotfiles/shared/codex/agents/example-worker.toml"
     printf 'claude instructions\n' > "$repo/dotfiles/shared/claude/CLAUDE.md"
     chmod 644 "$repo/dotfiles/shared/claude/CLAUDE.md"
     ln -s ../claude/CLAUDE.md "$repo/dotfiles/shared/codex/AGENTS.md"
@@ -194,10 +194,10 @@ expect_status 1 run_check
 expect_output "Codex agents must be an isolated copy"
 rm "$FIXTURE_ROOT/user-dir/.codex/agents"
 mv "$FIXTURE_ROOT/user-dir/.codex/agents-saved" "$FIXTURE_ROOT/user-dir/.codex/agents"
-printf 'altered profile\n' > "$FIXTURE_ROOT/user-dir/.codex/agents/knapsack-test.toml"
+printf 'altered profile\n' > "$FIXTURE_ROOT/user-dir/.codex/agents/example-worker.toml"
 expect_status 1 run_check
-expect_output "Codex agents knapsack-test.toml copy is missing or differs"
-cp -p "$FIXTURE_ROOT/repo/dotfiles/shared/codex/agents/knapsack-test.toml" "$FIXTURE_ROOT/user-dir/.codex/agents/knapsack-test.toml"
+expect_output "Codex agents example-worker.toml copy is missing or differs"
+cp -p "$FIXTURE_ROOT/repo/dotfiles/shared/codex/agents/example-worker.toml" "$FIXTURE_ROOT/user-dir/.codex/agents/example-worker.toml"
 
 printf '{"sentinel":"DO_NOT_PRINT_SECRET"' > "$FIXTURE_ROOT/user-dir/.claude/settings.json"
 expect_status 1 run_check

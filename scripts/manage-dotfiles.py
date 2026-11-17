@@ -94,7 +94,6 @@ class Installer:
         self.aliases = {
             self.shared / "codex/AGENTS.md": "../claude/CLAUDE.md",
             self.shared / "gemini/GEMINI.md": "../claude/CLAUDE.md",
-            self.shared / "gemini/agents": "../claude/agents",
         }
         self.tracked = self.git("ls-files", "-z", "--", "dotfiles/shared", "dotfiles/seed").split(b"\0")
         self.tracked = [Path(os.fsdecode(item)) for item in self.tracked if item]
@@ -144,7 +143,7 @@ class Installer:
         return target in choices
 
     def source_path(self, path):
-        """Resolve only the three declared repository aliases."""
+        """Resolve only the declared repository aliases."""
         for component in reversed((path, *path.parents)):
             if not within(component, self.shared):
                 continue
@@ -173,18 +172,6 @@ class Installer:
             if relative.is_relative_to("claude/skills") or relative.as_posix() in {
                 "codex/hooks.json", "codex/hooks.json.bak", "claude/settings.json",
             }:
-                continue
-            if relative.as_posix() == "gemini/agents":
-                alias = self.shared / relative
-                if not alias.is_symlink() or os.readlink(alias) != self.aliases[alias]:
-                    raise InstallError("gemini/agents must be the declared source alias")
-                for agent in self.tracked:
-                    if agent.is_relative_to("dotfiles/shared/claude/agents"):
-                        leaf = agent.relative_to("dotfiles/shared/claude/agents")
-                        source = self.source_path(self.root / agent)
-                        managed[self.home / ".gemini/agents" / leaf] = (
-                            source.read_bytes(), stat.S_IMODE(source.stat().st_mode),
-                        )
                 continue
             source = self.source_path(self.root / tracked)
             managed[self.destination(relative)] = (source.read_bytes(), stat.S_IMODE(source.stat().st_mode))

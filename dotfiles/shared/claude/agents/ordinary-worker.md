@@ -1,6 +1,6 @@
 ---
-name: knapsack-ordinary
-description: Ordinary worker on Sonnet at medium effort for a bounded slice with a clear contract that still needs local judgment - implementing a planned change across named files, read-heavy exploration that returns distilled findings, standards audits against a stated rule set, or summarizing verbose test and log output. This is the default route for delegated implementation. Not for root-cause hunts or design decisions; those go to knapsack-difficult.
+name: ordinary-worker
+description: Ordinary worker (workhorse model, medium effort) for a bounded slice with a clear contract whose verification command catches mistakes - implementing a planned change across named files, adding tests to a stated specification. This is the default route for delegated implementation. Work the check would not fully cover goes to thorough-worker; root-cause hunts and design decisions go to difficult-worker.
 tools: Read, Edit, Write, Glob, Grep, Bash
 model: sonnet
 effort: medium

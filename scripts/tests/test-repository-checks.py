@@ -123,7 +123,7 @@ class RepositoryTests(unittest.TestCase):
     def test_aliases_and_cycles(self):
         self.write("dotfiles/shared/claude/CLAUDE.md", "Instructions")
         self.write("dotfiles/shared/claude/agents/a.md", "Agent")
-        for name, target in (("codex/AGENTS.md", "../claude/CLAUDE.md"), ("gemini/GEMINI.md", "../claude/CLAUDE.md"), ("gemini/agents", "../claude/agents")):
+        for name, target in (("codex/AGENTS.md", "../claude/CLAUDE.md"), ("gemini/GEMINI.md", "../claude/CLAUDE.md")):
             path = self.root / "dotfiles/shared" / name
             path.parent.mkdir(parents=True, exist_ok=True)
             path.symlink_to(target)
