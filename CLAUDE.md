@@ -222,7 +222,7 @@ The repository implements custom zsh functions using XDG Base Directory specific
 - `tailscale-serve-ipa` - Serve an iOS build over Tailscale for over-the-air install when Xcode can't reach the device
 
 #### Claude Code
-- `claude-fable` - Launch a single session on the current Fable model alias without changing the default model
+- `claude-fable` - Launch a single session on Fable 5.2 without changing the default model
 
 ### Adding New Functions
 

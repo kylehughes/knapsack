@@ -160,7 +160,7 @@ the zsh function and its Python companion are installed together by dotfile setu
 
 | Function | Description | Usage |
 | --- | --- | --- |
-| `claude-fable` | Launch a single Claude Code session on the current Fable model alias without changing the default model. | `claude-fable [claude arguments]` |
+| `claude-fable` | Launch a single Claude Code session on Fable 5.2 without changing the default model. | `claude-fable [claude arguments]` |
 
 Functions follow the `tool-action` naming convention for clarity and tab completion support.
 
@@ -228,8 +228,8 @@ its settings, account state, and workspace trust remain local.
 declared in the settings base.
 
 Delegation guidance lives in the shared instructions. Its aim is the best
-output for the least usage: Fable and Astra are preferred orchestrators when
-available, and the current parent keeps orchestration and judgment. Delegating
+output for the least usage: Fable 5.2 and GPT-6.2 Astra are preferred orchestrators
+when available, and the current parent keeps orchestration and judgment. Delegating
 to either is rare: an explicit user request or a demonstrated capability failure
 by Sol or Opus on the same bounded task. This applies to native and headless
 agents, including when the parent already runs on Fable or Astra. The policy
@@ -247,6 +247,8 @@ work, the `sonnet` alias at medium for ordinary work, and Opus 5.5
 versions do not support effort. On the Anthropic API, `sonnet` resolves to
 Sonnet 5.5. Use [Claude Code 2.1.293 or later](https://code.claude.com/docs/en/model-config)
 for all three routes.
+`claude-fable` selects Fable 5.2 by its exact ID, `claude-fable-5-2`, and requires
+Claude Code 2.1.321 or later. The session flag leaves the configured default intact.
 Report unavailable model support rather than silently choosing an older version.
 
 Shared MCP servers are registered separately by `make set-up/mcp-servers`.
@@ -287,13 +289,14 @@ subagent only through an override the parent chose deliberately:
 | Native route | Model and effort | Use |
 | --- | --- | --- |
 | `knapsack_mechanical` | GPT-6 Luna, high | Exact instructions, no interpretation; extra thinking is cheap on a small model |
-| `knapsack_ordinary` | GPT-6.1 Sol, medium | Bounded implementation, read-heavy exploration, audits |
-| `knapsack_difficult` | GPT-6.1 Sol, medium | Work that weighs ambiguous evidence or competing designs |
+| `knapsack_ordinary` | GPT-6.2 Sol, medium | Bounded implementation, read-heavy exploration, audits |
+| `knapsack_difficult` | GPT-6.2 Sol, medium | Work that weighs ambiguous evidence or competing designs |
 | `knapsack_override` | Explicit call arguments | A user-named model, Astra, or an effort deviation with a stated reason |
 
 Ordinary and difficult routes share a model and effort, but retain distinct task
-contracts. Moving between them does not increase model capability. GPT-6.1 Sol
-replaces GPT-6 Sol in these routes; see the [current model guidance](https://developers.openai.com/api/docs/guides/latest-model).
+contracts. Moving between them does not increase model capability. Use
+`gpt-6.2-astra` for an authorized Astra override; see the
+[current model guidance](https://learn.chatgpt.com/docs/whats-new/gpt-62-astra-sol).
 
 The `PreToolUse` hook validates the declared route and rejects model or effort
 values that conflict with a pinned route. Every call must explicitly select
@@ -337,7 +340,7 @@ Installation and activation are separate:
    `--enable hooks` alone applies only to that launch. Do not use a trust-bypass flag.
 5. Start a fresh session and verify actual tool events: an unrouted spawn must
    be denied before a child starts; a mechanical child must record GPT-6 Luna at
-   high effort; ordinary and difficult children must each record GPT-6.1 Sol at
+   high effort; ordinary and difficult children must each record GPT-6.2 Sol at
    medium effort.
    A child's assertion about its model is insufficient evidence. Repeat after
    runtime or routing changes.
@@ -363,6 +366,12 @@ transcript confirmed `knapsack-difficult` ran on `claude-opus-5-5`.
 On 2026-10-19, a fresh Codex CLI 0.163.0 session rejected the unrouted spawn;
 child turn records confirmed GPT-6 Luna/high for mechanical work and GPT-6.1
 Sol/medium for both ordinary and difficult work.
+
+On 2026-11-17, fresh Codex CLI 0.169.0 and Orca-launched sessions rejected the
+unrouted spawn. Child turn records in both runtimes confirmed GPT-6 Luna/high,
+GPT-6.2 Sol/medium for ordinary and difficult work, and an explicit GPT-6.2
+Astra/medium override. The installed `claude-fable` launcher completed a turn on
+`claude-fable-5-2` with Claude Code 2.1.326.
 
 The status command is read-only and makes no model calls. It checks installation,
 effective configuration, and hook trust; passing it establishes eligibility,
