@@ -57,9 +57,10 @@ tool's local override, such as `~/.gitconfig_local` or
 it in a local backup before removing the destination and rerunning setup.
 
 Claude settings preserve the existing merge semantics: objects merge
-recursively, and an overlay array replaces the entire base array. Setup reports
-differing key names without printing their values. An initial mismatch must be
-reconciled before the migration can be considered complete.
+recursively, and an overlay array replaces the entire base array. Settings that
+differ from the composed result, on a first installation or after a change made
+through the app, are kept: setup writes the difference into that Mac's overlay
+without printing any values.
 
 Codex reconciliation owns only the routing handler. It preserves unrelated
 hooks and metadata, including Orca's integration. A local edit to the owned

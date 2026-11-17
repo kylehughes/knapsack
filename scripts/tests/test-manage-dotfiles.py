@@ -160,14 +160,28 @@ class InstallerTests(unittest.TestCase):
         self.run_command("apply")
         self.assertEqual(MANAGER.load_json(self.home / ".codex/hooks.json"), hook_json)
 
-    def test_claude_drift_conflict_reports_keys_without_values(self):
-        current = self.write(".claude/settings.json", '{"model":"private-value","secret":"do-not-print"}', home=True)
-        original = current.read_bytes()
-        text = self.run_command("apply", 1)
-        self.assertIn("model, secret", text)
+    def test_claude_settings_changed_in_the_app_become_this_macs_overlay(self):
+        self.run_command("apply")
+        current = self.home / ".claude/settings.json"
+        settings = MANAGER.load_json(current)
+        settings.update({"model": "private-value", "secret": "do-not-print"})
+        current.write_text(json.dumps(settings))
+        self.assertIn("capture: .claude/settings.machine.json", self.run_command("plan"))
+        self.run_command("check", 1)
+        text = self.run_command("apply")
         self.assertNotIn("private-value", text)
         self.assertNotIn("do-not-print", text)
-        self.assertEqual(current.read_bytes(), original)
+        self.assertEqual(MANAGER.load_json(current), settings)
+        self.assertEqual(
+            MANAGER.load_json(self.home / ".claude/settings.machine.json"),
+            {"model": "private-value", "secret": "do-not-print"},
+        )
+        self.run_command("check")
+        # A later base change still reaches every key this Mac has not made its own.
+        base = self.root / "dotfiles/merge/claude/settings.json"
+        base.write_text('{"model":"worker","enabledPlugins":{},"effortLevel":"high"}\n')
+        self.run_command("apply")
+        self.assertEqual(MANAGER.load_json(current), {**settings, "effortLevel": "high"})
 
     def test_malformed_composition_is_untouched(self):
         for contents in ('{"hooks":[]}', '{"hooks": {"PreToolUse": [1]}}', "bad-json"):
