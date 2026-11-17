@@ -156,6 +156,21 @@ class RepositoryTests(unittest.TestCase):
         self.assertEqual(self.script("set-up-repository-hook.py").returncode, 0)
         self.assertEqual(self.git("config", "core.hooksPath").decode().strip(), "custom-hooks")
 
+    def test_pull_hooks_install_and_skip_an_amend(self):
+        self.assertEqual(self.script("set-up-repository-hook.py").returncode, 0)
+        self.write("Makefile", "set-up/codex-routing:\n\t@echo installed\n")
+        for name in ("post-merge", "post-rewrite"):
+            hook = self.root / ".git/hooks" / name
+            self.assertTrue(os.access(hook, os.X_OK))
+            for argument, expected in (("0", "installed\n"), ("rebase", "installed\n"), ("amend", "")):
+                result = subprocess.run([str(hook), argument], cwd=self.root, env=self.env, capture_output=True, text=True)
+                self.assertEqual((result.returncode, result.stdout), (0, expected))
+        # A failed install reports itself without failing the pull.
+        self.write("Makefile", "set-up/codex-routing:\n\t@false\n")
+        result = subprocess.run([str(self.root / ".git/hooks/post-merge"), "0"], cwd=self.root, env=self.env, capture_output=True, text=True)
+        self.assertEqual(result.returncode, 0)
+        self.assertIn("setup needs attention", result.stderr)
+
     def test_customized_managed_hook_is_preserved(self):
         self.assertEqual(self.script("set-up-repository-hook.py").returncode, 0)
         hook = self.root / ".git/hooks/pre-commit"

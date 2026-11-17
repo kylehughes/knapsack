@@ -47,6 +47,31 @@ def compose_claude_settings(base, overlay):
     return merge(base, overlay)
 
 
+def claude_overlay_for(base, current):
+    """Return the overlay that makes the base compose to the settings in use.
+
+    A setting changed through the app becomes this Mac's own value. A base key
+    the app removed cannot be expressed by an overlay and composes back in.
+    """
+    _validate_claude(base, "base")
+    _validate_claude(current, "current")
+
+    def difference(left, right):
+        result = {}
+        for key, value in right.items():
+            if key not in left:
+                result[key] = deepcopy(value)
+            elif isinstance(value, dict) and isinstance(left[key], dict):
+                nested = difference(left[key], value)
+                if nested:
+                    result[key] = nested
+            elif value != left[key]:
+                result[key] = deepcopy(value)
+        return result
+
+    return difference(base, current)
+
+
 def _validate_hooks(value, label):
     _object(value, label)
     if "hooks" not in value:

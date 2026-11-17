@@ -28,7 +28,7 @@ When modifying dotfiles:
 - Local git configuration goes in `~/.gitconfig_local` (not tracked in repo)
 - XDG config directories are real local directories; setup copies only explicitly tracked shared files into them.
 
-Knapsack generates Claude Code's full settings, including plugin declarations, from the tracked base and machine overlay. Capture changes made through the Claude app in the base or overlay before rerunning setup; Codex plugins are managed locally through its app or CLI.
+Knapsack generates Claude Code's full settings, including plugin declarations, from the tracked base and machine overlay. Setup keeps a setting changed through the Claude app in that Mac's overlay; move it to the base to share it. Codex plugins are managed locally through its app or CLI.
 
 ## Repository Structure
 
@@ -94,7 +94,7 @@ editing a model name in place.
 - Migration preserves contents before detaching recognized legacy links. Unknown links and missing targets require explicit resolution; never delete them to make setup pass.
 - The machine-local installation ledger and recovery data live under `~/.local/state/knapsack/`.
 - Stage 2 removes the old runtime artifacts and renames the source directories to `shared/` and `seed/`. Keep local backups and Stage 1 evidence; installations that still use legacy links must first migrate at the pinned revision in `docs/dotfile-migration.md`.
-- `make check/repository` runs source policy and fixture tests. The pre-commit hook checks staged content; CI runs full checks. Preserve custom Git hooks.
+- `make check/repository` runs source policy and fixture tests. The pre-commit hook checks staged content, and the post-merge and post-rewrite hooks run setup after a pull; CI runs full checks. Preserve custom Git hooks.
 - Pull requests to `master` require passing `Repository checks`. Keep runtime checks and hook trust local to each Mac.
 
 ## Conventions

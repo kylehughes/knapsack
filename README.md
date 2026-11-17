@@ -24,24 +24,30 @@ make set-up/idb             # Install Facebook idb companion and client
 make set-up/mcp-servers     # Register shared MCP servers with Claude Code and Codex
 make set-up/agent-skills    # Install Knapsack's standalone Codex writing skill
 make set-up/local-functions # Create local functions directory
-make set-up/repository-hook # Install this checkout's staged-source guard
+make set-up/repository-hook # Install the staged-source guard and apply-on-pull hooks
 make set-up/performance     # Tune macOS for heavy parallel development (opt-in)
 ```
 
 ## Updating Configuration
 
-Edit shared configuration in this checkout, then apply it explicitly:
+Pulling applies itself. `make set-up/repository-hook`, which `make set-up/all`
+runs, installs Git hooks that run setup after every pull, so another Mac needs
+only:
 
 ```sh
-git pull --ff-only
+git pull
+```
+
+Setup installs independent local copies, so an edit made in this checkout
+changes nothing until setup runs. After editing, apply it by hand:
+
+```sh
 make plan/dotfiles
 make set-up/dotfiles
 make check/dotfiles
 ```
 
-Setup installs independent local copies. Pulling or editing the repository does
-not change installed configuration until setup runs. Restart the relevant app or
-shell after applying changes.
+Restart the relevant app or shell after applying changes.
 
 Setup records the contents and executable bits it last installed. It updates
 unchanged managed files, preserves unrelated files, and reports conflicts instead
@@ -61,7 +67,7 @@ the update commands above.
 | --- | --- | --- |
 | Shared source | Git-tracked files are copied individually; installed directories stay local. | Agent instructions and profiles, shell functions, terminal themes, Vim plugins. |
 | Local seed | Create only when absent; never update or retire automatically. | `~/.gitconfig_local`. |
-| Composed settings | Combine the shared base with the local overlay; preserve unrecorded edits as conflicts. | Claude settings and plugin declarations. |
+| Composed settings | Combine the shared base with the local overlay; keep app edits in the overlay. | Claude settings and plugin declarations. |
 | Live preferences | Patch selected preferences from the base and overlay after the app quits. | Orca settings. |
 | Owned hook entry | Reconcile only Knapsack's routing handler, preserving all other local entries. | Codex hooks alongside Orca's integration. |
 | Runtime or machine state | Remains outside the checkout and outside installation ownership. | Orca projects, credentials, trust, downloaded skills, caches, and local functions. |
@@ -74,9 +80,12 @@ a source directory does not re-adopt or retire installed files.
 
 Claude settings use `dotfiles/merge/claude/settings.json` and the untracked
 `~/.claude/settings.machine.json`. Objects merge recursively; arrays, including
-permission lists and hook event arrays, replace the base array. Capture app edits
-in the appropriate source before rerunning setup. On a first installation,
-differing existing settings are preserved until reconciled.
+permission lists and hook event arrays, replace the base array. A setting
+changed through the Claude app, such as the model or a plugin, is that Mac's
+own: setup writes the difference into the overlay and carries on. Shared
+changes still reach every key that Mac has not changed. An array it has
+changed, such as the permission list, stops following the base until the entry
+is removed from the overlay.
 
 The installation ledger, migration journal, and content backups live in
 `~/.local/state/knapsack/`. Keep them on their originating Mac. They are not shared
@@ -211,8 +220,8 @@ Antigravity CLI (`~/.gemini/GEMINI.md`) receive copies of the same instructions,
 native mechanism. Codex's execution profiles choose model and effort while
 project instructions supply each worker's task or auditor's mandate. Claude Code's full
 settings, including plugin declarations and marketplaces, are generated from
-the tracked base and machine overlay. Changes made through the Claude app are
-reported as conflicts unless they are captured in one of those sources.
+the tracked base and machine overlay. Setup keeps changes made through the
+Claude app in that Mac's overlay.
 Codex manages plugins locally through its app or CLI.
 
 Run Gemini through Antigravity CLI with `agy`, or use
@@ -419,9 +428,10 @@ checks the IPA helper with disposable IPAs and mocked Tailscale and Xcode comman
 an agent. Runtime checks remain separate: `make check/dotfiles`, `make check/agents`,
 `make check/codex-routing`, and `make check/orca` inspect this Mac.
 
-`make set-up/repository-hook` installs a pre-commit check for the staged snapshot.
-It preserves custom hooks and reports how to chain the check if one already
-exists. CI runs the full repository checks. Changes to `master` go through a
+`make set-up/repository-hook` installs a pre-commit check for the staged snapshot
+and the two hooks that run setup after a pull, `post-merge` and `post-rewrite`.
+A setup failure there is reported and never fails the pull. It preserves custom
+hooks and reports how to chain each command if one already exists. CI runs the full repository checks. Changes to `master` go through a
 pull request with the `Repository checks` job passing against the current base;
 no external approving reviewer is required. Administrator bypass, force pushes,
 and branch deletion are disabled when the protection is installed.

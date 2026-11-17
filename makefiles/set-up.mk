@@ -19,7 +19,7 @@ set-up/dependencies:
 set-up/dotfiles:
 	@bash "./scripts/set-up-dotfiles.sh"
 
-## Install the repository's staged-source guard without replacing custom hooks.
+## Install the staged-source guard and apply-on-pull hooks without replacing custom hooks.
 set-up/repository-hook:
 	@python3 -B "./scripts/set-up-repository-hook.py"
 

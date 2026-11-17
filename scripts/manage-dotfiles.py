@@ -23,7 +23,7 @@ import uuid
 
 sys.dont_write_bytecode = True
 sys.path.insert(0, str(Path(__file__).resolve().parent / "lib"))
-from dotfile_composition import compose_claude_settings, reconcile_codex_hooks
+from dotfile_composition import claude_overlay_for, compose_claude_settings, reconcile_codex_hooks
 
 
 class InstallError(ValueError):
@@ -492,7 +492,7 @@ class Installer:
                 self.remove_snapshot(stage)
             raise
 
-    def special_files(self, ledger, managed):
+    def special_files(self, ledger, managed, write=False):
         """Compose local JSON without claiming app-owned Codex hook content."""
         composed = {}
         claude = self.root / "dotfiles/merge/claude/settings.json"
@@ -515,10 +515,15 @@ class Installer:
                 compose_claude_settings(value, {})
                 baseline = ledger["files"].get(str(path.relative_to(self.home)))
                 if value != desired and file_signature(current) != baseline:
-                    keys = sorted(key for key in set(value) | set(desired)
-                                  if key not in value or key not in desired or value[key] != desired[key])
-                    self.conflicts.append("Claude settings drift in keys: " + ", ".join(keys))
-                    return composed
+                    # Settings changed through the app since the last install are
+                    # this Mac's own. Keep them in its overlay instead of stopping.
+                    overlay = claude_overlay_for(load_json(claude), value)
+                    desired = compose_claude_settings(load_json(claude), overlay)
+                    relative = ".claude/settings.machine.json"
+                    self.actions.append(("capture", relative))
+                    if write:
+                        self.safe_ancestors(self.home / relative)
+                        atomic_write(self.home / relative, json_bytes(overlay), 0o600)
                 # Semantically equal bootstrap content can retain formatting.
                 if value == desired:
                     composed[path] = (current_bytes, 0o600)
@@ -663,7 +668,7 @@ class Installer:
                     self.actions.append(("detach", str(link.relative_to(self.home))))
                     self.detach(link)
                 self.preflight(paths)
-                self.special_files(ledger, managed)
+                self.special_files(ledger, managed, write=True)
                 self.apply_files(managed, seeds, ledger, write=True)
                 backlinks = self.scan_backlinks(self.isolation_roots(managed))
                 for path in backlinks:

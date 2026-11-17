@@ -41,6 +41,19 @@ class ClaudeCompositionTests(unittest.TestCase):
         result["permissions"]["allow"].append("Edit")
         self.assertEqual((base, overlay), originals)
 
+    def test_overlay_for_settings_in_use_round_trips(self):
+        base = {"model": "a", "permissions": {"allow": ["x"], "defaultMode": "edit"}, "enabledPlugins": {"p": True}}
+        current = {"model": "b", "permissions": {"allow": ["x", "y"], "defaultMode": "edit"},
+                   "enabledPlugins": {"p": True, "q": False}, "local": 1}
+        snapshot = deepcopy((base, current))
+        overlay = COMPOSITION.claude_overlay_for(base, current)
+        self.assertEqual(overlay, {"model": "b", "permissions": {"allow": ["x", "y"]},
+                                   "enabledPlugins": {"q": False}, "local": 1})
+        self.assertEqual(COMPOSITION.compose_claude_settings(base, overlay), current)
+        self.assertEqual((base, current), snapshot)
+        # A base key removed in the app cannot be expressed and composes back in.
+        self.assertEqual(COMPOSITION.compose_claude_settings(base, COMPOSITION.claude_overlay_for(base, {})), base)
+
     def test_leaf_types_can_be_replaced(self):
         self.assertEqual(COMPOSITION.compose_claude_settings(
             {"future": {"a": 1}, "other": 1},
