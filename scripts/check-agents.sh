@@ -16,7 +16,7 @@ source "$SCRIPT_DIR/lib/agent-mcp-servers.sh"
 check_agents() {
     local repo_root="$1" user_dir="$2"
     local failed=0 missing_tools=0 entry name url tool
-    local base overlay current expected
+    local base overlay current expected gemini_label
 
     for tool in bash jq zsh; do
         if ! command -v "$tool" > /dev/null 2>&1; then
@@ -87,11 +87,17 @@ check_agents() {
         log_skip "Codex not installed; skipping Codex checks"
     fi
 
-    if command -v gemini > /dev/null 2>&1; then
-        log_step "Checking Gemini"
-        check_agent_copy "$user_dir/.gemini/GEMINI.md" "$repo_root/dotfiles/shared/gemini/GEMINI.md" "Gemini instructions" || failed=1
+    gemini_label=""
+    if command -v agy > /dev/null 2>&1; then
+        gemini_label="Antigravity"
+    elif command -v gemini > /dev/null 2>&1; then
+        gemini_label="Gemini"
+    fi
+    if [[ -n "$gemini_label" ]]; then
+        log_step "Checking $gemini_label"
+        check_agent_copy "$user_dir/.gemini/GEMINI.md" "$repo_root/dotfiles/shared/gemini/GEMINI.md" "$gemini_label instructions" || failed=1
     else
-        log_skip "Gemini not installed; skipping Gemini checks"
+        log_skip "Antigravity and Gemini not installed; skipping instruction checks"
     fi
 
     [[ "$failed" -eq 0 ]]
