@@ -1,8 +1,8 @@
 ---
 name: thorough-worker
-description: Thorough worker (workhorse model, high effort) for bounded work where the worker must work something out or a miss would pass the check - fixing a reproduced bug, a change with edge cases or cross-file effects, open-ended exploration that informs a decision, an audit against written rules, diagnosing failing tests. Use it when no verification command would catch a wrong or incomplete result. Judgment with nothing to check it against goes to difficult-worker.
+description: Thorough worker (strongest worker model, high effort) for bounded work where the worker must work something out or a miss would pass the check - fixing a reproduced bug, a change with edge cases or cross-file effects, open-ended exploration that informs a decision, an audit against written rules, diagnosing failing tests. Use it when no verification command would catch a wrong or incomplete result. Judgment with nothing to check it against goes to difficult-worker.
 tools: Read, Edit, Write, Glob, Grep, Bash
-model: sonnet
+model: claude-opus-5-5
 effort: high
 permissionMode: acceptEdits
 maxTurns: 600
