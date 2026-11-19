@@ -1,8 +1,8 @@
 ---
 name: ordinary-worker
-description: Ordinary worker (workhorse model, medium effort) for a bounded slice with a clear contract whose verification command catches mistakes - implementing a planned change across named files, adding tests to a stated specification. This is the default route for delegated implementation. Work the check would not fully cover goes to thorough-worker; root-cause hunts and design decisions go to difficult-worker.
+description: Ordinary worker (strongest worker model, medium effort) for a bounded slice with a clear contract whose verification command catches mistakes - implementing a planned change across named files, adding tests to a stated specification. This is the default route for delegated implementation. Work the check would not fully cover goes to thorough-worker; root-cause hunts and design decisions go to difficult-worker.
 tools: Read, Edit, Write, Glob, Grep, Bash
-model: sonnet
+model: claude-opus-5-5
 effort: medium
 permissionMode: acceptEdits
 maxTurns: 600

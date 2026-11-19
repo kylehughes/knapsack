@@ -1,9 +1,9 @@
 ---
 name: mechanical-worker
-description: Mechanical worker (small model, high effort) for tasks whose instructions are exact and need no interpretation - applying a described diff, renames, moving code verbatim, running a command and reporting the outcome. Give it the files, the precise change, and a verification command. Not for tasks that need reading around to decide what to do; lookups go to scout-worker and anything needing judgment to ordinary-worker.
+description: Mechanical worker (workhorse model, medium effort) for tasks whose instructions are exact and need no interpretation - applying a described diff, renames, moving code verbatim, running a command and reporting the outcome. Give it the files, the precise change, and a verification command. Not for tasks that need reading around to decide what to do; lookups go to scout-worker and anything needing judgment to ordinary-worker.
 tools: Read, Edit, Write, Glob, Grep, Bash
-model: claude-haiku-5-5
-effort: high
+model: claude-sonnet-5-5
+effort: medium
 permissionMode: acceptEdits
 maxTurns: 600
 color: yellow

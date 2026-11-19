@@ -244,10 +244,10 @@ runtimes carry a route of the same name for each class:
 
 | Class | The work | Claude Code | Codex CLI |
 | --- | --- | --- | --- |
-| Mechanical | Exact instructions, nothing to interpret | `mechanical-worker` — `claude-haiku-5-5`, `high` | `mechanical_worker` — `gpt-6-luna`, `high` |
-| Scout | Find and report facts, changing nothing | `scout-worker` — `claude-haiku-5-5`, `high` | `scout_worker` — `gpt-6-luna`, `high` |
-| Ordinary | Build to a clear contract that a check verifies | `ordinary-worker` — `sonnet`, `medium` | `ordinary_worker` — `gpt-6.2-sol`, `medium` |
-| Thorough | Bounded work a check would not fully cover | `thorough-worker` — `sonnet`, `high` | `thorough_worker` — `gpt-6.2-sol`, `high` |
+| Mechanical | Exact instructions, nothing to interpret | `mechanical-worker` — `claude-sonnet-5-5`, `medium` | `mechanical_worker` — `gpt-6-luna`, `high` |
+| Scout | Find and report facts, changing nothing | `scout-worker` — `claude-sonnet-5-5`, `high` | `scout_worker` — `gpt-6-luna`, `high` |
+| Ordinary | Build to a clear contract that a check verifies | `ordinary-worker` — `claude-opus-5-5`, `medium` | `ordinary_worker` — `gpt-6.2-sol`, `medium` |
+| Thorough | Bounded work a check would not fully cover | `thorough-worker` — `claude-opus-5-5`, `high` | `thorough_worker` — `gpt-6.2-sol`, `high` |
 | Difficult | Judgment with nothing to catch a wrong answer | `difficult-worker` — `claude-opus-5-5`, `high` | `difficult_worker` — `gpt-6.2-astra`, `medium` |
 
 Fable 5.2 and GPT-6.2 Astra are the preferred orchestrators. Fable is a worker
@@ -261,10 +261,9 @@ for each class instead.
 In Claude Code, the `*-worker` agents in `claude/agents/` pin model and
 effort. Any other agent runs on the session's model unless its definition pins
 one, so the instructions ask for an explicit `model` and `effort` on each such
-call. Haiku is pinned by ID because older Haiku versions do not support effort,
-and `sonnet` is an alias that resolves to Sonnet 5.5 on the Anthropic API. Use
-[Claude Code 2.1.293 or later](https://code.claude.com/docs/en/model-config)
-for all five routes.
+call. Opus takes every class in which the worker makes a decision and Sonnet
+takes the two in which it makes none, so Haiku holds no route. Per-call effort
+requires [Claude Code 2.1.292 or later](https://code.claude.com/docs/en/model-config).
 `claude-fable` selects Fable 5.2 by its exact ID, `claude-fable-5-2`, and requires
 Claude Code 2.1.321 or later. The session flag leaves the configured default intact.
 Report unavailable model support rather than silently choosing an older version.
@@ -410,6 +409,13 @@ spawned all five workers without a per-call model or effort; their transcripts
 recorded Haiku 5.5/high twice, Sonnet 5.5/medium, Sonnet 5.5/high, and Opus
 5.5/high. An Orca-launched Codex session then repeated the Codex checks with the
 same rejections and the same recorded models and efforts.
+
+On 2026-11-19 the Claude Code ordinary and thorough routes moved from Sonnet
+5.5 to Opus 5.5, and the mechanical and scout routes from Haiku 5.5 to Sonnet
+5.5. A headless Claude Code 2.1.326 session spawned all five workers without a
+per-call model or effort; their transcripts recorded Sonnet 5.5/medium for
+mechanical, Sonnet 5.5/high for scout, Opus 5.5/medium for ordinary, and Opus
+5.5/high for thorough and difficult.
 
 The status command is read-only and makes no model calls. It checks installation,
 effective configuration, and hook trust; passing it establishes eligibility,

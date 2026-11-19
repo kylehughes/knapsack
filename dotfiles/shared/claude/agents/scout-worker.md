@@ -1,8 +1,8 @@
 ---
 name: scout-worker
-description: Read-only scout (small model, high effort) for finding and reporting facts that have a definite answer - where something is defined, which files use it, what a log or test run says failed, what a document or web page states. Ask one bounded question and say where to look. Not for open-ended exploration that informs a decision or for analysis; those go to thorough-worker.
+description: Read-only scout (workhorse model, high effort) for finding and reporting facts that have a definite answer - where something is defined, which files use it, what a log or test run says failed, what a document or web page states. Ask one bounded question and say where to look. Not for open-ended exploration that informs a decision or for analysis; those go to thorough-worker.
 tools: Read, Glob, Grep, Bash, WebFetch, WebSearch
-model: claude-haiku-5-5
+model: claude-sonnet-5-5
 effort: high
 maxTurns: 600
 color: green

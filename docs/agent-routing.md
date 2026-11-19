@@ -9,7 +9,7 @@ The policy that agents read every session is the Delegation section of
 short to carry: the reasoning, the evidence, the role of every model each
 harness offers, and the upkeep procedure. Read the policy first.
 
-Everything here was last verified on **2026-11-17** against Claude Code 2.1.326,
+Everything here was last verified on **2026-11-19** against Claude Code 2.1.326,
 Codex CLI 0.169.0, and Antigravity CLI 1.5.10.
 
 ## Where Things Live
@@ -58,6 +58,10 @@ for itself, and whether a wrong or incomplete result would be caught cheaply.
 | Thorough | What is going on, or what the check misses | Partly, or late | Workhorse, high |
 | Difficult | The answer itself | Nothing | Strongest worker |
 
+Claude Code is the exception to the tier column. It runs each class one tier
+up: mechanical and scout on Sonnet, ordinary and thorough on Opus. The reasons
+are under Claude Code below.
+
 Importance is deliberately not a question. A one-line change to a payment path
 is still mechanical if the instructions are exact.
 
@@ -68,7 +72,7 @@ underperforms a cheaper one; above it a stronger model is the better buy.
 
 | Tier | Models today | Band | Why |
 | --- | --- | --- | --- |
-| Small | Haiku 5.5, GPT-6 Luna, Gemini 3.8 Flash | `high` | Haiku and Luna cost about a twentieth of the workhorse price per token, so thoroughness is nearly free; Flash costs half of Hydrogen. The tier's failure mode at low effort is stopping early or skipping a check. |
+| Small | GPT-6 Luna, Gemini 3.8 Flash; Haiku 5.5, which holds no route | `high` | Luna costs about a twentieth of the workhorse price per token, so thoroughness is nearly free; Flash costs half of Hydrogen. The tier's failure mode at low effort is stopping early or skipping a check. |
 | Workhorse | Sonnet 5.5, GPT-6.2 Sol, Gemini 4 Hydrogen | `medium` to `high` | `medium` to `high` buys 7 to 15 points on coding benchmarks for about 1.7 times the cost. Past `high` the curve flattens. |
 | Strongest worker | Opus 5.5, GPT-6.2 Astra at `medium`, Gemini 4 Argon | `medium` to `high`, `xhigh` as a retry | At `low` it only matches the workhorse at `high`, and review work collapses. In Anthropic's measurements, Opus at `xhigh` costs about half of Fable at `high` for the same pass rate. |
 | Frontier | Fable 5.2, GPT-6.2 Astra above `medium` | By request | Fable is ahead of Opus by a few points for 1.5 to 2.4 times the cost. These are also the orchestrators, whose plan allowance workers would be spending. |
@@ -90,10 +94,10 @@ the README. Keep each cell in the form
 
 | Class | Claude Code | Codex CLI |
 | --- | --- | --- |
-| Mechanical | `mechanical-worker` — `claude-haiku-5-5`, `high` | `mechanical_worker` — `gpt-6-luna`, `high` |
-| Scout | `scout-worker` — `claude-haiku-5-5`, `high` | `scout_worker` — `gpt-6-luna`, `high` |
-| Ordinary | `ordinary-worker` — `sonnet`, `medium` | `ordinary_worker` — `gpt-6.2-sol`, `medium` |
-| Thorough | `thorough-worker` — `sonnet`, `high` | `thorough_worker` — `gpt-6.2-sol`, `high` |
+| Mechanical | `mechanical-worker` — `claude-sonnet-5-5`, `medium` | `mechanical_worker` — `gpt-6-luna`, `high` |
+| Scout | `scout-worker` — `claude-sonnet-5-5`, `high` | `scout_worker` — `gpt-6-luna`, `high` |
+| Ordinary | `ordinary-worker` — `claude-opus-5-5`, `medium` | `ordinary_worker` — `gpt-6.2-sol`, `medium` |
+| Thorough | `thorough-worker` — `claude-opus-5-5`, `high` | `thorough_worker` — `gpt-6.2-sol`, `high` |
 | Difficult | `difficult-worker` — `claude-opus-5-5`, `high` | `difficult_worker` — `gpt-6.2-astra`, `medium` |
 
 Deviations use the per-call `model` and `effort` parameters in Claude Code and
@@ -103,34 +107,49 @@ Deviations use the per-call `model` and `effort` parameters in Claude Code and
 
 | Model | ID | Price per MTok, in / out | Claude Code default effort | Role |
 | --- | --- | --- | --- | --- |
-| Haiku 5.5 | `claude-haiku-5-5` | $0.10 / $0.50, or $0.50 / $2.50 on a request whose prompt exceeds 100,000 tokens | `medium` | Mechanical and scout, at `high` |
-| Sonnet 5.5 | `claude-sonnet-5-5` (`sonnet`) | $2 / $10 | `medium` | Ordinary at `medium`, thorough at `high` |
-| Opus 5.5 | `claude-opus-5-5` (`opus`) | $4 / $20 | `medium` | Difficult, at `high` |
+| Haiku 5.5 | `claude-haiku-5-5` | $0.10 / $0.50, or $0.50 / $2.50 on a request whose prompt exceeds 100,000 tokens | `medium` | Unrouted. Per call, only by request. |
+| Sonnet 5.5 | `claude-sonnet-5-5` (`sonnet`) | $2 / $10 | `medium` | Mechanical at `medium`, scout at `high` |
+| Opus 5.5 | `claude-opus-5-5` (`opus`) | $4 / $20 | `medium` | Ordinary at `medium`, thorough and difficult at `high` |
 | Fable 5.2 | `claude-fable-5-2` (`fable`) | $8 / $40 | `medium` | Orchestrator. A worker only by request or after the difficult route fails. |
 
 All four support `low`, `medium`, `high`, `xhigh`, and `max`.
 
-- **Haiku at `high`, not its `medium` default.** Anthropic's starting advice for
-  Haiku 5.5 is `medium`, with a warning that at `low` it is "more likely to skip
-  a search, stop early, or skip a check." The step to `high` costs fractions of
-  a cent per task at these prices and buys thoroughness on the tier that needs
-  it. Anthropic places Haiku on "high-volume and latency-sensitive work with
-  checkable outputs," which is exactly the mechanical and scout classes.
-- **Keep small-model tasks short.** Haiku's price rises fivefold on any request
-  whose prompt is over 100,000 tokens. A scout that reads half a repository
-  into one context loses most of its price advantage.
-- **Sonnet at `medium` only when a check exists.** Sonnet at `medium` scored
-  about 7 points below `high` on Anthropic's SWE-bench Pro subset for about 59%
-  of the cost, and 62.7% against 77.8% on its internal agentic-coding benchmark.
-  That gap is acceptable when a verification command catches the misses and
-  not otherwise.
-- **Never Sonnet above `high` or Opus at `low`.** Opus at `low` and Sonnet at
-  `high` land on the same point (87.4% for $0.12 against 87.6% for $0.11 per
-  solved task), so Opus at `low` buys nothing. On the Artificial Analysis
-  index, Sonnet at `xhigh` costs about what Opus at `high` does in output
-  tokens at list price (111 million at $10 against 56 million at $20) and
-  scores lower (50 against 52).
-- **Opus at `high` for difficult work.** On the SWE-bench Pro subset Opus moves
+- **No small model.** Until 2026-11-19 mechanical and scout work ran on Haiku
+  5.5 at `high`. They moved to Sonnet on preference, not on a measurement:
+  Haiku is about twenty times cheaper per token, and Anthropic places it on
+  "high-volume and latency-sensitive work with checkable outputs," which is
+  these two classes. The move buys fewer bad lookups and botched edits for the
+  parent to notice and re-brief. Haiku remains available per call by request.
+- **Sonnet at `medium` for mechanical, `high` for scout.** Sonnet at `medium`
+  scored about 7 points below `high` on Anthropic's SWE-bench Pro subset for
+  about 59% of the cost. A mechanical task has exact instructions and a
+  verification command, so `medium` is enough. A scout's miss is a fact left
+  out of a report, which no command catches, and on the Artificial Analysis
+  index Sonnet at `medium` only matches Haiku at `high` (31 against 30), so
+  scouting at `medium` would have bought nothing.
+- **Opus wherever the worker makes a decision.** Until the same date ordinary
+  and thorough work ran on Sonnet at `medium` and `high`. They moved to Opus on
+  working experience, not on a new benchmark: Opus has been efficient and
+  reliable enough per finished task, and light enough on the plan allowance,
+  that Sonnet's saving is not worth its misses on anything with a decision in
+  it. The measurements agree on quality and price the difference. On
+  Anthropic's SWE-bench Pro subset Opus at `medium` solved 92.8% for $0.22 per
+  solved task, against 87.6% for $0.11 for Sonnet at `high`, and Sonnet at
+  `medium` scored about 7 points lower still. Sonnet costs half as much per
+  task and fails more than one task in ten, and each failure is paid for again
+  at the parent's rates.
+- **What that gives up.** On Anthropic's defect search, Opus with Sonnet
+  subagents cost about a third less than Opus alone for about the same score.
+  If the allowance ever becomes the constraint, ordinary work is the first
+  class to move back, to Sonnet at `high`.
+- **Three classes share one model.** Ordinary runs at `medium`; thorough and
+  difficult both run at `high`. The classes still differ in each worker's
+  instructions and on Codex. A retry on Claude Code is therefore an effort
+  step, ending at a per-call `xhigh`, before Fable is considered.
+- **Never Opus at `low`.** Opus at `low` and Sonnet at `high` land on the same
+  point (87.4% for $0.12 against 87.6% for $0.11 per solved task), so `low`
+  gives back what the move to Opus bought.
+- **Opus at `high` for thorough and difficult work.** On the SWE-bench Pro subset Opus moves
   from 92.8% at `medium` to 95.3% at `high`, for $0.21 and $0.29 per task. On
   Anthropic's defect-search benchmark it scored 34 points lower at `low` than at
   `medium`, so judgment work is the most effort-sensitive kind there is.
@@ -303,8 +322,9 @@ by effort from `low` to `max`. It measures general capability, not coding.
 | Gemini 4 Hydrogen | 27 / 41 / 51 / 54, no `max` | 20 / 54 / 110 / 304 |
 
 Two patterns here match the vendor data. The largest steps line up with the
-pins: Sonnet's is `medium` to `high`, the line between ordinary and thorough,
-and Opus's is `low` to `medium`, which is why it never runs below `medium`.
+pins: Sonnet's is `medium` to `high`, the line a workhorse tier draws between
+ordinary and thorough, and Opus's is `low` to `medium`, which is why it never
+runs below `medium`.
 And every model's last step buys the fewest points per token.
 
 A [practitioner measurement](https://www.latitude.so/blog/reasoning-effort-only-matters-without-tests)
@@ -387,8 +407,9 @@ including local ones. A local profile it cannot read denies every spawn, and
 - **Terra as a scout or ordinary worker.** Its index scores suggest it could
   replace Luna for scouting or undercut Sol on routine work at half the price.
   It needs a coding measurement first.
-- **Haiku at `medium` for mechanical work.** Exact instructions leave little to
-  think about, so `high` may buy nothing there. The saving would be small.
+- **Haiku for mechanical and scout work.** It held both classes until
+  2026-11-19 and costs about a twentieth of Sonnet. If the plan allowance
+  becomes the constraint, these two classes are the cheapest to move back.
 - **Antigravity tiers.** What `flash` and `pro` resolve to on a signed-in
   account, and whether an omitted `tools` list means all tools or none, are
   undocumented. Either answer could make native routes worth installing.
