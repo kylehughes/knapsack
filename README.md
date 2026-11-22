@@ -216,8 +216,9 @@ The Mac mini's scan OCR service is managed there and is not installed by
 The instructions in `dotfiles/shared/claude/CLAUDE.md` are the source of truth
 for all three CLI agents on this machine. Codex CLI (`~/.codex/AGENTS.md`) and
 Antigravity CLI (`~/.gemini/GEMINI.md`) receive copies of the same instructions, so
-`CLAUDE.md` is maintained once. Subagent execution follows each runtime's
-native mechanism. Codex's execution profiles choose model and effort while
+`CLAUDE.md` is maintained once. Delegated work runs as Orca workers, using
+Orca's `orchestration` skill, and quick read-only lookups use each runtime's
+native subagents. Codex's execution profiles choose model and effort while
 project instructions supply each worker's task or auditor's mandate. Claude Code's full
 settings, including plugin declarations and marketplaces, are generated from
 the tracked base and machine overlay. Setup keeps changes made through the
@@ -236,8 +237,12 @@ its settings, account state, and workspace trust remain local.
 `scripts/set-up-agent-skills.sh`; its corresponding Claude Code plugin is
 declared in the settings base.
 
-Delegation guidance lives in the shared instructions. Its aim is the best
-output for the least usage: the parent keeps orchestration and judgment, and
+Delegation guidance lives in the shared instructions. Orca coordinates the
+work: implementation, reviews, long or parallel tasks, and anything for another
+model family go to an Orca worker started with the agent, model, and effort its
+class gets, while lookups and log digests stay on native subagents. The aim is
+the best output for the least usage: the parent keeps orchestration and
+judgment, and
 each delegated task goes to the cheapest route whose mistakes would be caught.
 A task is classified by what it needs, not by how much it matters, and both
 runtimes carry a route of the same name for each class:
@@ -416,6 +421,12 @@ On 2026-11-19 the Claude Code ordinary and thorough routes moved from Sonnet
 per-call model or effort; their transcripts recorded Sonnet 5.5/medium for
 mechanical, Sonnet 5.5/high for scout, Opus 5.5/medium for ordinary, and Opus
 5.5/high for thorough and difficult.
+
+On 2026-11-22 delegation moved to Orca workers. From an Orca 1.4.266 Claude Code
+session, three parallel `orca orchestration worker-start` calls with the
+difficult pairings reported `worker_done`. The Claude transcript recorded Opus
+5.5/high, the Codex turn record GPT-6.2 Astra/medium, and the Antigravity
+process ran with `--model gemini-4-argon-high`.
 
 The status command is read-only and makes no model calls. It checks installation,
 effective configuration, and hook trust; passing it establishes eligibility,

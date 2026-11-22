@@ -9,14 +9,15 @@ The policy that agents read every session is the Delegation section of
 short to carry: the reasoning, the evidence, the role of every model each
 harness offers, and the upkeep procedure. Read the policy first.
 
-Everything here was last verified on **2026-11-19** against Claude Code 2.1.326,
-Codex CLI 0.169.0, and Antigravity CLI 1.5.10.
+Everything here was last verified on **2026-11-22** against Claude Code 2.1.326,
+Codex CLI 0.169.0, Antigravity CLI 1.5.10, and Orca 1.4.266.
 
 ## Where Things Live
 
 | What | Where | Notes |
 | --- | --- | --- |
 | Policy | `dotfiles/shared/claude/CLAUDE.md`, Delegation | Installed for all three CLIs. Names the classes and the roster. |
+| Orca workers | Policy, Orca Workers; Orca's `orchestration` skill | The policy names each worker's agent, model, and effort; Orca's skill owns the commands. |
 | Claude Code routes | `dotfiles/shared/claude/agents/*-worker.md` | Frontmatter `model` and `effort` are the pins. |
 | Codex routes | `dotfiles/shared/codex/agents/*-worker.toml` | `model` and `model_reasoning_effort` are the pins. |
 | Codex validator | `dotfiles/shared/codex/hooks/validate-agent-route.py` | Reads the pins from the installed role files. It names no model. |
@@ -27,10 +28,32 @@ A route's model and effort are pinned only in its route file. The Codex
 validator, setup script, and status check read those files, so none of them
 names a model. The roster tables in the policy, this guide, and the README
 repeat the pins, and the roster check fails when one disagrees. It also checks
-the effort named in each Claude route description and the headless examples in
-the policy. It does not check this guide's inventory tables, the Antigravity
+the effort named in each Claude route description and the Orca worker examples
+in the policy. It does not check this guide's inventory tables, the Antigravity
 model IDs, or prose that counts routes or names a model, so search for the old
 model name after a change.
+
+## Orca Workers or Native Subagents
+
+Orca is where delegated work is coordinated, in every model family. A task goes
+to an Orca worker when it edits code, reviews, runs long or in parallel, needs
+its own worktree, or belongs to another model family. Native subagents keep
+only quick read-only work whose sole output is a conclusion: lookups and
+digests of verbose test or log output.
+
+The split follows what each one costs and gives. A native subagent shares the
+parent's process and returns a summary, so a lookup costs little beyond its own
+tokens. An Orca worker is a full session in its own terminal: it can run any
+harness, can get its own worktree, and stays visible, so I can watch or talk to
+it. That is worth its startup cost for real work and not for a lookup. Orca's
+own skill gives the same advice.
+
+An Orca worker is a top-level session, so the native routes do not apply to it.
+`worker-start` takes the class's model and effort as `--model` and `--effort`;
+Codex takes the model ID, and Antigravity carries effort in the model ID. The
+Codex validator sees only native `spawn_agent` calls, so nothing enforces an
+Orca worker's pairing; the policy's examples show the difficult pairings, and
+the roster check verifies them.
 
 ## The Decision Model
 
