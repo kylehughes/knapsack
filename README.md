@@ -226,7 +226,7 @@ Claude app in that Mac's overlay.
 Codex manages plugins locally through its app or CLI.
 
 Run Gemini through Antigravity CLI with `agy`, or use
-`agy -p "prompt" --model gemini-4-argon-high` for a headless turn. Check
+`agy -p "prompt" --model gemini-4-neon-high` for a headless turn. Check
 `agy models` for the current account's model IDs and `agy -p /usage` for quota.
 Model access can differ between Macs. Antigravity retains the
 [`~/.gemini/GEMINI.md` instruction location](https://antigravity.google/docs/cli/gcli-migration/#context-files-and-workspace-rules);
@@ -427,6 +427,10 @@ session, three parallel `orca orchestration worker-start` calls with the
 difficult pairings reported `worker_done`. The Claude transcript recorded Opus
 5.5/high, the Codex turn record GPT-6.2 Astra/medium, and the Antigravity
 process ran with `--model gemini-4-argon-high`.
+
+On 2026-11-22 Gemini 4 Neon replaced Hydrogen and Argon as the Gemini model for
+ordinary, thorough, and difficult work. Antigravity CLI 1.5.14 listed it and
+completed a headless turn on `gemini-4-neon-medium`, `-high`, and `-xhigh`.
 
 The status command is read-only and makes no model calls. It checks installation,
 effective configuration, and hook trust; passing it establishes eligibility,
