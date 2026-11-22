@@ -79,6 +79,8 @@ subagent mandates. Installed instruction and profile files are copies, not links
 The class definitions and effort policy live in the shared
 instructions; the routing validator and its activation checks belong here.
 Consuming repositories retain their own task contracts and auditor instructions.
+Delegated work runs as Orca workers that name a class's model and effort with
+`--model` and `--effort`; native routes remain for quick read-only lookups.
 
 A model and effort are pinned only in those route profiles. The Codex validator
 and routing scripts read the profiles, and `make test/agents` fails when a

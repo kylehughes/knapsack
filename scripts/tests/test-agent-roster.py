@@ -88,12 +88,12 @@ class AgentRosterTests(unittest.TestCase):
                 description = re.search(r"^description: (.+)$", path.read_text(), re.MULTILINE).group(1)
                 self.assertIn(f"{self.claude[path.stem][1]} effort)", description)
 
-    def test_headless_examples_show_the_difficult_pairing(self):
+    def test_orca_examples_show_the_difficult_pairing(self):
         policy = POLICY.read_text()
-        model, effort = self.claude["difficult-worker"]
-        self.assertIn(f"--model {model} --effort {effort} ", policy)
-        model, effort = self.codex["difficult_worker"]
-        self.assertIn(f'-m {model} -c model_reasoning_effort="{effort}" ', policy)
+        for agent, route in (("claude", self.claude["difficult-worker"]), ("codex", self.codex["difficult_worker"])):
+            with self.subTest(agent=agent):
+                model, effort = route
+                self.assertIn(f"--agent {agent} --model {model} --effort {effort} ", policy)
 
 
 if __name__ == "__main__":

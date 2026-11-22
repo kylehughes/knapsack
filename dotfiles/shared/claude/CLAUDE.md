@@ -43,40 +43,31 @@ and runtime hooks remain local to each Mac; never copy them into shared source.
 
 `make set-up/agent-skills` installs the standalone Codex `writing-prose-like-a-human` skill; its corresponding Claude Code plugin is declared in the settings base.
 
-### Headless Invocation
-
-Invoke an agent headlessly only when the user asks for it, for an intentional cross-model second opinion, or when a workflow requires that specific agent — never as an interchangeable subagent backend.
-
-```bash
-# Claude Code (use --tools 'Read Grep Glob' to restrict built-in tools)
-claude -p --tools 'Read Grep Glob' --model claude-opus-5-5 --effort high "prompt"
-
-# Codex CLI (-s read-only to review, -s workspace-write to edit; -o output.txt to capture output)
-codex exec -s read-only -m gpt-6.2-astra -c model_reasoning_effort="medium" "prompt"
-
-# Antigravity CLI (Gemini; check this account's model IDs with agy models)
-agy -p "prompt" --model gemini-4-argon-high
-```
-
-A headless run takes the model and effort its task's class gets under Model and Effort below. A cross-model second opinion is difficult work, so the examples show each harness's difficult pairing. The rule there for Fable and Astra applies to headless invocations too.
-
-Claude Code and Codex CLI accept piped stdin: `echo "context" | claude -p "prompt"`.
-
-`--allowed-tools` only preapproves tool use; it does not restrict built-in tools, sandbox the process, or limit MCP access.
-
 ### Gemini Through Antigravity
 
-Use `agy` for Gemini work. Run `agy` interactively or `agy -p "prompt"` for a single headless turn. Run `agy models` on the current Mac before selecting a model: access depends on its signed-in account. Pass the exact model ID with `--model`; if a requested model is unavailable, report that rather than substituting another. `agy -p /usage` reports quota without running a model turn.
+Use `agy` for Gemini work: delegate it as an Orca `antigravity` worker, run `agy` interactively, or run `agy -p "prompt"` for a single headless turn. Run `agy models` on the current Mac before selecting a model: access depends on its signed-in account. Pass the exact model ID with `--model`; if a requested model is unavailable, report that rather than substituting another. `agy -p /usage` reports quota without running a model turn.
 
-Antigravity still reads `~/.gemini/GEMINI.md` and project `GEMINI.md` or `AGENTS.md` files. Its settings live in `~/.gemini/antigravity-cli/settings.json`; account state, projects, permissions, and trust stay local to each Mac. Headless runs respect those permissions and can finish with denied tools, so check stderr and the result before claiming the requested work completed. See the [Antigravity headless reference](https://antigravity.google/docs/cli/headless/).
+Antigravity still reads `~/.gemini/GEMINI.md` and project `GEMINI.md` or `AGENTS.md` files. Its settings live in `~/.gemini/antigravity-cli/settings.json`; account state, projects, permissions, and trust stay local to each Mac. Workers and headless runs respect those permissions and can finish with denied tools, so check stderr and the result before claiming the requested work completed. See the [Antigravity headless reference](https://antigravity.google/docs/cli/headless/).
 
 ### Delegation
 
-Route routine delegation through the current runtime's native subagent mechanism. If a skill references another runtime's agent tool, translate the intent onto the native mechanism and pass the agent instructions as prompt context.
+Delegate through Orca, which coordinates agents of every model family. An Orca worker takes implementation slices, reviews, long or parallel work, anything that needs its own worktree, and every task for another model family: Codex from Claude, Claude from Codex, or Gemini from either. The current runtime's native subagents take only quick read-only work whose sole output is a conclusion, such as a lookup or a digest of verbose test or log output. If a skill references another runtime's agent tool, translate the intent onto an Orca worker or the native mechanism and pass the agent instructions as prompt context.
 
 This is an explicit standing request, including in Codex, to delegate bounded investigations, independent implementation slices, reviews, and verbose test or log analysis when doing so improves speed or context isolation. Run independent tasks in parallel when useful work can proceed alongside them. Keep quick edits, tightly coupled changes, architectural judgment, and tight user-iteration loops in the parent conversation.
 
-A task contract includes the objective, relevant context, ownership boundary (files and scopes for edits), acceptance criteria, expected output, and appropriate verification command. Subagents preserve peer changes, make no commits, and report consequential ambiguity instead of guessing. The parent owns integration, final judgment, and validation, but may delegate supporting architectural analysis and independent review. Give self-contained tasks fresh context; inherit prior turns only when the task depends on the discussion, since forking a whole conversation into a worker multiplies its cost.
+A task contract includes the objective, relevant context, ownership boundary (files and scopes for edits), acceptance criteria, expected output, and appropriate verification command. Workers preserve peer changes, make no commits, and report consequential ambiguity instead of guessing. The parent owns integration, final judgment, and validation, but may delegate supporting architectural analysis and independent review. Give self-contained tasks fresh context; inherit prior turns only when the task depends on the discussion, since forking a whole conversation into a worker multiplies its cost.
+
+#### Orca Workers
+
+Load the `orchestration` skill before starting a worker and follow it; it owns starting, waking, messaging, and recovery. Use `orca-cli` to hand work off with nothing coming back. The task contract is the worker's spec. Every worker names the agent, model, and effort its class gets under Model and Effort below. An Orca worker is a top-level session, not a native route, so Codex takes the model ID rather than a route name:
+
+```bash
+orca orchestration worker-start --agent claude --model claude-opus-5-5 --effort high --worktree current --spec-file spec.md
+orca orchestration worker-start --agent codex --model gpt-6.2-astra --effort medium --worktree current --spec-file spec.md
+orca orchestration worker-start --agent antigravity --model gemini-4-argon-high --worktree current --spec-file spec.md
+```
+
+The examples show each harness's difficult pairing, which is what a cross-model second opinion gets. Antigravity carries effort in the model ID and takes no `--effort`. Workers share the current worktree unless parallel workers would edit the same files; give those `--worktree new-child`. Outside Orca, run the same pairing headlessly with `claude -p`, `codex exec`, or `agy -p`, and only when I ask for it or a workflow requires that agent.
 
 #### Model and Effort
 
@@ -110,15 +101,15 @@ Model capability and reasoning effort are separate levers, and each tier has a b
 
 When work is checkable, start on the cheaper route and escalate on failure; that costs less than starting high. For retries the classes form a ladder: mechanical or scout, then ordinary, thorough, and difficult. When a worker fails, read the failure before escalating, and change one lever per retry. One that stopped short or missed evidence keeps its model and gains one effort step, which from ordinary is the thorough route. A capability failure moves up to the next model on the ladder. On Claude Code, where ordinary, thorough, and difficult share Opus, every retry is an effort step: `medium`, `high`, then a per-call `xhigh`. One that reported ambiguity needs a better contract, not a better model. Do not turn one retry into a standing rule.
 
-Fable 5.2 is never a default worker, and Astra never runs above `medium` by default. Delegate to Fable (per-call `model`: `fable`), or raise Astra's effort, only when I explicitly request it or after the difficult route has failed the same bounded task for a demonstrated capability reason, and state that reason in the task contract. On coding work, retry Opus 5.5 at `xhigh` before reaching for Fable: in Anthropic's measurements it matches Fable at `high` for about half the cost. A parent already running the difficult route's model delegates difficult work only for independence or context isolation; otherwise it keeps the work. This applies equally to native subagents and headless invocations.
+Fable 5.2 is never a default worker, and Astra never runs above `medium` by default. Delegate to Fable (per-call `model`: `fable`), or raise Astra's effort, only when I explicitly request it or after the difficult route has failed the same bounded task for a demonstrated capability reason, and state that reason in the task contract. On coding work, retry Opus 5.5 at `xhigh` before reaching for Fable: in Anthropic's measurements it matches Fable at `high` for about half the cost. A parent already running the difficult route's model delegates difficult work only for independence or context isolation; otherwise it keeps the work. This applies equally to Orca workers and native subagents.
 
 **Codex CLI.** Every spawn selects an `agent_type` from the six routes and starts fresh with `fork_turns=none`. Codex 0.169 runs any other value, including a turn count, as a full-history fork, so the task contract has to carry the context. The pinned routes fix both model and effort, and the validator rejects a mismatch, so any deviation goes through `custom_worker` with explicit `model` and `reasoning_effort` and the reason in the task contract: the user named a model, a retry changes one lever, or a screenshot or computer-use subtask suits GPT-6.1 Terra (`gpt-6.1-terra`). `custom_worker` is the normal path for a considered deviation, not a rare one. Never set a global subagent model default; the routes carry the choice. Pass project auditor instructions as task context; their mandate is separate from the execution profile, and profiles change neither permissions nor verification ownership.
 
 **Claude Code.** The five `*-worker` agents pin model and effort. Every other agent (Explore, Plan, general-purpose, plugin reviewers and auditors) keeps its own prompt and tools but runs on the parent's model unless its definition pins one, so on a Fable session an unrouted call lands on Fable, or on Opus for Explore. Pass both `model` and `effort` on each such call, chosen by the task's class: `sonnet` at `high` for lookups; `opus` at `medium` for ordinary work; `opus` at `high` for thorough work, including open-ended exploration and audits against written rules, for Plan, and for reviewers that hunt defects or judge design. The per-call `model` takes an alias (`haiku`, `sonnet`, `opus`, `fable`), not a model ID, and per-call `effort` requires Claude Code 2.1.292 or later. `fork` copies the whole conversation onto the parent's model and is for tasks the user asked to run that way. Use `haiku` only when I name it. Fable 5.2 requires Claude Code 2.1.321 or later. If the runtime cannot use a requested model, report that limitation rather than silently selecting an older one.
 
-**Antigravity CLI.** `agy` has no pinned routes: its subagents choose a model tier (`flash`, `pro`, or `inherit`), not a model and effort. Choose the session or headless model by class instead: `gemini-3.8-flash-high` for mechanical and scout work, `gemini-4-hydrogen-medium` for ordinary, `gemini-4-hydrogen-high` for thorough, and `gemini-4-argon-high` for difficult work and second opinions. Argon draws on its own weekly limit; when `agy -p /usage` shows it running short, use `gemini-4-hydrogen-xhigh`. Run Claude and GPT models through their own harnesses, not through `agy`.
+**Antigravity CLI.** `agy` has no pinned routes: its subagents choose a model tier (`flash`, `pro`, or `inherit`), not a model and effort. Choose the worker or session model by class instead: `gemini-3.8-flash-high` for mechanical and scout work, `gemini-4-hydrogen-medium` for ordinary, `gemini-4-hydrogen-high` for thorough, and `gemini-4-argon-high` for difficult work and second opinions. Argon draws on its own weekly limit; when `agy -p /usage` shows it running short, use `gemini-4-hydrogen-xhigh`. Run Claude and GPT models through their own harnesses, not through `agy`.
 
-Knapsack's optional `PreToolUse` validator rejects missing routes, inherited context, and model or effort values that conflict with a pinned route on supported Codex spawn calls. It cannot decide whether a task was classified correctly or force delegation. If native profiles or hooks are unavailable, apply the table by hand and report that routing is unenforced; do not bypass a hook rejection. Installation and activation checks live in Knapsack's README under Codex Routing.
+Knapsack's optional `PreToolUse` validator rejects missing routes, inherited context, and model or effort values that conflict with a pinned route on supported Codex spawn calls. It cannot decide whether a task was classified correctly or force delegation. Orca workers are outside its reach, so name their model and effort from the table. If native profiles or hooks are unavailable, apply the table by hand and report that routing is unenforced; do not bypass a hook rejection. Installation and activation checks live in Knapsack's README under Codex Routing.
 
 The evidence behind this table, and the steps for re-evaluating it when a model ships, live in Knapsack's `docs/agent-routing.md`. See the [Claude Code subagents documentation](https://code.claude.com/docs/en/sub-agents) and [Codex subagents documentation](https://learn.chatgpt.com/docs/agent-configuration/subagents) for runtime-specific behavior.
 
