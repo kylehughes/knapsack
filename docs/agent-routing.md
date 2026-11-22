@@ -10,7 +10,7 @@ short to carry: the reasoning, the evidence, the role of every model each
 harness offers, and the upkeep procedure. Read the policy first.
 
 Everything here was last verified on **2026-11-22** against Claude Code 2.1.326,
-Codex CLI 0.169.0, Antigravity CLI 1.5.10, and Orca 1.4.266.
+Codex CLI 0.169.0, Antigravity CLI 1.5.14, and Orca 1.4.266.
 
 ## Where Things Live
 
@@ -83,7 +83,8 @@ for itself, and whether a wrong or incomplete result would be caught cheaply.
 
 Claude Code is the exception to the tier column. It runs each class one tier
 up: mechanical and scout on Sonnet, ordinary and thorough on Opus. The reasons
-are under Claude Code below.
+are under Claude Code below. Antigravity follows the same idea for ordinary
+and thorough work, which run on Neon.
 
 Importance is deliberately not a question. A one-line change to a payment path
 is still mechanical if the instructions are exact.
@@ -96,8 +97,8 @@ underperforms a cheaper one; above it a stronger model is the better buy.
 | Tier | Models today | Band | Why |
 | --- | --- | --- | --- |
 | Small | GPT-6 Luna, Gemini 3.8 Flash; Haiku 5.5, which holds no route | `high` | Luna costs about a twentieth of the workhorse price per token, so thoroughness is nearly free; Flash costs half of Hydrogen. The tier's failure mode at low effort is stopping early or skipping a check. |
-| Workhorse | Sonnet 5.5, GPT-6.2 Sol, Gemini 4 Hydrogen | `medium` to `high` | `medium` to `high` buys 7 to 15 points on coding benchmarks for about 1.7 times the cost. Past `high` the curve flattens. |
-| Strongest worker | Opus 5.5, GPT-6.2 Astra at `medium`, Gemini 4 Argon | `medium` to `high`, `xhigh` as a retry | At `low` it only matches the workhorse at `high`, and review work collapses. In Anthropic's measurements, Opus at `xhigh` costs about half of Fable at `high` for the same pass rate. |
+| Workhorse | Sonnet 5.5, GPT-6.2 Sol, Gemini 4 Hydrogen as Neon's fallback | `medium` to `high` | `medium` to `high` buys 7 to 15 points on coding benchmarks for about 1.7 times the cost. Past `high` the curve flattens. |
+| Strongest worker | Opus 5.5, GPT-6.2 Astra at `medium`, Gemini 4 Neon | `medium` to `high`, `xhigh` as a retry | At `low` it only matches the workhorse at `high`, and review work collapses. In Anthropic's measurements, Opus at `xhigh` costs about half of Fable at `high` for the same pass rate. |
 | Frontier | Fable 5.2, GPT-6.2 Astra above `medium` | By request | Fable is ahead of Opus by a few points for 1.5 to 2.4 times the cost. These are also the orchestrators, whose plan allowance workers would be spending. |
 
 `max` is never pinned: both vendors describe diminishing returns there, and
@@ -251,27 +252,37 @@ Antigravity routes and the policy tells the agent which model to run instead.
 | Model | ID pattern | API price per MTok, in / out | Role |
 | --- | --- | --- | --- |
 | Gemini 3.8 Flash | `gemini-3.8-flash-{low,medium,high}` | $0.75 / $3.75, doubling on 2027-01-01 | Mechanical and scout, at `high` |
-| Gemini 4 Hydrogen | `gemini-4-hydrogen-{low,medium,high,xhigh}` | $1.50 / $7.50 | Ordinary at `medium`, thorough at `high` |
-| Gemini 4 Argon | `gemini-4-argon-{low,medium,high}` | $2 / $10, doubling on 2026-12-01 | Difficult and second opinions, at `high` |
-| Orchestrator (Argon) | `gemini-pro-orchestrator-g1-pro` | Not published | An interactive session model, not a worker |
+| Gemini 4 Hydrogen | `gemini-4-hydrogen-{low,medium,high,xhigh}` | $1.50 / $7.50 | Fallback for Neon at the same effort |
+| Gemini 4 Neon | `gemini-4-neon-{low,medium,high,xhigh}` | $3 / $15, as reported at launch | Preferred. Ordinary at `medium`; thorough, difficult, and second opinions at `high`; `xhigh` as a retry |
+| Gemini 4 Argon | `gemini-4-argon-{low,medium,high}` | $2 / $10, doubling on 2026-12-01 | Unrouted. Superseded by Neon. |
+| Orchestrator (Neon) | `gemini-pro-orchestrator-neon` | Not published | An interactive session model, not a worker |
+| Orchestrator (Argon) | `gemini-pro-orchestrator-g1-pro` | Not published | Superseded by the Neon orchestrator |
 | Claude and GPT models | `claude-*`, `gpt-oss-120b-medium` | Not applicable | Unrouted. Use each model's own harness. |
 
 - **Effort is part of the model ID.** A `-high` suffix and `--effort high` are
   two spellings of the same request. Google does not document which wins when
   they disagree, so pass the suffixed ID alone.
-- **Quota is pooled, and Argon is scarce.** Gemini models share a weekly and a
-  five-hour limit, and Argon has a weekly limit of its own. Hydrogen at `xhigh`
-  scores slightly above Argon at `high` on the Artificial Analysis index, which
-  makes it the fallback when Argon runs short.
+- **Neon is the preferred Gemini model.** Google released it on 2026-11-18 as
+  "frontier-level intelligence with fast end-to-end task completion," adapted
+  from Carbon and placed between Hydrogen and Carbon. It defaults to `high` and
+  supports `low` through `xhigh`. Launch coverage puts it at 59 on the
+  Artificial Analysis Coding Agent Index at `xhigh`, level with Opus 5.5 and
+  Fable 5.2 at 58, and reports that it replaces Argon in the Gemini app. It is
+  the default for every class with a decision in it by preference, as Opus is
+  on Claude Code; the scores above come from secondary sources and are not yet
+  checked against Google's own pages.
+- **Quota is pooled.** Gemini models share a weekly and a five-hour limit. How
+  Neon draws on them is not yet documented, so fall back to Hydrogen at the
+  same effort when `agy -p /usage` shows the account running short.
 - **Flash loses its place in January.** At $1.50 / $7.50 it will cost the same
   as Hydrogen through the API. Move mechanical and scout work to Hydrogen at
   `low` or `medium` then, unless Antigravity's quota still favors Flash.
 - **Orchestrator routes on its own.** Google recommends it for most day-to-day
-  work: Argon plans and Hydrogen implements, at a fixed configuration that
+  work: the strong model plans and Hydrogen implements, at a fixed configuration that
   ignores `--effort`. It is a reasonable interactive default and a poor
   headless worker, because the caller cannot choose its depth.
 - **Gemini 4 Carbon** is Google's strongest model and does not appear in this
-  account's `agy models`. If it does, it is the frontier tier.
+  account's `agy models`. If it does, it is the frontier tier, by request only.
 - **Knapsack installs nothing under `~/.gemini/agents/`.** It once copied the
   Claude Code agents there for Gemini CLI. Antigravity does not read that
   directory, so the copy was removed on 2026-11-17 and setup retires any left
@@ -388,9 +399,8 @@ the new model:
 
 Things that should prompt a look even without a release: a price change, a
 harness changing a default effort, or a new knob such as a per-call parameter
-or environment variable. Two price changes are already scheduled. Gemini 4
-Argon doubles to $4 / $20 on 2026-12-01, and Gemini 3.8 Flash doubles to
-$1.50 / $7.50 on 2027-01-01, which is Hydrogen's price.
+or environment variable. One price change that affects a class is already scheduled: Gemini 3.8 Flash
+doubles to $1.50 / $7.50 on 2027-01-01, which is Hydrogen's price.
 
 ## Changing a Route
 
